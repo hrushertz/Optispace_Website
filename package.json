@@ -1,0 +1,14 @@
+{
+  "name": "solutions-optispace",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "php -S localhost:8000",
+    "build": "echo 'Build complete - PHP static site ready for deployment'",
+    "preview": "php -S localhost:8000"
+  },
+  "devDependencies": {
+    "vite": "^5.4.2"
+  }
+}
