@@ -195,7 +195,7 @@ include 'includes/header.php';
         <div class="card" style="margin-top: 3rem; padding: 2.5rem; text-align: center; background: #f8f9fa; border-left: 4px solid var(--primary-color);">
             <h3 style="margin-top: 0; margin-bottom: 1rem;">Request Sample Drawings</h3>
             <p style="font-size: 1.125rem; line-height: 1.7; margin-bottom: 1.5rem;">We'd be happy to share relevant samples that match your industry and project type. Contact us to request examples.</p>
-            <a href="/project/contact.php" class="btn btn-primary">Contact Us for Samples</a>
+            <a href="./contact.php" class="btn btn-primary">Contact Us for Samples</a>
         </div>
     </div>
 </section>
@@ -397,7 +397,7 @@ include 'includes/header.php';
             <p style="font-size: 1rem; line-height: 1.7; color: var(--text-light); margin-bottom: 2rem;">
                 Request examples relevant to your industry
             </p>
-            <a href="/project/contact.php" class="btn btn-primary btn-large">Contact Us</a>
+            <a href="./contact.php" class="btn btn-primary btn-large">Contact Us</a>
         </div>
     </div>
 </section>
@@ -406,7 +406,7 @@ include 'includes/header.php';
     <div class="container" style="text-align: center;">
         <h2 style="font-size: 2.25rem; margin-bottom: 1rem;">Ready to Join Our Success Stories?</h2>
         <p style="font-size: 1.25rem; margin-bottom: 2rem; line-height: 1.7;">Let's discuss how we can transform your manufacturing facility</p>
-        <a href="/project/contact.php#pulse-check" class="btn btn-large" style="background-color: white; color: var(--primary-color);">Request a Pulse Check</a>
+        <a href="./contact.php#pulse-check" class="btn btn-large" style="background-color: white; color: var(--primary-color);">Request a Pulse Check</a>
     </div>
 </section>
 

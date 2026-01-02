@@ -26,7 +26,7 @@ include 'includes/header.php';
 <section class="breadcrumb">
     <div class="container">
         <ul>
-            <li><a href="/project/index.php">Home</a></li>
+            <li><a href="./index.php">Home</a></li>
             <li>Our Process</li>
         </ul>
     </div>
@@ -92,7 +92,7 @@ include 'includes/header.php';
             <h3 style="text-align: center; color: var(--primary-color); margin-top: 0; margin-bottom: 1rem;">Ready to Get Started?</h3>
             <p style="text-align: center; font-size: 1.125rem; margin-bottom: 1.5rem; line-height: 1.7;">The Pulse Check is complimentary and there's no obligation. It's a risk-free way to explore how we can help.</p>
             <div style="text-align: center;">
-                <a href="/project/contact.php#pulse-check" class="btn btn-primary btn-large" style="padding: 1rem 2.5rem;">Request Your Pulse Check Visit</a>
+                <a href="./contact.php#pulse-check" class="btn btn-primary btn-large" style="padding: 1rem 2.5rem;">Request Your Pulse Check Visit</a>
             </div>
         </div>
     </div>
@@ -256,7 +256,7 @@ include 'includes/header.php';
                     <li>Construction supervision and coordination</li>
                     <li>Inspection and quality verification</li>
                 </ul>
-                <a href="/project/services/greenfield.php" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">Learn More About Greenfield</a>
+                <a href="./services/greenfield.php" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">Learn More About Greenfield</a>
             </div>
             <div class="comparison-column" style="background-color: #f0f9ff; border: 2px solid var(--secondary-color); padding: 2rem;">
                 <h3 style="margin-top: 0; margin-bottom: 1.25rem;">Brownfield Execution</h3>
@@ -273,7 +273,7 @@ include 'includes/header.php';
                     <li>Trial runs and adjustments</li>
                     <li>Training and standardization</li>
                 </ul>
-                <a href="/project/services/brownfield.php" class="btn btn-secondary" style="padding: 0.75rem 1.5rem;">Learn More About Brownfield</a>
+                <a href="./services/brownfield.php" class="btn btn-secondary" style="padding: 0.75rem 1.5rem;">Learn More About Brownfield</a>
             </div>
         </div>
     </div>
@@ -306,7 +306,7 @@ include 'includes/header.php';
         </div>
 
         <div style="text-align: center; margin-top: 2rem;">
-            <a href="/project/services/post-commissioning.php" class="btn btn-primary btn-large" style="padding: 1rem 2.5rem;">Learn More About Post-Commissioning Support</a>
+            <a href="./services/post-commissioning.php" class="btn btn-primary btn-large" style="padding: 1rem 2.5rem;">Learn More About Post-Commissioning Support</a>
         </div>
     </div>
 </section>
@@ -351,7 +351,7 @@ include 'includes/header.php';
     <div class="container" style="text-align: center;">
         <h2 style="margin-bottom: 1.5rem;">Start Your Journey to an Optimized Factory</h2>
         <p style="font-size: 1.125rem; margin-bottom: 2rem; line-height: 1.7;">Begin with a complimentary LFB Pulse Check to explore how we can help</p>
-        <a href="/project/contact.php#pulse-check" class="btn btn-large" style="background-color: white; color: var(--primary-color); padding: 1rem 2.5rem; font-size: 1.125rem;">Request Your Pulse Check Visit</a>
+        <a href="./contact.php#pulse-check" class="btn btn-large" style="background-color: white; color: var(--primary-color); padding: 1rem 2.5rem; font-size: 1.125rem;">Request Your Pulse Check Visit</a>
     </div>
 </section>
 

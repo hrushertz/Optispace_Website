@@ -132,7 +132,7 @@ include 'includes/header.php';
     <div class="container" style="text-align: center;">
         <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; color: white;">Ready to Work With Us?</h2>
         <p style="font-size: 1.25rem; margin-bottom: 2.5rem; opacity: 0.95;">Experience the OptiSpace difference in your next factory project</p>
-        <a href="/project/contact.php#pulse-check" class="btn btn-large" style="background-color: white; color: var(--primary-color); padding: 1rem 3rem; font-size: 1.0625rem; font-weight: 600; text-decoration: none;">Request a Pulse Check</a>
+        <a href="./contact.php#pulse-check" class="btn btn-large" style="background-color: white; color: var(--primary-color); padding: 1rem 3rem; font-size: 1.0625rem; font-weight: 600; text-decoration: none;">Request a Pulse Check</a>
     </div>
 </section>
 

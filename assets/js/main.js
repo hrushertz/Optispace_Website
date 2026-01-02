@@ -2,10 +2,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const header = document.querySelector('.site-header');
     
     // Set header as transparent initially if on homepage
-    const isHomePage = window.location.pathname === '/project/index.php' || 
-                       window.location.pathname === '/project/' || 
-                       window.location.pathname === '/project/index.html' ||
-                       window.location.pathname === '/';
+    const isHomePage = window.location.pathname === '/Optispace_Website/index.php' || 
+                       window.location.pathname === '/Optispace_Website/' || 
+                       window.location.pathname === '/Optispace_Website/index.html' ||
+                       window.location.pathname === '/' ||
+                       window.location.pathname === '/Optispace_Website' ||
+                       window.location.pathname.endsWith('index.php') ||
+                       window.location.pathname.endsWith('index.html');
     
     if (isHomePage && header) {
         header.classList.add('transparent');

@@ -1,7 +1,7 @@
 :root {
-  --primary-color: #F57C00;
-  --secondary-color: #FF6B35;
-  --accent-color: #FF8C42;
+  --primary-color: #E99431;
+  --secondary-color: #E99431;
+  --accent-color: #E99431;
   --text-dark: #2D3748;
   --text-medium: #718096;
   --text-light: #A0AEC0;
@@ -11,6 +11,7 @@
   --success-color: #28a745;
   --warning-color: #ffc107;
   --error-color: #dc3545;
+  --warning-color: #E99431;
   --spacing-xs: 0.5rem;
   --spacing-sm: 1rem;
   --spacing-md: 1.5rem;
@@ -195,13 +196,12 @@ img {
 }
 
 .logo-img {
-  height: 60px;
+  height: 65px;
   width: auto;
   transition: var(--transition);
 }
 
 .site-header.transparent .logo-img {
-  filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
 
 .logo a:hover .logo-img {
@@ -333,7 +333,7 @@ img {
  .hero {
   background:
     linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
-    url('/project/assets/img/banner.jpeg');
+    url('./assets/img/banner.jpeg');
   background-size: 100%;
   background-position: center center;
   background-repeat: no-repeat;

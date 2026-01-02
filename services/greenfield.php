@@ -60,7 +60,7 @@ include '../includes/header.php';
                 </div>
             </div>
             <div style="text-align: center;">
-                <a href="/project/contact.php#pulse-check" class="btn btn-primary btn-large" style="padding: 1rem 2.5rem;">Discuss My Greenfield Project</a>
+                <a href="./contact.php#pulse-check" class="btn btn-primary btn-large" style="padding: 1rem 2.5rem;">Discuss My Greenfield Project</a>
             </div>
         </div>
     </div>

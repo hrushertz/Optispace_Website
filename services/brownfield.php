@@ -58,7 +58,7 @@ include '../includes/header.php';
                 </div>
             </div>
             <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <a href="/project/contact.php#pulse-check" class="btn btn-primary btn-large" style="padding: 1rem 2.5rem;">Request Brownfield Pulse Check</a>
+                <a href="./contact.php#pulse-check" class="btn btn-primary btn-large" style="padding: 1rem 2.5rem;">Request Brownfield Pulse Check</a>
                 <a href="#process" class="btn btn-outline btn-large" style="padding: 1rem 2.5rem;">See How the Process Works</a>
             </div>
         </div>
