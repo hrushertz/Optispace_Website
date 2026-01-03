@@ -1,13 +1,3 @@
-<style>
-    body.greenfield-no-padding {
-        padding-top: 0 !important;
-    }
-</style>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.body.classList.add('greenfield-no-padding');
-    });
-</script>
 <?php
 $currentPage = 'greenfield';
 $pageTitle = 'New Factory Design & Architecture (Greenfield) | Solutions OptiSpace';
@@ -15,153 +5,850 @@ $pageDescription = 'Complete architectural and engineering services for new fact
 include '../includes/header.php';
 ?>
 
-<section class="page-hero" style="position: relative; min-height: 500px; display: flex; align-items: center;">
-    <img src="../assets/img/banner_1920x500.jpg" alt="Banner" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
-    <div class="container" style="position: relative; z-index: 2; text-align: center; color: #fff; padding: 5rem 2rem 3rem 2rem; max-width: 800px; margin: 0 auto;">
-        <h1 style="margin-bottom: 1.5rem; font-size: 2.5rem;">Greenfield Factory Design with Lean Factory Building (LFB)</h1>
-        <p style="font-size: 1.25rem; line-height: 1.6; opacity: 0.95;">Design your process and flow first, then create a building that supports peak efficiency from day one</p>
-    </div>
-</section>
+<style>
+/* ========================================
+   GREENFIELD PAGE - MODERN CLEAN DESIGN
+   ======================================== */
 
-<section class="breadcrumb">
-    <div class="container">
-        <ul>
-            <li><a href="/index.php">Home</a></li>
-            <li><a href="#">Services</a></li>
-            <li>Greenfield Projects</li>
-        </ul>
-    </div>
-</section>
+:root {
+    --greenfield-orange: #E99431;
+    --greenfield-orange-light: rgba(233, 148, 49, 0.08);
+    --greenfield-blue: #3B82F6;
+    --greenfield-green: #10B981;
+    --greenfield-gray: #64748B;
+    --greenfield-dark: #1E293B;
+    --greenfield-text: #475569;
+    --greenfield-border: #E2E8F0;
+}
 
-<section class="section">
-    <div class="container">
-        <div class="card" style="background: #f8f9fa; border-left: 4px solid var(--primary-color); padding: 2.5rem; margin-bottom: 3rem;">
-            <h2 style="margin-top: 0; margin-bottom: 2rem; color: #2c3e50; text-align: center;">Design Your Ideal Factory from Day One</h2>
-            <div class="grid grid-3" style="margin-bottom: 2rem; gap: 2rem;">
-                <div style="text-align: center;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 1rem;">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                    </svg>
-                    <p style="margin: 0; line-height: 1.6;">Flow‑first layouts aligned to value streams</p>
-                </div>
-                <div style="text-align: center;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 1rem;">
+/* Hero Section */
+.greenfield-hero {
+    background: linear-gradient(165deg, #1E293B 0%, #334155 100%);
+    padding: 8rem 0 6rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.greenfield-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    background: radial-gradient(ellipse at 70% 50%, rgba(233, 148, 49, 0.12) 0%, transparent 60%);
+}
+
+.greenfield-hero-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 2;
+}
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.hero-content {
+    text-align: left;
+}
+
+.hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(233, 148, 49, 0.15);
+    color: #E99431;
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 1.5rem;
+}
+
+.greenfield-hero h1 {
+    font-size: 3.25rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1.15;
+    margin-bottom: 1.5rem;
+}
+
+.greenfield-hero h1 span {
+    color: #E99431;
+}
+
+.greenfield-hero-text {
+    font-size: 1.2rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.75);
+    max-width: 500px;
+    margin-bottom: 2rem;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.hero-stat {
+    text-align: left;
+}
+
+.hero-stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--greenfield-orange);
+    margin-bottom: 0.25rem;
+}
+
+.hero-stat-label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.hero-visual {
+    display: flex;
+    justify-content: center;
+}
+
+.preview-card-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.preview-benefit-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    min-width: 280px;
+    transition: all 0.3s ease;
+}
+
+.preview-benefit-card:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateX(8px);
+}
+
+.preview-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--greenfield-orange) 0%, #f5a854 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.preview-icon svg {
+    width: 24px;
+    height: 24px;
+    color: white;
+}
+
+.preview-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-title {
+    font-weight: 600;
+    color: white;
+    font-size: 1rem;
+}
+
+.preview-desc {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Breadcrumb */
+.greenfield-breadcrumb {
+    background: #F8FAFC;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--greenfield-border);
+}
+
+.greenfield-breadcrumb ul {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    list-style: none;
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.greenfield-breadcrumb a {
+    color: var(--greenfield-gray);
+    text-decoration: none;
+}
+
+.greenfield-breadcrumb a:hover {
+    color: var(--greenfield-orange);
+}
+
+.greenfield-breadcrumb li:last-child {
+    color: var(--greenfield-dark);
+    font-weight: 500;
+}
+
+.greenfield-breadcrumb li:not(:last-child)::after {
+    content: '/';
+    margin-left: 0.5rem;
+    color: var(--greenfield-border);
+}
+
+@media (max-width: 968px) {
+    .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .hero-content {
+        text-align: center;
+    }
+    
+    .greenfield-hero-text {
+        max-width: 100%;
+        margin: 0 auto 2rem;
+    }
+    
+    .hero-stats {
+        justify-content: center;
+    }
+    
+    .hero-visual {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .greenfield-hero {
+        padding: 5rem 0 4rem;
+    }
+    
+    .greenfield-hero h1 {
+        font-size: 2.25rem;
+    }
+    
+    .hero-stats {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .hero-stat {
+        text-align: center;
+    }
+}
+</style>
+
+<!-- Hero Section -->
+<section class="greenfield-hero">
+    <div class="greenfield-hero-inner">
+        <div class="hero-grid">
+            <div class="hero-content">
+                <div class="hero-eyebrow">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                         <polyline points="9 22 9 12 15 12 15 22"></polyline>
                     </svg>
-                    <p style="margin: 0; line-height: 1.6;">Integrated architecture, structure, and MEP designed around Lean principles</p>
+                    Greenfield Projects
                 </div>
-                <div style="text-align: center;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 1rem;">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                    <p style="margin: 0; line-height: 1.6;">Future‑ready designs prepared for expansion and automation</p>
+                <h1>Greenfield Factory Design <span>with LFB</span></h1>
+                <p class="greenfield-hero-text">Design your process and flow first, then create a building that supports peak efficiency from day one</p>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">Flow First</div>
+                        <div class="hero-stat-label">Process Before Structure</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">Decades</div>
+                        <div class="hero-stat-label">Of Locked-In Efficiency</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">6 Steps</div>
+                        <div class="hero-stat-label">Complete Process</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="preview-card-stack">
+                    <div class="preview-benefit-card">
+                        <div class="preview-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                        <div class="preview-text">
+                            <span class="preview-title">Flow-First Layout</span>
+                            <span class="preview-desc">Process defines structure</span>
+                        </div>
+                    </div>
+                    <div class="preview-benefit-card">
+                        <div class="preview-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+                            </svg>
+                        </div>
+                        <div class="preview-text">
+                            <span class="preview-title">Future-Ready</span>
+                            <span class="preview-desc">Expansion built-in</span>
+                        </div>
+                    </div>
+                    <div class="preview-benefit-card">
+                        <div class="preview-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="preview-text">
+                            <span class="preview-title">6S Embedded</span>
+                            <span class="preview-desc">Lean from day one</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Breadcrumb -->
+<nav class="greenfield-breadcrumb">
+    <ul>
+        <li><a href="<?php echo url('index.php'); ?>">Home</a></li>
+        <li><a href="#">Services</a></li>
+        <li>Greenfield Projects</li>
+    </ul>
+</nav>
+
+<style>
+/* Section Styling */
+.greenfield-section {
+    padding: 6rem 0;
+    background: white;
+}
+
+.greenfield-section.section-light {
+    background: #FAFBFC;
+}
+
+.greenfield-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.greenfield-section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.greenfield-section-header h2 {
+    font-size: 2.5rem;
+    color: var(--greenfield-dark);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.greenfield-section-header p {
+    font-size: 1.15rem;
+    color: var(--greenfield-text);
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+.intro-card {
+    background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+    border-left: 4px solid var(--greenfield-orange);
+    border-radius: 16px;
+    padding: 3rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.intro-card h2 {
+    font-size: 2rem;
+    color: var(--greenfield-dark);
+    margin: 0 0 2.5rem 0;
+    text-align: center;
+    font-weight: 700;
+}
+
+.intro-features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+}
+
+.intro-feature {
+    text-align: center;
+}
+
+.intro-feature-icon {
+    width: 56px;
+    height: 56px;
+    background: var(--greenfield-orange-light);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+.intro-feature-icon svg {
+    width: 28px;
+    height: 28px;
+    color: var(--greenfield-orange);
+}
+
+.intro-feature p {
+    margin: 0;
+    line-height: 1.6;
+    color: var(--greenfield-text);
+    font-size: 1rem;
+}
+
+.btn-modern {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-primary-modern {
+    background: var(--greenfield-orange);
+    color: white;
+}
+
+.btn-primary-modern:hover {
+    background: #d4851c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(233, 148, 49, 0.3);
+}
+
+@media (max-width: 968px) {
+    .intro-features {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .greenfield-section {
+        padding: 4rem 0;
+    }
+    
+    .greenfield-section-header h2 {
+        font-size: 2rem;
+    }
+    
+    .intro-card {
+        padding: 2rem;
+    }
+}
+</style>
+
+<section class="greenfield-section">
+    <div class="greenfield-container">
+        <div class="intro-card">
+            <h2>Design Your Ideal Factory from Day One</h2>
+            <div class="intro-features">
+                <div class="intro-feature">
+                    <div class="intro-feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                    </div>
+                    <p>Flow‑first layouts aligned to value streams</p>
+                </div>
+                <div class="intro-feature">
+                    <div class="intro-feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                    </div>
+                    <p>Integrated architecture, structure, and MEP designed around Lean principles</p>
+                </div>
+                <div class="intro-feature">
+                    <div class="intro-feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <p>Future‑ready designs prepared for expansion and automation</p>
                 </div>
             </div>
             <div style="text-align: center;">
-                <a href="./contact.php#pulse-check" class="btn btn-primary btn-large" style="padding: 1rem 2.5rem;">Discuss My Greenfield Project</a>
+                <a href="<?php echo url('pulse-check.php'); ?>" class="btn-modern btn-primary-modern">Discuss My Greenfield Project</a>
             </div>
         </div>
     </div>
 </section>
 
-<section class="section">
-    <div class="container">
-        <div class="section-header" style="margin-bottom: 3rem;">
+<style>
+.content-card {
+    background: white;
+    border: 1px solid var(--greenfield-border);
+    border-radius: 12px;
+    padding: 2rem;
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.content-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    border-color: var(--greenfield-orange);
+}
+
+.content-card h3 {
+    font-size: 1.35rem;
+    color: var(--greenfield-dark);
+    margin: 0 0 1.25rem 0;
+    font-weight: 600;
+}
+
+.content-card p {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--greenfield-text);
+    margin-bottom: 1.25rem;
+}
+
+.content-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.content-card ul li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    color: var(--greenfield-text);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.content-card ul li::before {
+    content: '✓';
+    color: var(--greenfield-orange);
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+.highlight-text {
+    margin: 0;
+    font-weight: 600;
+    color: var(--greenfield-orange);
+    font-size: 1rem;
+}
+
+@media (max-width: 968px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<section class="greenfield-section section-light">
+    <div class="greenfield-container">
+        <div class="greenfield-section-header">
             <h2>Why Greenfield Projects Need LFB</h2>
-            <p style="font-size: 1.125rem; line-height: 1.7; max-width: 900px; margin: 1rem auto 0;">A new factory is a once‑in‑decades decision with irreversible consequences. It is the single best opportunity to build efficiency into your DNA. LFB ensures your plot usage, building orientation, grids, and utilities are driven by flow and Lean logic, not by standard architectural templates.</p>
+            <p>A new factory is a once‑in‑decades decision with irreversible consequences. It is the single best opportunity to build efficiency into your DNA. LFB ensures your plot usage, building orientation, grids, and utilities are driven by flow and Lean logic, not by standard architectural templates.</p>
         </div>
 
-        <div class="grid grid-2" style="gap: 2rem;">
-            <div>
-                <div class="card" style="height: 100%;">
-                    <h3 style="margin-top: 0; margin-bottom: 1.25rem;">The Greenfield Advantage</h3>
-                    <p style="margin-bottom: 1.25rem;">A new factory is a blank canvas and your once-in-a-lifetime opportunity. With no existing constraints, we can design the perfect production flow first, then wrap the ideal building around it.</p>
-                    <ul class="feature-list" style="margin: 0;">
-                        <li>Avoid layouts that lock in high material handling and energy costs for the life of the plant</li>
-                        <li>Keep future lines and expansions structurally feasible without demolition</li>
-                        <li>Align land use, docking, and circulation with actual product and logistics flows</li>
-                        <li>Embed 6S and safety standards into the physical design from day one</li>
-                    </ul>
-                </div>
+        <div class="content-grid">
+            <div class="content-card">
+                <h3>The Greenfield Advantage</h3>
+                <p>A new factory is a blank canvas and your once-in-a-lifetime opportunity. With no existing constraints, we can design the perfect production flow first, then wrap the ideal building around it.</p>
+                <ul>
+                    <li>Avoid layouts that lock in high material handling and energy costs for the life of the plant</li>
+                    <li>Keep future lines and expansions structurally feasible without demolition</li>
+                    <li>Align land use, docking, and circulation with actual product and logistics flows</li>
+                    <li>Embed 6S and safety standards into the physical design from day one</li>
+                </ul>
             </div>
-            <div>
-                <div class="card" style="height: 100%;">
-                    <h3 style="margin-top: 0; margin-bottom: 1.25rem;">The Stakes Are High</h3>
-                    <p style="margin-bottom: 1.25rem;">Every decision you make now will impact operations for decades. Poor early decisions become permanent constraints that:</p>
-                    <ul class="feature-list" style="margin-bottom: 1.25rem;">
-                        <li>Force inefficient material flows that waste time and money daily</li>
-                        <li>Require expensive material handling systems to compensate for layout problems</li>
-                        <li>Block future automation and expansion opportunities</li>
-                        <li>Create safety and quality issues that are structurally embedded</li>
-                    </ul>
-                    <p style="margin: 0; font-weight: 600; color: var(--primary-color);">LFB gets it right from the beginning, preventing these locked-in inefficiencies.</p>
-                </div>
+            <div class="content-card">
+                <h3>The Stakes Are High</h3>
+                <p>Every decision you make now will impact operations for decades. Poor early decisions become permanent constraints that:</p>
+                <ul>
+                    <li>Force inefficient material flows that waste time and money daily</li>
+                    <li>Require expensive material handling systems to compensate for layout problems</li>
+                    <li>Block future automation and expansion opportunities</li>
+                    <li>Create safety and quality issues that are structurally embedded</li>
+                </ul>
+                <p class="highlight-text">LFB gets it right from the beginning, preventing these locked-in inefficiencies.</p>
             </div>
         </div>
     </div>
 </section>
 
-<section class="section section-light">
-    <div class="container">
-        <div class="section-header" style="margin-bottom: 3rem;">
+<style>
+.process-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.process-step-card {
+    background: white;
+    border: 1px solid var(--greenfield-border);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.process-step-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    transform: translateY(-4px);
+    border-color: var(--greenfield-orange);
+}
+
+.step-number {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--greenfield-orange) 0%, #f5a854 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 auto 1.5rem;
+    box-shadow: 0 4px 12px rgba(233, 148, 49, 0.3);
+}
+
+.process-step-card h3 {
+    font-size: 1.15rem;
+    color: var(--greenfield-dark);
+    margin: 0 0 1rem 0;
+    font-weight: 600;
+}
+
+.process-step-card p {
+    margin: 0;
+    line-height: 1.7;
+    color: var(--greenfield-text);
+    font-size: 0.95rem;
+}
+
+@media (max-width: 968px) {
+    .process-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .process-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<section class="greenfield-section">
+    <div class="greenfield-container">
+        <div class="greenfield-section-header">
             <h2>Our Greenfield Process</h2>
-            <p style="font-size: 1.125rem; line-height: 1.7; max-width: 900px; margin: 1rem auto 0;">A systematic approach that places flow before form</p>
+            <p>A systematic approach that places flow before form</p>
         </div>
 
-        <div class="grid grid-3" style="gap: 2rem;">
-            <div class="card" style="text-align: center;">
-                <div style="width: 64px; height: 64px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; font-weight: 700; margin: 0 auto 1.5rem;">1</div>
-                <h3 style="margin-top: 0; margin-bottom: 1rem; font-size: 1.25rem;">Process & Flow Analysis</h3>
-                <p style="margin: 0; line-height: 1.7;">Understand product families, volumes, and value streams to define the ideal flow before drawing lines.</p>
+        <div class="process-grid">
+            <div class="process-step-card">
+                <div class="step-number">1</div>
+                <h3>Process & Flow Analysis</h3>
+                <p>Understand product families, volumes, and value streams to define the ideal flow before drawing lines.</p>
             </div>
 
-            <div class="card" style="text-align: center;">
-                <div style="width: 64px; height: 64px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; font-weight: 700; margin: 0 auto 1.5rem;">2</div>
-                <h3 style="margin-top: 0; margin-bottom: 1rem; font-size: 1.25rem;">Lean Layout Options</h3>
-                <p style="margin: 0; line-height: 1.7;">Develop multiple layout options that minimize movement, waiting, and congestion.</p>
+            <div class="process-step-card">
+                <div class="step-number">2</div>
+                <h3>Lean Layout Options</h3>
+                <p>Develop multiple layout options that minimize movement, waiting, and congestion.</p>
             </div>
 
-            <div class="card" style="text-align: center;">
-                <div style="width: 64px; height: 64px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; font-weight: 700; margin: 0 auto 1.5rem;">3</div>
-                <h3 style="margin-top: 0; margin-bottom: 1rem; font-size: 1.25rem;">Architecture Around Flow</h3>
-                <p style="margin: 0; line-height: 1.7;">Define building envelope, grids, heights, and entries specifically around the chosen Lean layout.</p>
+            <div class="process-step-card">
+                <div class="step-number">3</div>
+                <h3>Architecture Around Flow</h3>
+                <p>Define building envelope, grids, heights, and entries specifically around the chosen Lean layout.</p>
             </div>
 
-            <div class="card" style="text-align: center;">
-                <div style="width: 64px; height: 64px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; font-weight: 700; margin: 0 auto 1.5rem;">4</div>
-                <h3 style="margin-top: 0; margin-bottom: 1rem; font-size: 1.25rem;">Integrated Engineering</h3>
-                <p style="margin: 0; line-height: 1.7;">Structure and MEP systems designed to support flow, safety, and energy efficiency.</p>
+            <div class="process-step-card">
+                <div class="step-number">4</div>
+                <h3>Integrated Engineering</h3>
+                <p>Structure and MEP systems designed to support flow, safety, and energy efficiency.</p>
             </div>
 
-            <div class="card" style="text-align: center;">
-                <div style="width: 64px; height: 64px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; font-weight: 700; margin: 0 auto 1.5rem;">5</div>
-                <h3 style="margin-top: 0; margin-bottom: 1rem; font-size: 1.25rem;">Compliance & Approvals</h3>
-                <p style="margin: 0; line-height: 1.7;">Ensure plans meet all statutory and industrial regulations seamlessly.</p>
+            <div class="process-step-card">
+                <div class="step-number">5</div>
+                <h3>Compliance & Approvals</h3>
+                <p>Ensure plans meet all statutory and industrial regulations seamlessly.</p>
             </div>
 
-            <div class="card" style="text-align: center;">
-                <div style="width: 64px; height: 64px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; font-weight: 700; margin: 0 auto 1.5rem;">6</div>
-                <h3 style="margin-top: 0; margin-bottom: 1rem; font-size: 1.25rem;">Visualization & Support</h3>
-                <p style="margin: 0; line-height: 1.7;">Use 3D walkthroughs to align stakeholders and provide on-site checks to ensure the built factory matches the Lean intent.</p>
+            <div class="process-step-card">
+                <div class="step-number">6</div>
+                <h3>Visualization & Support</h3>
+                <p>Use 3D walkthroughs to align stakeholders and provide on-site checks to ensure the built factory matches the Lean intent.</p>
             </div>
         </div>
     </div>
 </section>
 
-<section class="section">
-    <div class="container">
-        <div class="section-header" style="margin-bottom: 3rem;">
+<style>
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.service-card {
+    background: white;
+    border: 1px solid var(--greenfield-border);
+    border-radius: 12px;
+    padding: 2rem;
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.service-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    border-color: var(--greenfield-orange);
+}
+
+.service-card h3 {
+    font-size: 1.25rem;
+    color: var(--greenfield-dark);
+    margin: 0 0 1.25rem 0;
+    font-weight: 600;
+}
+
+.service-card > p {
+    font-size: 0.95rem;
+    color: var(--greenfield-text);
+    margin-bottom: 1rem;
+}
+
+.service-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.service-card ul li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.4rem 0;
+    color: var(--greenfield-text);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.service-card ul li::before {
+    content: '→';
+    color: var(--greenfield-orange);
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+@media (max-width: 968px) {
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Supervision Card */
+.supervision-card {
+    background: white;
+    border: 1px solid var(--greenfield-border);
+    border-radius: 16px;
+    padding: 3rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.supervision-content h3 {
+    font-size: 1.25rem;
+    color: var(--greenfield-dark);
+    margin: 0 0 1.25rem 0;
+    font-weight: 600;
+}
+
+.supervision-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.supervision-content ul li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    color: var(--greenfield-text);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.supervision-content ul li::before {
+    content: '✓';
+    color: var(--greenfield-orange);
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.supervision-note {
+    margin-top: 2rem;
+    margin-bottom: 0;
+    font-style: italic;
+    color: var(--greenfield-gray);
+    line-height: 1.7;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--greenfield-border);
+}
+</style>
+
+<section class="greenfield-section section-light">
+    <div class="greenfield-container">
+        <div class="greenfield-section-header">
             <h2>Core Architectural & Engineering Services</h2>
-            <p style="font-size: 1.125rem; line-height: 1.7; max-width: 900px; margin: 1rem auto 0;">You get a single partner for concept, design, approvals, and supervision—so responsibilities are clear</p>
+            <p>You get a single partner for concept, design, approvals, and supervision—so responsibilities are clear</p>
         </div>
 
-        <div class="grid grid-3" style="gap: 2rem;">
-            <div class="card" style="height: 100%;">
-                <h3 style="margin-top: 0; margin-bottom: 1.25rem;">Architectural Drawings</h3>
-                <p style="margin-bottom: 1rem;">Complete design documentation with:</p>
-                <ul class="feature-list" style="margin: 0;">
+        <div class="services-grid">
+            <div class="service-card">
+                <h3>Architectural Drawings</h3>
+                <p>Complete design documentation with:</p>
+                <ul>
                     <li>Column grids, spans, and levels coordinated with equipment and flow</li>
                     <li>Site plans and plot layouts</li>
                     <li>Floor plans (all levels)</li>
@@ -169,10 +856,10 @@ include '../includes/header.php';
                     <li>Door, window, and finish schedules</li>
                 </ul>
             </div>
-            <div class="card" style="height: 100%;">
-                <h3 style="margin-top: 0; margin-bottom: 1.25rem;">Structural Design</h3>
-                <p style="margin-bottom: 1rem;">Engineering for strength and flexibility:</p>
-                <ul class="feature-list" style="margin: 0;">
+            <div class="service-card">
+                <h3>Structural Design</h3>
+                <p>Engineering for strength and flexibility:</p>
+                <ul>
                     <li>Structure designed to support cranes, mezzanines, and future lines without rework</li>
                     <li>Foundation design for equipment loads</li>
                     <li>Column and beam optimization</li>
@@ -180,10 +867,10 @@ include '../includes/header.php';
                     <li>Expansion provisions</li>
                 </ul>
             </div>
-            <div class="card" style="height: 100%;">
-                <h3 style="margin-top: 0; margin-bottom: 1.25rem;">MEP Engineering</h3>
-                <p style="margin-bottom: 1rem;">Utilities that enable operations:</p>
-                <ul class="feature-list" style="margin: 0;">
+            <div class="service-card">
+                <h3>MEP Engineering</h3>
+                <p>Utilities that enable operations:</p>
+                <ul>
                     <li>Utilities routed to support flow and flexibility, not just shortest pipe run</li>
                     <li>Electrical distribution and lighting</li>
                     <li>Plumbing and drainage systems</li>
@@ -195,18 +882,18 @@ include '../includes/header.php';
     </div>
 </section>
 
-<section class="section">
-    <div class="container">
-        <div class="section-header" style="margin-bottom: 3rem;">
+<section class="greenfield-section">
+    <div class="greenfield-container">
+        <div class="greenfield-section-header">
             <h2>Specialized Compliance & Planning</h2>
-            <p style="font-size: 1.125rem; line-height: 1.7; max-width: 900px; margin: 1rem auto 0;">Navigating regulatory requirements and approvals</p>
+            <p>Navigating regulatory requirements and approvals</p>
         </div>
 
-        <div class="grid grid-2" style="gap: 2rem; margin-bottom: 2rem;">
-            <div class="card" style="height: 100%;">
-                <h3 style="margin-top: 0; margin-bottom: 1.25rem;">Statutory Approvals</h3>
-                <p style="margin-bottom: 1rem;">We prepare and deliver complete drawing packages for all required approvals:</p>
-                <ul class="feature-list" style="margin: 0;">
+        <div class="content-grid" style="margin-bottom: 2rem;">
+            <div class="content-card">
+                <h3>Statutory Approvals</h3>
+                <p>We prepare and deliver complete drawing packages for all required approvals:</p>
+                <ul>
                     <li>Municipal building permissions</li>
                     <li>Industrial area approvals</li>
                     <li>Environmental clearances</li>
@@ -214,10 +901,10 @@ include '../includes/header.php';
                     <li>Occupancy certificates</li>
                 </ul>
             </div>
-            <div class="card" style="height: 100%;">
-                <h3 style="margin-top: 0; margin-bottom: 1.25rem;">Factory Act Compliance</h3>
-                <p style="margin-bottom: 1rem;">Ensuring your facility meets all industrial regulations:</p>
-                <ul class="feature-list" style="margin: 0;">
+            <div class="content-card">
+                <h3>Factory Act Compliance</h3>
+                <p>Ensuring your facility meets all industrial regulations:</p>
+                <ul>
                     <li>Factory Act requirements</li>
                     <li>Safety and welfare provisions</li>
                     <li>Sanitation standards</li>
@@ -226,21 +913,21 @@ include '../includes/header.php';
                 </ul>
             </div>
         </div>
-        <div class="grid grid-2" style="gap: 2rem;">
-            <div class="card" style="height: 100%;">
-                <h3 style="margin-top: 0; margin-bottom: 1.25rem;">Vastu Shastra Integration</h3>
-                <p style="margin-bottom: 1rem;">For clients who value Vastu principles:</p>
-                <ul class="feature-list" style="margin: 0;">
+        <div class="content-grid">
+            <div class="content-card">
+                <h3>Vastu Shastra Integration</h3>
+                <p>For clients who value Vastu principles:</p>
+                <ul>
                     <li>Building orientation per Vastu</li>
                     <li>Zone allocation (North, East, etc.)</li>
                     <li>Entry and exit placement</li>
                     <li>Balance with functional requirements</li>
                 </ul>
             </div>
-            <div class="card" style="height: 100%;">
-                <h3 style="margin-top: 0; margin-bottom: 1.25rem;">BCP Development</h3>
-                <p style="margin-bottom: 1rem;">Building Construction Plan for civil contractors:</p>
-                <ul class="feature-list" style="margin: 0;">
+            <div class="content-card">
+                <h3>BCP Development</h3>
+                <p>Building Construction Plan for civil contractors:</p>
+                <ul>
                     <li>Construction methodology</li>
                     <li>Material specifications</li>
                     <li>Quality control measures</li>
@@ -251,80 +938,76 @@ include '../includes/header.php';
     </div>
 </section>
 
-<section class="section section-light">
-    <div class="container">
-        <div class="section-header" style="margin-bottom: 3rem;">
+<section class="greenfield-section section-light">
+    <div class="greenfield-container">
+        <div class="greenfield-section-header">
             <h2>Visualization & Interior Design</h2>
-            <p style="font-size: 1.125rem; line-height: 1.7; max-width: 900px; margin: 1rem auto 0;">Bringing your factory to life before construction begins</p>
+            <p>Bringing your factory to life before construction begins</p>
         </div>
 
-        <div class="grid grid-2" style="gap: 2rem;">
-            <div>
-                <div class="card" style="height: 100%;">
-                    <h3 style="margin-top: 0; margin-bottom: 1.25rem;">3D Visualization</h3>
-                    <p style="margin-bottom: 1rem;">High-quality 3D renderings and walkthroughs that help you:</p>
-                    <ul class="feature-list" style="margin: 0;">
-                        <li>Visualize the completed facility</li>
-                        <li>Communicate vision to stakeholders</li>
-                        <li>Identify design issues early</li>
-                        <li>Make confident decisions</li>
-                        <li>Present to investors and partners</li>
-                    </ul>
-                </div>
+        <div class="content-grid">
+            <div class="content-card">
+                <h3>3D Visualization</h3>
+                <p>High-quality 3D renderings and walkthroughs that help you:</p>
+                <ul>
+                    <li>Visualize the completed facility</li>
+                    <li>Communicate vision to stakeholders</li>
+                    <li>Identify design issues early</li>
+                    <li>Make confident decisions</li>
+                    <li>Present to investors and partners</li>
+                </ul>
             </div>
-            <div>
-                <div class="card" style="height: 100%;">
-                    <h3 style="margin-top: 0; margin-bottom: 1.25rem;">Interior Design</h3>
-                    <p style="margin-bottom: 1rem;">Professional design for non-production areas:</p>
-                    <ul class="feature-list" style="margin: 0;">
-                        <li>Office and administrative spaces</li>
-                        <li>Conference and meeting rooms</li>
-                        <li>Cafeteria and break areas</li>
-                        <li>Reception and visitor areas</li>
-                        <li>Landscaping and external aesthetics</li>
-                    </ul>
-                </div>
+            <div class="content-card">
+                <h3>Interior Design</h3>
+                <p>Professional design for non-production areas:</p>
+                <ul>
+                    <li>Office and administrative spaces</li>
+                    <li>Conference and meeting rooms</li>
+                    <li>Cafeteria and break areas</li>
+                    <li>Reception and visitor areas</li>
+                    <li>Landscaping and external aesthetics</li>
+                </ul>
             </div>
         </div>
     </div>
 </section>
 
-<section class="section">
-    <div class="container">
-        <div class="section-header" style="margin-bottom: 3rem;">
+<section class="greenfield-section">
+    <div class="greenfield-container">
+        <div class="greenfield-section-header">
             <h2>6S Concepts Embedded in Design</h2>
-            <p style="font-size: 1.125rem; line-height: 1.7; max-width: 900px; margin: 1rem auto 0;">Building lean principles into the physical structure</p>
+            <p>Building lean principles into the physical structure</p>
         </div>
 
-        <div class="grid grid-3" style="gap: 2rem;">
-            <div class="card" style="height: 100%;">
-                <h3 style="margin-top: 0; margin-bottom: 1.25rem;">Sort & Set in Order</h3>
-                <p style="margin: 0; line-height: 1.7;">Line‑side stocking, supermarkets, and staging areas defined clearly in the layout. Every item has a designated home built into the design.</p>
+        <div class="services-grid">
+            <div class="service-card">
+                <h3>Sort & Set in Order</h3>
+                <p>Line‑side stocking, supermarkets, and staging areas defined clearly in the layout. Every item has a designated home built into the design.</p>
             </div>
-            <div class="card" style="height: 100%;">
-                <h3 style="margin-top: 0; margin-bottom: 1.25rem;">Shine & Standardize</h3>
-                <p style="margin: 0; line-height: 1.7;">Clear access for cleaning, concealed but maintainable services, and uniform light levels. Easy-to-clean surfaces and standardized design throughout.</p>
+            <div class="service-card">
+                <h3>Shine & Standardize</h3>
+                <p>Clear access for cleaning, concealed but maintainable services, and uniform light levels. Easy-to-clean surfaces and standardized design throughout.</p>
             </div>
-            <div class="card" style="height: 100%;">
-                <h3 style="margin-top: 0; margin-bottom: 1.25rem;">Sustain & Safety</h3>
-                <p style="margin: 0; line-height: 1.7;">Visual lanes, markings, and ergonomics planned in drawings—not added later with paint. Safety features and good practices become structurally easier to maintain.</p>
+            <div class="service-card">
+                <h3>Sustain & Safety</h3>
+                <p>Visual lanes, markings, and ergonomics planned in drawings—not added later with paint. Safety features and good practices become structurally easier to maintain.</p>
             </div>
         </div>
     </div>
 </section>
 
-<section class="section">
-    <div class="container">
-        <div class="section-header" style="margin-bottom: 3rem;">
+<section class="greenfield-section section-light">
+    <div class="greenfield-container">
+        <div class="greenfield-section-header">
             <h2>Construction Supervision</h2>
-            <p style="font-size: 1.125rem; line-height: 1.7; max-width: 900px; margin: 1rem auto 0;">Supervision ensures that the final built factory preserves the clearances, adjacencies, and lines of flow agreed in the LFB design</p>
+            <p>Supervision ensures that the final built factory preserves the clearances, adjacencies, and lines of flow agreed in the LFB design</p>
         </div>
 
-        <div class="card" style="padding: 2.5rem;">
-            <div class="grid grid-2" style="gap: 2rem;">
-                <div>
-                    <h3 style="margin-top: 0; margin-bottom: 1.25rem;">Design Intent Protection</h3>
-                    <ul class="feature-list" style="margin: 0;">
+        <div class="supervision-card">
+            <div class="content-grid">
+                <div class="supervision-content">
+                    <h3>Design Intent Protection</h3>
+                    <ul>
                         <li>Regular site visits and inspections</li>
                         <li>Verification of critical dimensions and clearances</li>
                         <li>Flow path preservation during construction</li>
@@ -332,9 +1015,9 @@ include '../includes/header.php';
                         <li>RFI responses and technical clarifications</li>
                     </ul>
                 </div>
-                <div>
-                    <h3 style="margin-top: 0; margin-bottom: 1.25rem;">Quality Assurance</h3>
-                    <ul class="feature-list" style="margin: 0;">
+                <div class="supervision-content">
+                    <h3>Quality Assurance</h3>
+                    <ul>
                         <li>Construction quality verification</li>
                         <li>Compliance with LFB design intent</li>
                         <li>Material and workmanship checks</li>
@@ -343,18 +1026,134 @@ include '../includes/header.php';
                     </ul>
                 </div>
             </div>
-            <p style="margin-top: 2rem; margin-bottom: 0; font-style: italic; color: #666; line-height: 1.7;">Our supervision ensures the built factory performs exactly as designed, with no compromises to the flow logic that drives operational efficiency.</p>
+            <p class="supervision-note">Our supervision ensures the built factory performs exactly as designed, with no compromises to the flow logic that drives operational efficiency.</p>
         </div>
     </div>
 </section>
 
-<section class="cta-section" style="padding: 5rem 0;">
-    <div class="container" style="text-align: center;">
-        <h2 style="margin-bottom: 1.5rem;">Ready to Build Your Ideal Factory?</h2>
-        <p style="font-size: 1.125rem; margin-bottom: 2.5rem; max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.7;">Start with a complimentary LFB Pulse Check for your greenfield project. Get a view of flow, layout, and future expansion considerations before you lock your building design.</p>
-        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-            <a href="/contact.php#pulse-check" class="btn btn-large" style="background-color: white; color: var(--primary-color); padding: 1rem 2.5rem; font-size: 1.125rem;">Request LFB Pulse Check</a>
-            <a href="/process.php" class="btn btn-large" style="background-color: transparent; color: white; border: 2px solid white; padding: 1rem 2.5rem; font-size: 1.125rem;">See Our Step‑by‑Step Process</a>
+<style>
+.greenfield-cta {
+    padding: 6rem 0;
+    background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.greenfield-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.08;
+    background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="1"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+}
+
+.cta-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.cta-inner h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+}
+
+.cta-inner p {
+    font-size: 1.15rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2.5rem;
+    line-height: 1.7;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-cta-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--greenfield-orange);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 2px solid var(--greenfield-orange);
+    box-shadow: 0 4px 12px rgba(233, 148, 49, 0.3);
+}
+
+.btn-cta-primary:hover {
+    background: #d4851c;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(233, 148, 49, 0.4);
+}
+
+.btn-cta-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-cta-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+@media (max-width: 768px) {
+    .greenfield-cta {
+        padding: 4rem 0;
+    }
+    
+    .cta-inner h2 {
+        font-size: 2rem;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+</style>
+
+<section class="greenfield-cta">
+    <div class="greenfield-container">
+        <div class="cta-inner">
+            <h2>Ready to Build Your Ideal Factory?</h2>
+            <p>Start with a complimentary LFB Pulse Check for your greenfield project. Design the process first, then the building—optimize flow, layout, and expansion before locking your design.</p>
+            <div class="cta-buttons">
+                <a href="<?php echo url('pulse-check.php'); ?>" class="btn-cta-primary">
+                    Request Greenfield Assessment
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <a href="<?php echo url('process.php'); ?>" class="btn-cta-secondary">
+                    See Our Process
+                </a>
+            </div>
         </div>
     </div>
 </section>

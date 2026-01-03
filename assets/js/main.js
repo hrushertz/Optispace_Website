@@ -1,52 +1,122 @@
 document.addEventListener('DOMContentLoaded', function() {
     const header = document.querySelector('.site-header');
+    const body = document.body;
     
-    // Set header as transparent initially if on homepage
-    const isHomePage = window.location.pathname === '/Optispace_Website/index.php' || 
-                       window.location.pathname === '/Optispace_Website/' || 
-                       window.location.pathname === '/Optispace_Website/index.html' ||
-                       window.location.pathname === '/' ||
-                       window.location.pathname === '/Optispace_Website' ||
-                       window.location.pathname.endsWith('index.php') ||
-                       window.location.pathname.endsWith('index.html');
+    // Check if we're on the homepage
+    const isHomePage = body.classList.contains('home-page') || document.querySelector('.hero');
     
-    if (isHomePage && header) {
-        header.classList.add('transparent');
-    }
+    console.log('Page loaded. Is homepage:', isHomePage);
+    console.log('Header has transparent class:', header.classList.contains('transparent'));
     
     // Handle scroll event for transparent header
-    window.addEventListener('scroll', function() {
+    function handleScroll() {
         if (!header) return;
         
-        if (window.scrollY > 100) {
-            header.classList.remove('transparent');
+        const scrollPosition = window.scrollY || window.pageYOffset;
+        
+        // Add scrolled class for sticky header effect
+        if (scrollPosition > 50) {
+            header.classList.add('scrolled');
         } else {
-            if (isHomePage) {
+            header.classList.remove('scrolled');
+        }
+        
+        if (!isHomePage) return;
+        
+        // Get hero section height
+        const heroSection = document.querySelector('.hero, .hero-enhanced, .home-hero');
+        const heroHeight = heroSection ? heroSection.offsetHeight : 500;
+        
+        if (scrollPosition > heroHeight) {
+            if (header.classList.contains('transparent')) {
+                header.classList.remove('transparent');
+            }
+        } else {
+            if (!header.classList.contains('transparent')) {
                 header.classList.add('transparent');
             }
         }
-    });
+    }
+    
+    window.addEventListener('scroll', handleScroll);
+    
+    // Call once on load to set initial state
+    handleScroll();
 
+    // Mobile Side Panel Navigation
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-    const mainNav = document.querySelector('.main-nav');
+    const mobileNavPanel = document.querySelector('.mobile-nav-panel');
+    const mobileNavOverlay = document.querySelector('.mobile-nav-overlay');
+    const mobileNavClose = document.querySelector('.mobile-nav-close');
+    const mobileSubmenuToggles = document.querySelectorAll('.mobile-submenu-toggle');
 
-    if (mobileMenuToggle && mainNav) {
-        mobileMenuToggle.addEventListener('click', function() {
-            mainNav.classList.toggle('active');
+    function openMobileNav() {
+        mobileNavPanel.classList.add('active');
+        mobileNavOverlay.classList.add('active');
+        document.body.classList.add('mobile-nav-open');
+        
+        // Animate hamburger to X
+        const spans = mobileMenuToggle.querySelectorAll('span');
+        spans[0].style.transform = 'rotate(45deg) translateY(8px)';
+        spans[1].style.opacity = '0';
+        spans[2].style.transform = 'rotate(-45deg) translateY(-8px)';
+    }
 
-            const spans = this.querySelectorAll('span');
-            spans.forEach((span, index) => {
-                if (mainNav.classList.contains('active')) {
-                    if (index === 0) span.style.transform = 'rotate(45deg) translateY(8px)';
-                    if (index === 1) span.style.opacity = '0';
-                    if (index === 2) span.style.transform = 'rotate(-45deg) translateY(-8px)';
-                } else {
-                    span.style.transform = '';
-                    span.style.opacity = '';
-                }
-            });
+    function closeMobileNav() {
+        mobileNavPanel.classList.remove('active');
+        mobileNavOverlay.classList.remove('active');
+        document.body.classList.remove('mobile-nav-open');
+        
+        // Reset hamburger icon
+        const spans = mobileMenuToggle.querySelectorAll('span');
+        spans.forEach(span => {
+            span.style.transform = '';
+            span.style.opacity = '';
         });
     }
+
+    if (mobileMenuToggle && mobileNavPanel) {
+        mobileMenuToggle.addEventListener('click', function() {
+            if (mobileNavPanel.classList.contains('active')) {
+                closeMobileNav();
+            } else {
+                openMobileNav();
+            }
+        });
+    }
+
+    if (mobileNavOverlay) {
+        mobileNavOverlay.addEventListener('click', closeMobileNav);
+    }
+
+    if (mobileNavClose) {
+        mobileNavClose.addEventListener('click', closeMobileNav);
+    }
+
+    // Mobile submenu toggle
+    mobileSubmenuToggles.forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            const parentLi = this.closest('.mobile-has-submenu');
+            
+            // Close other open submenus
+            document.querySelectorAll('.mobile-has-submenu.open').forEach(openItem => {
+                if (openItem !== parentLi) {
+                    openItem.classList.remove('open');
+                }
+            });
+            
+            parentLi.classList.toggle('open');
+        });
+    });
+
+    // Close mobile nav when clicking a link
+    const mobileNavLinks = document.querySelectorAll('.mobile-nav-panel a:not(.mobile-submenu-toggle)');
+    mobileNavLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            closeMobileNav();
+        });
+    });
 
     const smoothScrollLinks = document.querySelectorAll('a[href^="#"]');
     smoothScrollLinks.forEach(link => {
@@ -67,13 +137,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         behavior: 'smooth'
                     });
 
-                    if (mainNav && mainNav.classList.contains('active')) {
-                        mainNav.classList.remove('active');
-                        const spans = mobileMenuToggle.querySelectorAll('span');
-                        spans.forEach(span => {
-                            span.style.transform = '';
-                            span.style.opacity = '';
-                        });
+                    // Close mobile nav if open
+                    if (mobileNavPanel && mobileNavPanel.classList.contains('active')) {
+                        closeMobileNav();
                     }
                 }
             }
@@ -98,22 +164,6 @@ document.addEventListener('DOMContentLoaded', function() {
             this.reset();
         });
     });
-
-    let lastScrollTop = 0;
-
-    if (header) {
-        window.addEventListener('scroll', function() {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-            if (scrollTop > lastScrollTop && scrollTop > 100) {
-                header.style.transform = 'translateY(-100%)';
-            } else {
-                header.style.transform = 'translateY(0)';
-            }
-
-            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-        }, false);
-    }
 
     const observerOptions = {
         threshold: 0.1,

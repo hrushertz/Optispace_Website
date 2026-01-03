@@ -1,13 +1,3 @@
-<style>
-    body.contact-no-padding {
-        padding-top: 0 !important;
-    }
-</style>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.body.classList.add('contact-no-padding');
-    });
-</script>
 <?php
 $currentPage = 'contact';
 $pageTitle = 'Contact Us | Request a Pulse Check | Solutions OptiSpace';
@@ -15,268 +5,833 @@ $pageDescription = 'Get in touch with Solutions OptiSpace. Request a complimenta
 include 'includes/header.php';
 ?>
 
-<section class="page-hero" style="position: relative; min-height: 450px; display: flex; align-items: center;">
-    <img src="assets/img/banner_1920x500.jpg" alt="Banner" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
-    <div class="container" style="position: relative; z-index: 2; text-align: center; color: #fff; padding: 5rem 2rem 3rem 2rem; max-width: 800px; margin: 0 auto;">
-        <h1 style="font-size: 3rem; font-weight: 700; margin-bottom: 1rem; letter-spacing: -0.02em;">Contact Us</h1>
-        <p style="font-size: 1.25rem; font-weight: 400; opacity: 0.95;">Let's Start a Conversation About Your Factory</p>
+<style>
+/* ========================================
+   CONTACT PAGE - MODERN CLEAN DESIGN
+   ======================================== */
+
+:root {
+    --contact-orange: #E99431;
+    --contact-orange-light: rgba(233, 148, 49, 0.08);
+    --contact-blue: #3B82F6;
+    --contact-blue-light: rgba(59, 130, 246, 0.08);
+    --contact-green: #10B981;
+    --contact-green-light: rgba(16, 185, 129, 0.08);
+    --contact-dark: #1E293B;
+    --contact-text: #475569;
+    --contact-border: #E2E8F0;
+}
+
+/* Hero Section */
+.contact-hero {
+    background: linear-gradient(165deg, #1E293B 0%, #334155 100%);
+    padding: 8rem 0 6rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.contact-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    background: radial-gradient(ellipse at 70% 50%, rgba(233, 148, 49, 0.12) 0%, transparent 60%);
+}
+
+.contact-hero-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+.hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(233, 148, 49, 0.15);
+    color: #E99431;
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 1.5rem;
+}
+
+.contact-hero h1 {
+    font-size: 3.25rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1.15;
+    margin-bottom: 1.5rem;
+}
+
+.contact-hero h1 span {
+    color: #E99431;
+}
+
+.contact-hero-text {
+    font-size: 1.2rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 0;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Breadcrumb */
+.contact-breadcrumb {
+    background: #F8FAFC;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--contact-border);
+}
+
+.contact-breadcrumb ul {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    list-style: none;
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.contact-breadcrumb a {
+    color: var(--contact-text);
+    text-decoration: none;
+}
+
+.contact-breadcrumb a:hover {
+    color: var(--contact-orange);
+}
+
+.contact-breadcrumb li:last-child {
+    color: var(--contact-dark);
+    font-weight: 500;
+}
+
+.contact-breadcrumb li:not(:last-child)::after {
+    content: '/';
+    margin-left: 0.5rem;
+    color: var(--contact-border);
+}
+
+/* Section Styles */
+.contact-section {
+    padding: 6rem 0;
+}
+
+.contact-section.alt-bg {
+    background: #FAFBFC;
+}
+
+.contact-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.section-header-contact {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.section-header-contact h2 {
+    font-size: 2.5rem;
+    color: var(--contact-dark);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.section-header-contact p {
+    font-size: 1.15rem;
+    color: var(--contact-text);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+/* Contact Grid */
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 3rem;
+    align-items: start;
+}
+
+/* Contact Info Cards */
+.contact-info-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.contact-info-card {
+    background: white;
+    border: 1px solid var(--contact-border);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+}
+
+.contact-info-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+}
+
+.info-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--contact-border);
+}
+
+.info-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--contact-orange-light);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.info-icon svg {
+    width: 24px;
+    height: 24px;
+    color: var(--contact-orange);
+}
+
+.info-card-header h3 {
+    font-size: 1.25rem;
+    color: var(--contact-dark);
+    font-weight: 600;
+    margin: 0;
+}
+
+.info-item {
+    margin-bottom: 1.25rem;
+}
+
+.info-item:last-child {
+    margin-bottom: 0;
+}
+
+.info-label {
+    font-size: 0.85rem;
+    color: var(--contact-text);
+    font-weight: 500;
+    margin-bottom: 0.35rem;
+}
+
+.info-value {
+    font-size: 1rem;
+    color: var(--contact-dark);
+    line-height: 1.6;
+}
+
+.info-value a {
+    color: var(--contact-orange);
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: all 0.2s ease;
+}
+
+.info-value a:hover {
+    color: #d4851c;
+}
+
+.info-value a svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Quick Connect Card */
+.quick-connect-card {
+    background: linear-gradient(135deg, var(--contact-orange) 0%, #f5a854 100%);
+    border-radius: 16px;
+    padding: 2rem;
+    color: white;
+}
+
+.quick-connect-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.quick-connect-card p {
+    font-size: 0.95rem;
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.btn-pulse-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: white;
+    color: var(--contact-orange);
+    padding: 0.875rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-pulse-check:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-pulse-check svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Contact Form */
+.contact-form-card {
+    background: white;
+    border: 1px solid var(--contact-border);
+    border-radius: 20px;
+    padding: 3rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.form-header {
+    margin-bottom: 2.5rem;
+    text-align: center;
+}
+
+.form-header h3 {
+    font-size: 1.75rem;
+    color: var(--contact-dark);
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.form-header p {
+    font-size: 1rem;
+    color: var(--contact-text);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 0;
+}
+
+.form-group.full-width {
+    grid-column: span 2;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--contact-dark);
+    margin-bottom: 0.5rem;
+}
+
+.form-group label .required {
+    color: #EF4444;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--contact-border);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: var(--contact-dark);
+    background: #F8FAFC;
+    transition: all 0.2s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--contact-orange);
+    background: white;
+    box-shadow: 0 0 0 3px var(--contact-orange-light);
+}
+
+.form-input::placeholder {
+    color: #94A3B8;
+}
+
+textarea.form-input {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.form-submit {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.btn-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--contact-orange);
+    color: white;
+    padding: 1rem 2.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+    background: #d4851c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(233, 148, 49, 0.3);
+}
+
+.btn-submit svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* FAQ Grid */
+.faq-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.faq-card {
+    background: white;
+    border: 1px solid var(--contact-border);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+}
+
+.faq-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    border-color: transparent;
+}
+
+.faq-card h4 {
+    font-size: 1.1rem;
+    color: var(--contact-dark);
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.faq-card h4 svg {
+    width: 20px;
+    height: 20px;
+    color: var(--contact-orange);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.faq-card p {
+    font-size: 0.95rem;
+    color: var(--contact-text);
+    line-height: 1.7;
+    margin: 0;
+    padding-left: 1.85rem;
+}
+
+/* CTA Section */
+.contact-cta {
+    padding: 6rem 0;
+    background: linear-gradient(165deg, #1E293B 0%, #334155 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.contact-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.05;
+    background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="1"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+}
+
+.contact-cta-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.contact-cta h2 {
+    font-size: 2.75rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+}
+
+.contact-cta p {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-cta-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--contact-orange);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(233, 148, 49, 0.3);
+}
+
+.btn-cta-primary:hover {
+    background: #d4851c;
+    transform: translateY(-2px);
+}
+
+.btn-cta-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-cta-secondary:hover {
+    border-color: white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-cta-primary svg,
+.btn-cta-secondary svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .contact-info-stack {
+        order: 2;
+    }
+    
+    .contact-form-card {
+        order: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .contact-hero {
+        padding: 5rem 0 4rem;
+    }
+    
+    .contact-hero h1 {
+        font-size: 2.25rem;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-group.full-width {
+        grid-column: span 1;
+    }
+    
+    .faq-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .contact-form-card {
+        padding: 2rem;
+    }
+}
+</style>
+
+<!-- Hero Section -->
+<section class="contact-hero">
+    <div class="contact-hero-inner">
+        <div class="hero-eyebrow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Get In Touch
+        </div>
+        <h1>Let's Start a <span>Conversation</span></h1>
+        <p class="contact-hero-text">Ready to transform your factory? We'd love to hear about your project and explore how we can help.</p>
     </div>
 </section>
 
-<section class="breadcrumb">
-    <div class="container">
-        <ul>
-            <li><a href="/index.php">Home</a></li>
-            <li>Contact</li>
-        </ul>
-    </div>
-</section>
+<!-- Breadcrumb -->
+<nav class="contact-breadcrumb">
+    <ul>
+        <li><a href="<?php echo url('index.php'); ?>">Home</a></li>
+        <li>Contact</li>
+    </ul>
+</nav>
 
-<section class="section" id="pulse-check" style="padding: 5rem 0;">
-    <div class="container">
-        <div class="section-header" style="margin-bottom: 3.5rem;">
-            <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem;">Request a Complimentary Pulse Check</h2>
-            <p style="font-size: 1.125rem; color: var(--text-medium); max-width: 700px; margin: 0 auto;">The first step toward optimizing your factory - with no obligation</p>
-        </div>
-
-        <div class="grid grid-2" style="margin-bottom: 4rem; gap: 2rem;">
-            <div>
-                <div class="card" style="height: 100%; padding: 2.5rem;">
-                    <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--text-dark);">What is a Pulse Check?</h3>
-                    <p style="margin-bottom: 1.5rem; color: var(--text-medium);">A complimentary consultation visit where we:</p>
-                    <ul class="feature-list" style="margin-bottom: 2rem;">
-                        <li>Tour your facility (existing or proposed site)</li>
-                        <li>Understand your manufacturing process</li>
-                        <li>Learn about your challenges and goals</li>
-                        <li>Identify preliminary opportunities</li>
-                        <li>Explain how we can help</li>
-                        <li>Answer all your questions</li>
-                    </ul>
-                    <p style="padding-top: 1.5rem; border-top: 2px solid var(--border-color); font-weight: 600; color: var(--text-dark);">Duration: 2-4 hours | Investment: Complimentary</p>
-                </div>
-            </div>
-            <div>
-                <div class="card" style="height: 100%; padding: 2.5rem; background: var(--bg-light); border-left: 4px solid var(--primary-color);">
-                    <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--text-dark);">What Happens Next?</h3>
-                    <ol style="padding-left: 1.5rem; line-height: 2; margin-bottom: 2rem; color: var(--text-medium);">
-                        <li>You submit the form below</li>
-                        <li>We contact you within 24 hours to schedule</li>
-                        <li>We visit your facility for the Pulse Check</li>
-                        <li>We submit a detailed proposal (if there's a fit)</li>
-                        <li>You decide whether to proceed - no pressure</li>
-                    </ol>
-                    <p style="padding-top: 1.5rem; border-top: 2px solid var(--border-color); font-style: italic; color: var(--text-medium);">
-                        There's no cost and no obligation. It's simply an opportunity to explore whether our Lean Factory Building approach can help you.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="contact-form" style="max-width: 900px; margin: 0 auto;">
-            <form id="pulseCheckForm" method="post" action="#" style="background: white; padding: 3rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                <h3 style="text-align: center; margin-bottom: 2.5rem; font-size: 1.75rem; font-weight: 600;">Request Your Pulse Check</h3>
-
-                <div class="grid grid-2" style="gap: 1.5rem;">
-                    <div class="form-group">
-                        <label for="name" style="font-weight: 500; margin-bottom: 0.5rem; display: block;">Your Name *</label>
-                        <input type="text" id="name" name="name" required style="padding: 0.875rem;">
+<!-- Main Contact Section -->
+<section class="contact-section">
+    <div class="contact-container">
+        <div class="contact-grid">
+            <!-- Contact Info -->
+            <div class="contact-info-stack">
+                <div class="contact-info-card">
+                    <div class="info-card-header">
+                        <div class="info-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                        </div>
+                        <h3>Office Location</h3>
                     </div>
-
-                    <div class="form-group">
-                        <label for="designation" style="font-weight: 500; margin-bottom: 0.5rem; display: block;">Designation *</label>
-                        <input type="text" id="designation" name="designation" required style="padding: 0.875rem;">
+                    <div class="info-item">
+                        <div class="info-label">Address</div>
+                        <div class="info-value">
+                            [Complete Address Line 1]<br>
+                            [Address Line 2]<br>
+                            [City, State - PIN Code]
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Email</div>
+                        <div class="info-value">
+                            <a href="mailto:info@optispace.com">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                    <polyline points="22,6 12,13 2,6"/>
+                                </svg>
+                                info@optispace.com
+                            </a>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Phone</div>
+                        <div class="info-value">
+                            <a href="tel:+919999999999">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                </svg>
+                                +91 99999 99999
+                            </a>
+                        </div>
                     </div>
                 </div>
-
-                <div class="form-group" style="margin-top: 1.5rem;">
-                    <label for="company" style="font-weight: 500; margin-bottom: 0.5rem; display: block;">Company Name *</label>
-                    <input type="text" id="company" name="company" required style="padding: 0.875rem;">
+                
+                <div class="quick-connect-card">
+                    <h3>Looking for a Factory Assessment?</h3>
+                    <p>Request a complimentary Pulse Check — our on-site visit to understand your facility and identify optimization opportunities.</p>
+                    <a href="<?php echo url('pulse-check.php'); ?>" class="btn-pulse-check">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        Request a Pulse Check
+                    </a>
                 </div>
-
-                <div class="grid grid-2" style="gap: 1.5rem; margin-top: 1.5rem;">
-                    <div class="form-group">
-                        <label for="email" style="font-weight: 500; margin-bottom: 0.5rem; display: block;">Email Address *</label>
-                        <input type="email" id="email" name="email" required style="padding: 0.875rem;">
+            </div>
+            
+            <!-- Contact Form -->
+            <div class="contact-form-card">
+                <div class="form-header">
+                    <h3>Send Us a Message</h3>
+                    <p>Questions not related to a factory project? Use this form.</p>
+                </div>
+                
+                <form id="contactForm" method="post" action="#">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="firstName">First Name <span class="required">*</span></label>
+                            <input type="text" id="firstName" name="firstName" class="form-input" placeholder="Your first name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name <span class="required">*</span></label>
+                            <input type="text" id="lastName" name="lastName" class="form-input" placeholder="Your last name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address <span class="required">*</span></label>
+                            <input type="email" id="email" name="email" class="form-input" placeholder="you@company.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" class="form-input" placeholder="+91 99999 99999">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="subject">Subject <span class="required">*</span></label>
+                            <input type="text" id="subject" name="subject" class="form-input" placeholder="How can we help?" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="message">Your Message <span class="required">*</span></label>
+                            <textarea id="message" name="message" class="form-input" placeholder="Tell us about your inquiry..." required></textarea>
+                        </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="phone" style="font-weight: 500; margin-bottom: 0.5rem; display: block;">Phone Number *</label>
-                        <input type="tel" id="phone" name="phone" required style="padding: 0.875rem;">
+                    
+                    <div class="form-submit">
+                        <button type="submit" class="btn-submit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="22" y1="2" x2="11" y2="13"/>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                            </svg>
+                            Send Message
+                        </button>
                     </div>
-                </div>
-
-                <div class="form-group" style="margin-top: 1.5rem;">
-                    <label for="industry" style="font-weight: 500; margin-bottom: 0.5rem; display: block;">Industry / Sector *</label>
-                    <select id="industry" name="industry" required style="padding: 0.875rem;">
-                        <option value="">Select Your Industry</option>
-                        <option value="automotive">Automotive & Components</option>
-                        <option value="electronics">Electronics & Electrical</option>
-                        <option value="pharmaceuticals">Pharmaceuticals</option>
-                        <option value="fmcg">FMCG & Food Processing</option>
-                        <option value="plastics">Plastics & Polymers</option>
-                        <option value="engineering">Engineering & Fabrication</option>
-                        <option value="textiles">Textiles & Garments</option>
-                        <option value="packaging">Packaging</option>
-                        <option value="chemical">Chemical Processing</option>
-                        <option value="other">Other (Please specify in message)</option>
-                    </select>
-                </div>
-
-                <div class="form-group" style="margin-top: 1.5rem;">
-                    <label for="projectType" style="font-weight: 500; margin-bottom: 0.5rem; display: block;">Project Type *</label>
-                    <select id="projectType" name="projectType" required style="padding: 0.875rem;">
-                        <option value="">Select Project Type</option>
-                        <option value="greenfield">Greenfield - New Factory Design</option>
-                        <option value="brownfield">Brownfield - Existing Factory Optimization</option>
-                        <option value="expansion">Factory Expansion</option>
-                        <option value="relocation">Factory Relocation</option>
-                        <option value="consultation">General Consultation</option>
-                        <option value="other">Other (Please specify in message)</option>
-                    </select>
-                </div>
-
-                <div class="form-group" style="margin-top: 1.5rem;">
-                    <label for="timeline" style="font-weight: 500; margin-bottom: 0.5rem; display: block;">Project Timeline *</label>
-                    <select id="timeline" name="timeline" required style="padding: 0.875rem;">
-                        <option value="">Select Timeline</option>
-                        <option value="immediate">Immediate (Within 1 month)</option>
-                        <option value="short">Short-term (1-3 months)</option>
-                        <option value="medium">Medium-term (3-6 months)</option>
-                        <option value="long">Long-term (6+ months)</option>
-                        <option value="exploring">Just Exploring Options</option>
-                    </select>
-                    <small style="display: block; margin-top: 0.625rem; color: var(--text-light); font-size: 0.875rem;">Helps us understand urgency and plan our engagement</small>
-                </div>
-
-                <div class="form-group" style="margin-top: 1.5rem;">
-                    <label for="location" style="font-weight: 500; margin-bottom: 0.5rem; display: block;">Facility Location (City/State)</label>
-                    <input type="text" id="location" name="location" placeholder="e.g., Pune, Maharashtra" style="padding: 0.875rem;">
-                    <small style="display: block; margin-top: 0.625rem; color: var(--text-light); font-size: 0.875rem;">Helps us plan the Pulse Check visit</small>
-                </div>
-
-                <div class="form-group" style="margin-top: 1.5rem;">
-                    <label for="message" style="font-weight: 500; margin-bottom: 0.5rem; display: block;">Tell Us About Your Project *</label>
-                    <textarea id="message" name="message" required placeholder="Please describe your current situation, challenges, or what you hope to achieve..." style="padding: 0.875rem; min-height: 140px;"></textarea>
-                </div>
-
-                <div class="form-group" style="margin-top: 1.5rem;">
-                    <label style="display: flex; align-items: start; gap: 0.625rem; cursor: pointer;">
-                        <input type="checkbox" name="consent" required style="width: auto; margin-top: 0.25rem;">
-                        <span style="font-size: 0.9375rem;">I consent to Solutions OptiSpace contacting me via email or phone to discuss this project *</span>
-                    </label>
-                </div>
-
-                <div style="text-align: center; margin-top: 2.5rem;">
-                    <button type="submit" class="btn btn-primary btn-large" style="padding: 1rem 3rem; font-size: 1.0625rem;">Submit Request</button>
-                </div>
-
-                <p style="text-align: center; color: var(--text-light); margin-top: 1.5rem; font-size: 0.875rem; line-height: 1.6;">
-                    * Required fields. We respect your privacy and will never share your information.<br>
-                    <strong style="color: var(--text-medium);">Business Hours:</strong> Mon–Sat, 10:00–18:00 IST<br>
-                    <em>Prefer email or call? Reach us at <a href="mailto:info@optispace.com" style="color: var(--primary-color); text-decoration: none;">info@optispace.com</a> or <a href="tel:+919999999999" style="color: var(--primary-color); text-decoration: none;">+91 99999 99999</a></em>
-                </p>
-            </form>
-        </div>
-    </div>
-</section>
-
-<section class="section section-light" style="padding: 5rem 0;">
-    <div class="container">
-        <div class="section-header" style="margin-bottom: 3rem;">
-            <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem;">Our Office</h2>
-            <p style="font-size: 1.125rem; color: var(--text-medium);">Reach out to us directly</p>
-        </div>
-
-        <div class="card" style="max-width: 600px; margin: 0 auto; padding: 2.5rem;">
-            <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--border-color);">Office Location</h3>
-            <div style="margin-bottom: 2rem;">
-                <p style="font-weight: 600; margin-bottom: 0.75rem; color: var(--text-dark);">Address:</p>
-                <p style="color: var(--text-medium); line-height: 1.7;">
-                [Complete Address Line 1]<br>
-                [Address Line 2]<br>
-                [City, State - PIN Code]
-                </p>
-            </div>
-            <div>
-                <p style="font-weight: 600; margin-bottom: 0.75rem; color: var(--text-dark);">Contact:</p>
-                <p style="color: var(--text-medium); line-height: 1.7;">
-                Email: <a href="mailto:info@optispace.com" style="color: var(--primary-color); text-decoration: none;">info@optispace.com</a><br>
-                Mobile: <a href="tel:+919999999999" style="color: var(--primary-color); text-decoration: none;">+91 99999 99999</a>
-                </p>
+                </form>
             </div>
         </div>
     </div>
 </section>
 
-<section class="section" style="padding: 5rem 0;">
-    <div class="container" style="max-width: 650px;">
-        <div class="section-header" style="margin-bottom: 2.5rem;">
-            <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.75rem;">General Inquiries</h2>
-            <p style="font-size: 1.0625rem; color: var(--text-medium);">Questions not related to a factory project? Use this form</p>
+<!-- FAQ Section -->
+<section class="contact-section alt-bg">
+    <div class="contact-container">
+        <div class="section-header-contact">
+            <h2>Frequently Asked Questions</h2>
+            <p>Quick answers to common questions about working with us</p>
         </div>
-        <div class="contact-form">
-            <form id="contactForm" method="post" action="#" style="background: white; padding: 2.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                <div class="form-group">
-                    <label for="contactName" style="font-weight: 500; margin-bottom: 0.5rem; display: block;">Your Name *</label>
-                    <input type="text" id="contactName" name="contactName" required style="padding: 0.875rem;">
-                </div>
-                <div class="form-group" style="margin-top: 1.5rem;">
-                    <label for="contactEmail" style="font-weight: 500; margin-bottom: 0.5rem; display: block;">Email Address *</label>
-                    <input type="email" id="contactEmail" name="contactEmail" required style="padding: 0.875rem;">
-                </div>
-                <div class="form-group" style="margin-top: 1.5rem;">
-                    <label for="contactMessage" style="font-weight: 500; margin-bottom: 0.5rem; display: block;">Your Message *</label>
-                    <textarea id="contactMessage" name="contactMessage" required style="padding: 0.875rem; min-height: 140px;"></textarea>
-                </div>
-                <div style="text-align: center; margin-top: 2rem;">
-                    <button type="submit" class="btn btn-primary btn-large" style="padding: 1rem 2.5rem;">Send Message</button>
-                </div>
-            </form>
+        
+        <div class="faq-grid">
+            <div class="faq-card">
+                <h4>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    What is Lean Factory Building (LFB)?
+                </h4>
+                <p>LFB is our inside-out approach: we design your manufacturing process first using Lean principles, then design the building around that optimized process — not the other way around.</p>
+            </div>
+            <div class="faq-card">
+                <h4>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    Is the Pulse Check really free?
+                </h4>
+                <p>Yes, absolutely. The Pulse Check is complimentary with no obligation. We invest this time to understand your needs and demonstrate our value.</p>
+            </div>
+            <div class="faq-card">
+                <h4>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    Do you work outside of India?
+                </h4>
+                <p>Yes. While most of our work is in India, we have experience with international projects. We can travel or coordinate remotely depending on project needs.</p>
+            </div>
+            <div class="faq-card">
+                <h4>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    What if I'm not ready to proceed right away?
+                </h4>
+                <p>That's perfectly fine. Many clients engage us months or even years after the initial Pulse Check. We're here when you're ready.</p>
+            </div>
+            <div class="faq-card">
+                <h4>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    Can you provide references?
+                </h4>
+                <p>Yes, we can connect you with existing clients in your industry who can share their experience working with us.</p>
+            </div>
+            <div class="faq-card">
+                <h4>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    How long does a typical project take?
+                </h4>
+                <p>It varies by scope. Layout optimization projects typically take 2-3 months. Full greenfield architectural projects can take 6-12 months.</p>
+            </div>
         </div>
     </div>
 </section>
 
-<section class="section section-light" style="padding: 5rem 0;">
-    <div class="container">
-        <div class="section-header" style="margin-bottom: 3.5rem;">
-            <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem;">Frequently Asked Questions</h2>
-            <p style="font-size: 1.125rem; color: var(--text-medium);">Quick answers to common questions</p>
+<!-- CTA Section -->
+<section class="contact-cta">
+    <div class="contact-cta-inner">
+        <h2>Ready to Transform Your Factory?</h2>
+        <p>Take the first step with a complimentary Pulse Check. We'll assess your facility and show you the potential for improvement.</p>
+        <div class="cta-buttons">
+            <a href="<?php echo url('pulse-check.php'); ?>" class="btn-cta-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                Request Your Pulse Check
+            </a>
+            <a href="<?php echo url('about.php'); ?>" class="btn-cta-secondary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                Learn About Us
+            </a>
         </div>
-
-        <div class="grid grid-2" style="gap: 2rem;">
-            <div class="card" style="padding: 2rem; display: flex; flex-direction: column; height: 100%;">
-                <h4 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-dark);">What is Lean Factory Building (LFB)?</h4>
-                <p style="color: var(--text-medium); line-height: 1.7; flex-grow: 1;">LFB is our inside-out approach: we design your manufacturing process first using Lean principles, then design the building around that optimized process - not the other way around.</p>
-            </div>
-            <div class="card" style="padding: 2rem; display: flex; flex-direction: column; height: 100%;">
-                <h4 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-dark);">Is the Pulse Check really free?</h4>
-                <p style="color: var(--text-medium); line-height: 1.7; flex-grow: 1;">Yes, absolutely. The Pulse Check is complimentary with no obligation. We invest this time to understand your needs and demonstrate our value.</p>
-            </div>
-            <div class="card" style="padding: 2rem; display: flex; flex-direction: column; height: 100%;">
-                <h4 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-dark);">Do you work outside of India?</h4>
-                <p style="color: var(--text-medium); line-height: 1.7; flex-grow: 1;">Yes. While most of our work is in India, we have experience with international projects. We can travel or coordinate remotely depending on project needs.</p>
-            </div>
-            <div class="card" style="padding: 2rem; display: flex; flex-direction: column; height: 100%;">
-                <h4 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-dark);">What if I'm not ready to proceed right away?</h4>
-                <p style="color: var(--text-medium); line-height: 1.7; flex-grow: 1;">That's perfectly fine. Many clients engage us months or even years after the initial Pulse Check. We're here when you're ready.</p>
-            </div>
-            <div class="card" style="padding: 2rem; display: flex; flex-direction: column; height: 100%;">
-                <h4 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-dark);">Can you provide references?</h4>
-                <p style="color: var(--text-medium); line-height: 1.7; flex-grow: 1;">Yes, we can connect you with existing clients in your industry who can share their experience working with us.</p>
-            </div>
-            <div class="card" style="padding: 2rem; display: flex; flex-direction: column; height: 100%;">
-                <h4 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-dark);">How long does a typical project take?</h4>
-                <p style="color: var(--text-medium); line-height: 1.7; flex-grow: 1;">It varies by scope. Layout optimization projects typically take 2-3 months. Full greenfield architectural projects can take 6-12 months.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="cta-section" style="padding: 5rem 0;">
-    <div class="container" style="text-align: center;">
-        <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; color: white;">Ready to Transform Your Factory?</h2>
-        <p style="font-size: 1.25rem; margin-bottom: 2.5rem; opacity: 0.95;">Take the first step with a complimentary Pulse Check</p>
-        <a href="#pulse-check" class="btn btn-large" style="background-color: white; color: var(--primary-color); padding: 1rem 3rem; font-size: 1.0625rem; font-weight: 600; text-decoration: none;">Request Your Pulse Check</a>
     </div>
 </section>
 

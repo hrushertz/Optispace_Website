@@ -16,7 +16,7 @@ include 'includes/header.php';
 ?>
 
 <section class="page-hero" style="position: relative; min-height: 500px; display: flex; align-items: center;">
-    <img src="assets/img/banner_1920x500.jpg" alt="Banner" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
+    <img src="<?php echo img('banner_1920x500.jpg'); ?>" alt="Banner" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
     <div class="container" style="position: relative; z-index: 2; text-align: center; color: #fff; padding: 4.5rem 2rem 2rem 2rem; max-width: 700px; margin: 0 auto;">
         <h1>Team & Associates</h1>
         <p>A unified, multidisciplinary network for comprehensive factory design</p>
@@ -120,7 +120,7 @@ include 'includes/header.php';
     <div class="container">
         <h2>Ready to Experience Our Integrated Approach?</h2>
         <p>See how our multidisciplinary network can transform your factory project</p>
-        <a href="/contact.php#pulse-check" class="btn btn-large" style="background-color: white; color: var(--primary-color);">Request a Pulse Check</a>
+        <a href="<?php echo url('pulse-check.php'); ?>" class="btn btn-large" style="background-color: white; color: var(--primary-color);">Request a Pulse Check</a>
     </div>
 </section>
 

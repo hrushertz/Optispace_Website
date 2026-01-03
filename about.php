@@ -1,13 +1,3 @@
-<style>
-    body.about-no-padding {
-        padding-top: 0 !important;
-    }
-</style>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.body.classList.add('about-no-padding');
-    });
-</script>
 <?php
 $currentPage = 'about';
 $pageTitle = 'Who We Are | Solutions OptiSpace';
@@ -15,55 +5,804 @@ $pageDescription = 'Lean manufacturing consultants who design buildings around y
 include 'includes/header.php';
 ?>
 
-<section class="page-hero" style="position: relative; min-height: 450px; display: flex; align-items: center;">
-    <img src="assets/img/banner_1920x500.jpg" alt="Banner" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
-    <div class="container" style="position: relative; z-index: 2; text-align: center; color: #fff; padding: 5rem 2rem 3rem 2rem; max-width: 800px; margin: 0 auto;">
-        <h1 style="font-size: 3rem; font-weight: 700; margin-bottom: 1rem; letter-spacing: -0.02em;">Who We Are</h1>
-        <p style="font-size: 1.25rem; font-weight: 400; opacity: 0.95;">Lean manufacturing consultants who design buildings around your process</p>
-    </div>
-</section>
+<style>
+/* ========================================
+   ABOUT PAGE - MODERN CLEAN DESIGN
+   ======================================== */
 
-<section class="breadcrumb">
-    <div class="container">
-        <ul>
-            <li><a href="/index.php">Home</a></li>
-            <li>About</li>
-        </ul>
-    </div>
-</section>
+:root {
+    --about-orange: #E99431;
+    --about-orange-light: rgba(233, 148, 49, 0.08);
+    --about-blue: #3B82F6;
+    --about-blue-light: rgba(59, 130, 246, 0.08);
+    --about-green: #10B981;
+    --about-green-light: rgba(16, 185, 129, 0.08);
+    --about-dark: #1E293B;
+    --about-text: #475569;
+    --about-border: #E2E8F0;
+}
 
-<section class="section" style="padding: 5rem 0;">
-    <div class="container">
-        <div class="section-header" style="margin-bottom: 3.5rem;">
-            <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem;">Who We Are</h2>
-        </div>
+/* Hero Section */
+.about-hero {
+    background: linear-gradient(165deg, #1E293B 0%, #334155 100%);
+    padding: 8rem 0 6rem;
+    position: relative;
+    overflow: hidden;
+}
 
-        <div class="grid grid-2" style="gap: 2.5rem; align-items: start;">
-            <div>
-                <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--text-dark);">Heritage & Identity</h3>
-                <p style="margin-bottom: 1.5rem; line-height: 1.8; color: var(--text-medium);"><strong style="color: var(--text-dark);">OptiSpace is not a startup; it is a specialized division of Solutions Kaizen Management Systems (Solutions KMS).</strong> With over 20 years of experience in Lean, Six Sigma, TOC, and TPM, we bring deep operational expertise to the world of architecture.</p>
-                <p style="line-height: 1.8; color: var(--text-medium);">Solutions KMS has been enhancing the top and bottom lines of businesses through proven methodologies. Solutions OptiSpace brings this operational expertise into the architectural realm, creating the unique "inside-out" design approach that sets us apart.</p>
+.about-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    background: radial-gradient(ellipse at 70% 50%, rgba(233, 148, 49, 0.12) 0%, transparent 60%);
+}
+
+.about-hero-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.about-hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(233, 148, 49, 0.15);
+    color: #E99431;
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 1.5rem;
+}
+
+.about-hero h1 {
+    font-size: 3.25rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1.15;
+    margin-bottom: 1.5rem;
+}
+
+.about-hero h1 span {
+    color: #E99431;
+}
+
+.about-hero-text {
+    font-size: 1.2rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 2rem;
+    max-width: 500px;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 3rem;
+}
+
+.hero-stat {
+    text-align: left;
+}
+
+.hero-stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.hero-stat-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.hero-visual {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-cards-preview {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    max-width: 400px;
+}
+
+.preview-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.preview-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(233, 148, 49, 0.3);
+    transform: translateY(-2px);
+}
+
+.preview-card-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #E99431 0%, #f5a854 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+}
+
+.preview-card:nth-child(2) .preview-card-icon {
+    background: linear-gradient(135deg, #3B82F6 0%, #60a5fa 100%);
+}
+
+.preview-card:nth-child(3) .preview-card-icon {
+    background: linear-gradient(135deg, #10B981 0%, #34d399 100%);
+}
+
+.preview-card:nth-child(4) .preview-card-icon {
+    background: linear-gradient(135deg, #8B5CF6 0%, #a78bfa 100%);
+}
+
+.preview-card-icon svg {
+    width: 20px;
+    height: 20px;
+    color: white;
+}
+
+.preview-card-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 0.25rem;
+}
+
+.preview-card-text {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Breadcrumb */
+.about-breadcrumb {
+    background: #F8FAFC;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--about-border);
+}
+
+.about-breadcrumb ul {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    list-style: none;
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.about-breadcrumb a {
+    color: var(--about-text);
+    text-decoration: none;
+}
+
+.about-breadcrumb a:hover {
+    color: var(--about-orange);
+}
+
+.about-breadcrumb li:last-child {
+    color: var(--about-dark);
+    font-weight: 500;
+}
+
+.about-breadcrumb li:not(:last-child)::after {
+    content: '/';
+    margin-left: 0.5rem;
+    color: var(--about-border);
+}
+
+/* Section Styles */
+.about-section {
+    padding: 6rem 0;
+}
+
+.about-section.alt-bg {
+    background: #FAFBFC;
+}
+
+.about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.section-header-about {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.section-header-about h2 {
+    font-size: 2.5rem;
+    color: var(--about-dark);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.section-header-about p {
+    font-size: 1.15rem;
+    color: var(--about-text);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+/* Heritage Grid */
+.heritage-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 3rem;
+    align-items: start;
+}
+
+.heritage-content h3 {
+    font-size: 1.75rem;
+    color: var(--about-dark);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.heritage-content p {
+    font-size: 1.05rem;
+    color: var(--about-text);
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+}
+
+.heritage-content p strong {
+    color: var(--about-dark);
+}
+
+.heritage-highlight {
+    background: var(--about-orange-light);
+    border-left: 4px solid var(--about-orange);
+    padding: 1.5rem;
+    border-radius: 0 12px 12px 0;
+    margin-top: 2rem;
+}
+
+.heritage-highlight p {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--about-text);
+}
+
+.heritage-highlight strong {
+    color: var(--about-dark);
+}
+
+/* Stats Card */
+.stats-card-modern {
+    background: white;
+    border: 1px solid var(--about-border);
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.stats-card-modern h3 {
+    font-size: 1.5rem;
+    color: var(--about-dark);
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--about-border);
+}
+
+.stats-grid-modern {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: #F8FAFC;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    background: var(--about-orange-light);
+}
+
+.stat-value {
+    font-size: 2.75rem;
+    font-weight: 700;
+    color: var(--about-orange);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--about-text);
+    font-weight: 500;
+}
+
+/* Value Props */
+.value-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.value-card {
+    background: white;
+    border: 1px solid var(--about-border);
+    border-radius: 16px;
+    padding: 2.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.value-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--about-orange);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.value-card:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    transform: translateY(-4px);
+}
+
+.value-card:hover::before {
+    transform: scaleX(1);
+}
+
+.value-icon {
+    width: 56px;
+    height: 56px;
+    background: var(--about-orange-light);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.value-card:nth-child(2) .value-icon {
+    background: var(--about-blue-light);
+}
+
+.value-card:nth-child(3) .value-icon {
+    background: var(--about-green-light);
+}
+
+.value-icon svg {
+    width: 28px;
+    height: 28px;
+    color: var(--about-orange);
+}
+
+.value-card:nth-child(2) .value-icon svg {
+    color: var(--about-blue);
+}
+
+.value-card:nth-child(3) .value-icon svg {
+    color: var(--about-green);
+}
+
+.value-card h3 {
+    font-size: 1.25rem;
+    color: var(--about-dark);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.value-card p {
+    font-size: 0.95rem;
+    color: var(--about-text);
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* Approach Grid */
+.approach-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.approach-card {
+    background: white;
+    border: 1px solid var(--about-border);
+    border-radius: 12px;
+    padding: 2rem;
+    display: flex;
+    gap: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.approach-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    border-color: transparent;
+}
+
+.approach-num {
+    width: 44px;
+    height: 44px;
+    background: var(--about-orange-light);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--about-orange);
+    flex-shrink: 0;
+}
+
+.approach-content h3 {
+    font-size: 1.15rem;
+    color: var(--about-dark);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.approach-content p {
+    font-size: 0.95rem;
+    color: var(--about-text);
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* Integration Banner */
+.integration-banner {
+    background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+    border: 1px solid var(--about-border);
+    border-radius: 16px;
+    padding: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.integration-icon {
+    width: 72px;
+    height: 72px;
+    background: var(--about-orange-light);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.integration-icon svg {
+    width: 36px;
+    height: 36px;
+    color: var(--about-orange);
+}
+
+.integration-content h3 {
+    font-size: 1.5rem;
+    color: var(--about-dark);
+    margin-bottom: 0.5rem;
+}
+
+.integration-content p {
+    font-size: 1rem;
+    color: var(--about-text);
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* CTA Section */
+.about-cta {
+    padding: 6rem 0;
+    background: linear-gradient(165deg, #1E293B 0%, #334155 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.about-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.05;
+    background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="1"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+}
+
+.about-cta-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.about-cta h2 {
+    font-size: 2.75rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+}
+
+.about-cta p {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-cta-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--about-orange);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(233, 148, 49, 0.3);
+}
+
+.btn-cta-primary:hover {
+    background: #d4851c;
+    transform: translateY(-2px);
+}
+
+.btn-cta-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-cta-secondary:hover {
+    border-color: white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-cta-primary svg,
+.btn-cta-secondary svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .about-hero-inner {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+        text-align: center;
+    }
+    
+    .about-hero-text {
+        margin: 0 auto 2rem;
+    }
+    
+    .hero-stats {
+        justify-content: center;
+    }
+    
+    .heritage-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .value-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .about-hero {
+        padding: 5rem 0 4rem;
+    }
+    
+    .about-hero h1 {
+        font-size: 2.25rem;
+    }
+    
+    .hero-stats {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: center;
+    }
+    
+    .hero-stat {
+        text-align: center;
+    }
+    
+    .hero-cards-preview {
+        grid-template-columns: 1fr;
+        max-width: 280px;
+    }
+    
+    .value-grid,
+    .approach-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .integration-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .stats-grid-modern {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<!-- Hero Section -->
+<section class="about-hero">
+    <div class="about-hero-inner">
+        <div class="about-hero-content">
+            <div class="hero-eyebrow">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                Since 2004
             </div>
-            <div>
-                <div class="card" style="padding: 2.5rem; background: var(--bg-light); border-left: 4px solid var(--primary-color);">
-                    <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 2rem; color: var(--text-dark);">Our Track Record</h3>
-                    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem;">
-                        <div style="text-align: center;">
-                            <strong style="display: block; font-size: 3rem; color: var(--primary-color); font-weight: 700; line-height: 1;">20+</strong>
-                            <span style="display: block; margin-top: 0.5rem; color: var(--text-medium); font-size: 0.9375rem;">Years of Excellence</span>
-                        </div>
-                        <div style="text-align: center;">
-                            <strong style="display: block; font-size: 3rem; color: var(--primary-color); font-weight: 700; line-height: 1;">250+</strong>
-                            <span style="display: block; margin-top: 0.5rem; color: var(--text-medium); font-size: 0.9375rem;">Businesses Served</span>
-                        </div>
-                        <div style="text-align: center;">
-                            <strong style="display: block; font-size: 3rem; color: var(--primary-color); font-weight: 700; line-height: 1;">75+</strong>
-                            <span style="display: block; margin-top: 0.5rem; color: var(--text-medium); font-size: 0.9375rem;">Industrial Segments</span>
-                        </div>
-                        <div style="text-align: center;">
-                            <strong style="display: block; font-size: 3rem; color: var(--primary-color); font-weight: 700; line-height: 1;">100%</strong>
-                            <span style="display: block; margin-top: 0.5rem; color: var(--text-medium); font-size: 0.9375rem;">Satisfaction Rate</span>
-                        </div>
+            <h1>Lean Experts Who <span>Design Factories</span></h1>
+            <p class="about-hero-text">We're not traditional architects. We're lean manufacturing consultants who understand that the building should serve the process — not the other way around.</p>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-value">20+</div>
+                    <div class="hero-stat-label">Years Experience</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">250+</div>
+                    <div class="hero-stat-label">Projects Delivered</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">75+</div>
+                    <div class="hero-stat-label">Industries Served</div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="hero-cards-preview">
+                <div class="preview-card">
+                    <div class="preview-card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                        </svg>
+                    </div>
+                    <div class="preview-card-title">Lean Expertise</div>
+                    <div class="preview-card-text">Six Sigma & TOC</div>
+                </div>
+                <div class="preview-card">
+                    <div class="preview-card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <path d="M3 9h18M9 21V9"/>
+                        </svg>
+                    </div>
+                    <div class="preview-card-title">Architecture</div>
+                    <div class="preview-card-text">Inside-Out Design</div>
+                </div>
+                <div class="preview-card">
+                    <div class="preview-card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 20V10"/>
+                            <path d="M18 20V4"/>
+                            <path d="M6 20v-4"/>
+                        </svg>
+                    </div>
+                    <div class="preview-card-title">Results Driven</div>
+                    <div class="preview-card-text">Measurable Outcomes</div>
+                </div>
+                <div class="preview-card">
+                    <div class="preview-card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
+                    <div class="preview-card-title">Partnership</div>
+                    <div class="preview-card-text">Knowledge Transfer</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Breadcrumb -->
+<nav class="about-breadcrumb">
+    <ul>
+        <li><a href="<?php echo url('index.php'); ?>">Home</a></li>
+        <li>About Us</li>
+    </ul>
+</nav>
+
+<!-- Heritage Section -->
+<section class="about-section">
+    <div class="about-container">
+        <div class="heritage-grid">
+            <div class="heritage-content">
+                <h3>Heritage & Identity</h3>
+                <p><strong>OptiSpace is not a startup;</strong> it is a specialized division of Solutions Kaizen Management Systems (Solutions KMS). With over 20 years of experience in Lean, Six Sigma, TOC, and TPM, we bring deep operational expertise to the world of architecture.</p>
+                <p>Solutions KMS has been enhancing the top and bottom lines of businesses through proven methodologies. Solutions OptiSpace brings this operational expertise into the architectural realm, creating the unique "inside-out" design approach that sets us apart.</p>
+                
+                <div class="heritage-highlight">
+                    <p><strong>What makes us different:</strong> Traditional architects design buildings first, then you fit your operations inside. We flip that — designing your optimized process first, then building around it.</p>
+                </div>
+            </div>
+            <div class="stats-card-modern">
+                <h3>Our Track Record</h3>
+                <div class="stats-grid-modern">
+                    <div class="stat-item">
+                        <div class="stat-value">20+</div>
+                        <div class="stat-label">Years of Excellence</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">250+</div>
+                        <div class="stat-label">Businesses Served</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">75+</div>
+                        <div class="stat-label">Industrial Segments</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">100%</div>
+                        <div class="stat-label">Satisfaction Rate</div>
                     </div>
                 </div>
             </div>
@@ -71,68 +810,130 @@ include 'includes/header.php';
     </div>
 </section>
 
-<section class="section section-light" style="padding: 5rem 0;">
-    <div class="container">
-        <div class="section-header" style="margin-bottom: 3.5rem;">
-            <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem;">Our Unique Value Proposition</h2>
-            <p style="font-size: 1.125rem; color: var(--text-medium);">What makes us different from traditional architects</p>
+<!-- Value Proposition Section -->
+<section class="about-section alt-bg">
+    <div class="about-container">
+        <div class="section-header-about">
+            <h2>Our Unique Value Proposition</h2>
+            <p>What makes us different from traditional architects and consultants</p>
         </div>
+        
+        <div class="value-grid">
+            <div class="value-card">
+                <div class="value-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M12 1v6m0 6v10"/>
+                        <path d="M21 12h-6m-6 0H1"/>
+                        <path d="M18.36 5.64l-4.24 4.24"/>
+                        <path d="M9.88 14.12l-4.24 4.24"/>
+                        <path d="M5.64 5.64l4.24 4.24"/>
+                        <path d="M14.12 14.12l4.24 4.24"/>
+                    </svg>
+                </div>
+                <h3>Operations-First Mindset</h3>
+                <p>We don't just design buildings — we optimize operations and then design the building to support them. Our team understands manufacturing processes deeply, not just architectural aesthetics.</p>
+            </div>
+            <div class="value-card">
+                <div class="value-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </div>
+                <h3>Proven Lean Methodologies</h3>
+                <p>We bring 20 years of lean manufacturing expertise. Every layout decision is backed by time-tested principles: value stream mapping, takt time, flow, pull, and continuous improvement.</p>
+            </div>
+            <div class="value-card">
+                <div class="value-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M12 20V10"/>
+                        <path d="M18 20V4"/>
+                        <path d="M6 20v-4"/>
+                    </svg>
+                </div>
+                <h3>Measurable Results</h3>
+                <p>We focus on outcomes: reduced lead times, lower inventory, improved productivity, better quality. Our success is measured by your operational performance, not just beautiful buildings.</p>
+            </div>
+        </div>
+    </div>
+</section>
 
-        <div class="grid grid-3" style="gap: 2rem;">
-            <div class="card" style="padding: 2rem; display: flex; flex-direction: column; height: 100%;">
-                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.25rem; color: var(--text-dark);">Operations-First Mindset</h3>
-                <p style="color: var(--text-medium); line-height: 1.7; flex-grow: 1;">We don't just design buildings - we optimize operations and then design the building to support them. Our team understands manufacturing processes deeply, not just architectural aesthetics.</p>
+<!-- Approach Section -->
+<section class="about-section">
+    <div class="about-container">
+        <div class="section-header-about">
+            <h2>Our Approach to Consulting</h2>
+            <p>How we work with clients to deliver lasting value</p>
+        </div>
+        
+        <div class="approach-grid">
+            <div class="approach-card">
+                <div class="approach-num">01</div>
+                <div class="approach-content">
+                    <h3>Partnership, Not Just Service</h3>
+                    <p>We view our engagement as a partnership. Your success is our success. We invest time to deeply understand your business, challenges, and aspirations before proposing solutions.</p>
+                </div>
             </div>
-            <div class="card" style="padding: 2rem; display: flex; flex-direction: column; height: 100%;">
-                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.25rem; color: var(--text-dark);">Proven Lean Methodologies</h3>
-                <p style="color: var(--text-medium); line-height: 1.7; flex-grow: 1;">We bring 20 years of lean manufacturing expertise. Every layout decision is backed by time-tested principles: value stream mapping, takt time, flow, pull, and continuous improvement.</p>
+            <div class="approach-card">
+                <div class="approach-num">02</div>
+                <div class="approach-content">
+                    <h3>Knowledge Transfer</h3>
+                    <p>We don't just do the work and leave. We build your internal capability through knowledge transfer and coaching, empowering you to sustain improvements.</p>
+                </div>
             </div>
-            <div class="card" style="padding: 2rem; display: flex; flex-direction: column; height: 100%;">
-                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.25rem; color: var(--text-dark);">Measurable Results</h3>
-                <p style="color: var(--text-medium); line-height: 1.7; flex-grow: 1;">We focus on outcomes: reduced lead times, lower inventory, improved productivity, better quality. Our success is measured by your operational performance, not just beautiful buildings.</p>
+            <div class="approach-card">
+                <div class="approach-num">03</div>
+                <div class="approach-content">
+                    <h3>Practical, Not Theoretical</h3>
+                    <p>We bring real-world manufacturing experience, not just textbook knowledge. Our solutions are practical, implementable, and deliver results.</p>
+                </div>
+            </div>
+            <div class="approach-card">
+                <div class="approach-num">04</div>
+                <div class="approach-content">
+                    <h3>Continuous Improvement Mindset</h3>
+                    <p>We believe no solution is perfect on day one. We build in feedback loops and refinement cycles to continuously improve.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="integration-banner">
+            <div class="integration-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+            </div>
+            <div class="integration-content">
+                <h3>Single Partner, Complete Responsibility</h3>
+                <p>Our integrated approach means you have a single partner responsible for the entire outcome. We handle coordination across all disciplines — architecture, engineering, lean consulting, compliance — to avoid gaps and finger-pointing.</p>
             </div>
         </div>
     </div>
 </section>
 
-<section class="section" style="padding: 5rem 0;">
-    <div class="container">
-        <div class="section-header" style="margin-bottom: 3.5rem;">
-            <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem;">Our Approach to Consulting</h2>
-            <p style="font-size: 1.125rem; color: var(--text-medium);">How we work with clients</p>
+<!-- CTA Section -->
+<section class="about-cta">
+    <div class="about-cta-inner">
+        <h2>Ready to Work With Us?</h2>
+        <p>Experience the OptiSpace difference in your next factory project. Our integrated approach handles architecture, engineering, and lean consulting as one cohesive solution.</p>
+        <div class="cta-buttons">
+            <a href="<?php echo url('pulse-check.php'); ?>" class="btn-cta-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                Request a Pulse Check
+            </a>
+            <a href="<?php echo url('portfolio.php'); ?>" class="btn-cta-secondary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <path d="M21 15l-5-5L5 21"/>
+                </svg>
+                View Our Portfolio
+            </a>
         </div>
-
-        <div class="grid grid-2" style="gap: 2rem; margin-bottom: 3rem;">
-            <div class="card" style="padding: 2rem; display: flex; flex-direction: column; height: 100%;">
-                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.25rem; color: var(--text-dark);">Partnership, Not Just Service</h3>
-                <p style="color: var(--text-medium); line-height: 1.7; flex-grow: 1;">We view our engagement as a partnership. Your success is our success. We invest time to deeply understand your business, challenges, and aspirations before proposing solutions.</p>
-            </div>
-            <div class="card" style="padding: 2rem; display: flex; flex-direction: column; height: 100%;">
-                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.25rem; color: var(--text-dark);">Knowledge Transfer</h3>
-                <p style="color: var(--text-medium); line-height: 1.7; flex-grow: 1;">We don't just do the work and leave. We build your internal capability through knowledge transfer and coaching, empowering you to sustain improvements.</p>
-            </div>
-            <div class="card" style="padding: 2rem; display: flex; flex-direction: column; height: 100%;">
-                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.25rem; color: var(--text-dark);">Practical, Not Theoretical</h3>
-                <p style="color: var(--text-medium); line-height: 1.7; flex-grow: 1;">We bring real-world manufacturing experience, not just textbook knowledge. Our solutions are practical, implementable, and deliver results.</p>
-            </div>
-            <div class="card" style="padding: 2rem; display: flex; flex-direction: column; height: 100%;">
-                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.25rem; color: var(--text-dark);">Continuous Improvement Mindset</h3>
-                <p style="color: var(--text-medium); line-height: 1.7; flex-grow: 1;">We believe no solution is perfect on day one. We build in feedback loops and refinement cycles to continuously improve.</p>
-            </div>
-        </div>
-
-        <div class="card" style="padding: 2.5rem; text-align: center; background: var(--bg-light); border-left: 4px solid var(--primary-color);">
-            <p style="font-size: 1.25rem; margin-bottom: 1rem;"><strong style="color: var(--text-dark);">Our integrated approach means you have a single partner responsible for the entire outcome.</strong></p>
-            <p style="color: var(--text-medium); line-height: 1.7;">We handle coordination across all disciplines - architecture, engineering, lean consulting, compliance - to avoid gaps and finger-pointing.</p>
-        </div>
-    </div>
-</section>
-
-<section class="cta-section" style="padding: 5rem 0;">
-    <div class="container" style="text-align: center;">
-        <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; color: white;">Ready to Work With Us?</h2>
-        <p style="font-size: 1.25rem; margin-bottom: 2.5rem; opacity: 0.95;">Experience the OptiSpace difference in your next factory project</p>
-        <a href="./contact.php#pulse-check" class="btn btn-large" style="background-color: white; color: var(--primary-color); padding: 1rem 3rem; font-size: 1.0625rem; font-weight: 600; text-decoration: none;">Request a Pulse Check</a>
     </div>
 </section>
 
