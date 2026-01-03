@@ -2,6 +2,79 @@
 $pageTitle = "Blog | Solutions OptiSpace";
 $pageDescription = "Insights, articles, and thought leadership from Solutions OptiSpace on lean manufacturing and factory design.";
 $currentPage = "blogs";
+
+// Load blogs from database
+require_once __DIR__ . '/database/db_config.php';
+$conn = getDBConnection();
+
+// Get category filter if present
+$categorySlug = $_GET['category'] ?? '';
+$categoryFilter = '';
+$categoryInfo = null;
+
+if (!empty($categorySlug)) {
+    $stmt = $conn->prepare("SELECT * FROM blog_categories WHERE slug = ? AND is_active = 1");
+    $stmt->bind_param("s", $categorySlug);
+    $stmt->execute();
+    $categoryInfo = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    
+    if ($categoryInfo) {
+        $categoryFilter = " AND b.category_id = " . $categoryInfo['id'];
+        $pageTitle = $categoryInfo['name'] . " - Blog | Solutions OptiSpace";
+    }
+}
+
+// Fetch featured blogs
+$featuredBlogs = $conn->query("
+    SELECT b.*, c.name as category_name, c.slug as category_slug, c.color as category_color,
+           a.full_name as author_name, a.role as author_role
+    FROM blogs b
+    LEFT JOIN blog_categories c ON b.category_id = c.id
+    LEFT JOIN admin_users a ON b.author_id = a.id
+    WHERE b.is_published = 1 AND b.is_featured = 1 $categoryFilter
+    ORDER BY b.published_at DESC
+    LIMIT 4
+");
+
+// Fetch all published blogs (excluding featured for main list)
+$allBlogs = $conn->query("
+    SELECT b.*, c.name as category_name, c.slug as category_slug, c.color as category_color,
+           a.full_name as author_name, a.role as author_role
+    FROM blogs b
+    LEFT JOIN blog_categories c ON b.category_id = c.id
+    LEFT JOIN admin_users a ON b.author_id = a.id
+    WHERE b.is_published = 1 $categoryFilter
+    ORDER BY b.published_at DESC
+    LIMIT 20
+");
+
+// Fetch categories with counts
+$categories = $conn->query("
+    SELECT c.*, COUNT(b.id) as blog_count
+    FROM blog_categories c
+    LEFT JOIN blogs b ON c.id = b.category_id AND b.is_published = 1
+    WHERE c.is_active = 1
+    GROUP BY c.id
+    ORDER BY c.sort_order, c.name
+");
+
+// Get total blog count and other stats
+$totalBlogs = $conn->query("SELECT COUNT(*) as cnt FROM blogs WHERE is_published = 1")->fetch_assoc()['cnt'];
+$totalCategories = $conn->query("SELECT COUNT(*) as cnt FROM blog_categories WHERE is_active = 1")->fetch_assoc()['cnt'];
+
+$conn->close();
+
+// Helper function to get author initials
+function getAuthorInitials($name) {
+    $words = explode(' ', $name);
+    $initials = '';
+    foreach ($words as $word) {
+        $initials .= strtoupper(substr($word, 0, 1));
+    }
+    return substr($initials, 0, 2);
+}
+
 include 'includes/header.php';
 ?>
 
@@ -300,11 +373,11 @@ include 'includes/header.php';
             <p class="blog-hero-text">Expert perspectives on lean manufacturing, factory optimization, and operational excellence. Learn from real-world implementations and industry expertise.</p>
             <div class="hero-stats">
                 <div class="hero-stat">
-                    <div class="hero-stat-value">25+</div>
+                    <div class="hero-stat-value"><?php echo $totalBlogs; ?>+</div>
                     <div class="hero-stat-label">Articles</div>
                 </div>
                 <div class="hero-stat">
-                    <div class="hero-stat-value">5</div>
+                    <div class="hero-stat-value"><?php echo $totalCategories; ?></div>
                     <div class="hero-stat-label">Categories</div>
                 </div>
                 <div class="hero-stat">
@@ -378,78 +451,38 @@ include 'includes/header.php';
         </div>
         
         <div class="categories-grid">
-            <a href="#lean-factory" class="category-card">
-                <div class="category-icon orange">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                        <path d="M2 17l10 5 10-5"/>
-                        <path d="M2 12l10 5 10-5"/>
-                    </svg>
-                </div>
-                <div class="category-content">
-                    <h3>Lean Factory Design</h3>
-                    <p>Principles and methodologies for creating efficient manufacturing spaces</p>
-                    <span class="category-count">8 Articles</span>
-                </div>
-            </a>
+            <?php 
+            $categoryIcons = [
+                'lean-factory' => '<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>',
+                'layout-design' => '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>',
+                'case-studies' => '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+                'industry-trends' => '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
+                'operations' => '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>'
+            ];
+            $colorClasses = ['orange', 'blue', 'green', 'purple', 'gray'];
+            $colorIndex = 0;
             
-            <a href="#layout" class="category-card">
-                <div class="category-icon blue">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/>
-                        <path d="M3 9h18"/>
-                        <path d="M9 21V9"/>
-                    </svg>
-                </div>
-                <div class="category-content">
-                    <h3>Layout Optimization</h3>
-                    <p>Space planning, workflow design, and facility arrangement strategies</p>
-                    <span class="category-count">6 Articles</span>
-                </div>
-            </a>
+            // Reset categories result pointer
+            $categories->data_seek(0);
             
-            <a href="#case-studies" class="category-card">
-                <div class="category-icon green">
+            while ($cat = $categories->fetch_assoc()): 
+                $iconSvg = $categoryIcons[$cat['slug']] ?? '<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>';
+                $colorClass = $colorClasses[$colorIndex % count($colorClasses)];
+                $colorIndex++;
+            ?>
+            <a href="?category=<?php echo urlencode($cat['slug']); ?>" class="category-card">
+                <div class="category-icon <?php echo $colorClass; ?>">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                        <polyline points="22 4 12 14.01 9 11.01"/>
+                        <?php echo $iconSvg; ?>
                     </svg>
                 </div>
                 <div class="category-content">
-                    <h3>Case Studies</h3>
-                    <p>Real-world success stories and implementation examples</p>
-                    <span class="category-count">5 Articles</span>
+                    <h3><?php echo htmlspecialchars($cat['name']); ?></h3>
+                    <p><?php echo htmlspecialchars($cat['description'] ?: 'Articles about ' . $cat['name']); ?></p>
+                    <span class="category-count"><?php echo $cat['blog_count']; ?> Articles</span>
                 </div>
             </a>
-            
-            <a href="#industry-trends" class="category-card">
-                <div class="category-icon purple">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                        <line x1="12" y1="22.08" x2="12" y2="12"/>
-                    </svg>
-                </div>
-                <div class="category-content">
-                    <h3>Industry Trends</h3>
-                    <p>Latest developments in manufacturing and Industry 4.0</p>
-                    <span class="category-count">4 Articles</span>
-                </div>
-            </a>
-            
-            <a href="#operations" class="category-card">
-                <div class="category-icon gray">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="3"/>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                    </svg>
-                </div>
-                <div class="category-content">
-                    <h3>Operational Excellence</h3>
-                    <p>Best practices for continuous improvement and efficiency</p>
-                    <span class="category-count">2 Articles</span>
-                </div>
-            </a>
+            <?php endwhile; ?>
         </div>
     </div>
 </section>
@@ -610,31 +643,39 @@ include 'includes/header.php';
             <p class="section-desc">Hand-picked articles our readers find most valuable</p>
         </div>
         
+        <?php if ($featuredBlogs->num_rows > 0): 
+            $featuredBlogs->data_seek(0);
+            $mainFeatured = $featuredBlogs->fetch_assoc();
+        ?>
         <div class="featured-grid">
             <article class="featured-main">
                 <div class="featured-image">
-                    <div class="image-placeholder">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                            <path d="M2 17l10 5 10-5"/>
-                            <path d="M2 12l10 5 10-5"/>
-                        </svg>
-                    </div>
+                    <?php if ($mainFeatured['featured_image']): ?>
+                        <img src="<?php echo htmlspecialchars($mainFeatured['featured_image']); ?>" alt="<?php echo htmlspecialchars($mainFeatured['title']); ?>">
+                    <?php else: ?>
+                        <div class="image-placeholder">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M2 17l10 5 10-5"/>
+                                <path d="M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                    <?php endif; ?>
                     <span class="featured-badge">Featured</span>
                 </div>
                 <div class="featured-content">
                     <div class="article-meta">
-                        <span class="article-category orange">Lean Factory</span>
-                        <span class="article-date">Dec 15, 2025</span>
+                        <span class="article-category" style="background: <?php echo $mainFeatured['category_color'] ?? '#E99431'; ?>20; color: <?php echo $mainFeatured['category_color'] ?? '#E99431'; ?>;"><?php echo htmlspecialchars($mainFeatured['category_name'] ?? 'Uncategorized'); ?></span>
+                        <span class="article-date"><?php echo date('M j, Y', strtotime($mainFeatured['published_at'])); ?></span>
                     </div>
-                    <h3><a href="<?php echo url('blog/7-principles-lean-factory-design.php'); ?>">7 Principles of Lean Factory Design That Transform Operations</a></h3>
-                    <p>Discover the fundamental principles that guide successful lean factory implementations. From value stream mapping to continuous flow, learn how these concepts translate into tangible efficiency gains.</p>
+                    <h3><a href="<?php echo url('blog/article.php?slug=' . urlencode($mainFeatured['slug'])); ?>"><?php echo htmlspecialchars($mainFeatured['title']); ?></a></h3>
+                    <p><?php echo htmlspecialchars($mainFeatured['excerpt'] ?: substr(strip_tags($mainFeatured['content']), 0, 200) . '...'); ?></p>
                     <div class="article-footer">
                         <div class="author-info">
-                            <div class="author-avatar">RS</div>
+                            <div class="author-avatar"><?php echo getAuthorInitials($mainFeatured['author_name']); ?></div>
                             <div class="author-details">
-                                <span class="author-name">Rajesh Sharma</span>
-                                <span class="author-role">Lead Consultant</span>
+                                <span class="author-name"><?php echo htmlspecialchars($mainFeatured['author_name']); ?></span>
+                                <span class="author-role"><?php echo ucfirst(str_replace('_', ' ', $mainFeatured['author_role'])); ?></span>
                             </div>
                         </div>
                         <span class="read-time">
@@ -642,74 +683,52 @@ include 'includes/header.php';
                                 <circle cx="12" cy="12" r="10"/>
                                 <polyline points="12 6 12 12 16 14"/>
                             </svg>
-                            8 min read
+                            <?php echo $mainFeatured['read_time']; ?> min read
                         </span>
                     </div>
                 </div>
             </article>
             
             <div class="featured-sidebar">
+                <?php 
+                $colorClasses = ['blue', 'green', 'purple', 'orange'];
+                $colorIndex = 0;
+                while ($featured = $featuredBlogs->fetch_assoc()): 
+                ?>
                 <article class="featured-small">
                     <div class="featured-small-image">
-                        <div class="image-placeholder small">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <rect x="3" y="3" width="18" height="18" rx="2"/>
-                                <path d="M3 9h18"/>
-                                <path d="M9 21V9"/>
-                            </svg>
-                        </div>
+                        <?php if ($featured['featured_image']): ?>
+                            <img src="<?php echo htmlspecialchars($featured['featured_image']); ?>" alt="">
+                        <?php else: ?>
+                            <div class="image-placeholder small">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                    <path d="M2 17l10 5 10-5"/>
+                                    <path d="M2 12l10 5 10-5"/>
+                                </svg>
+                            </div>
+                        <?php endif; ?>
                     </div>
                     <div class="featured-small-content">
-                        <span class="article-category blue">Layout Design</span>
-                        <h4><a href="<?php echo url('blog/brownfield-vs-greenfield.php'); ?>">Brownfield vs Greenfield: Making the Right Choice for Your Factory</a></h4>
+                        <span class="article-category <?php echo $colorClasses[$colorIndex % 4]; ?>"><?php echo htmlspecialchars($featured['category_name'] ?? 'Article'); ?></span>
+                        <h4><a href="<?php echo url('blog/article.php?slug=' . urlencode($featured['slug'])); ?>"><?php echo htmlspecialchars($featured['title']); ?></a></h4>
                         <div class="article-meta-small">
-                            <span>Nov 28, 2025</span>
+                            <span><?php echo date('M j, Y', strtotime($featured['published_at'])); ?></span>
                             <span>•</span>
-                            <span>6 min read</span>
+                            <span><?php echo $featured['read_time']; ?> min read</span>
                         </div>
                     </div>
                 </article>
-                
-                <article class="featured-small">
-                    <div class="featured-small-image">
-                        <div class="image-placeholder small">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                                <polyline points="22 4 12 14.01 9 11.01"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="featured-small-content">
-                        <span class="article-category green">Case Study</span>
-                        <h4><a href="<?php echo url('blog/automotive-plant-transformation.php'); ?>">How We Achieved 40% Efficiency Gain in an Automotive Plant</a></h4>
-                        <div class="article-meta-small">
-                            <span>Nov 12, 2025</span>
-                            <span>•</span>
-                            <span>10 min read</span>
-                        </div>
-                    </div>
-                </article>
-                
-                <article class="featured-small">
-                    <div class="featured-small-image">
-                        <div class="image-placeholder small">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="featured-small-content">
-                        <span class="article-category purple">Industry Trends</span>
-                        <h4><a href="<?php echo url('blog/industry-4-0-lean-manufacturing.php'); ?>">Industry 4.0 Meets Lean: The Future of Manufacturing</a></h4>
-                        <div class="article-meta-small">
-                            <span>Oct 30, 2025</span>
-                            <span>•</span>
-                            <span>7 min read</span>
-                        </div>
-                    </div>
-                </article>
+                <?php 
+                $colorIndex++;
+                endwhile; ?>
             </div>
         </div>
+        <?php else: ?>
+        <div class="empty-featured">
+            <p>No featured articles yet. Check back soon for editor's picks!</p>
+        </div>
+        <?php endif; ?>
     </div>
 </section>
 
@@ -1045,46 +1064,64 @@ include 'includes/header.php';
     <div class="blog-container">
         <div class="articles-header">
             <div class="section-header-left">
-                <span class="section-label">Latest</span>
-                <h2>All Articles</h2>
+                <span class="section-label"><?php echo $categoryInfo ? htmlspecialchars($categoryInfo['name']) : 'Latest'; ?></span>
+                <h2><?php echo $categoryInfo ? 'Articles' : 'All Articles'; ?></h2>
             </div>
             <div class="filter-tabs">
-                <button class="filter-tab active" data-filter="all">All</button>
-                <button class="filter-tab" data-filter="lean-factory">Lean Factory</button>
-                <button class="filter-tab" data-filter="layout">Layout</button>
-                <button class="filter-tab" data-filter="case-study">Case Studies</button>
-                <button class="filter-tab" data-filter="trends">Trends</button>
+                <a href="blogs.php" class="filter-tab <?php echo empty($categorySlug) ? 'active' : ''; ?>">All</a>
+                <?php 
+                $categories->data_seek(0);
+                while ($cat = $categories->fetch_assoc()): ?>
+                    <a href="?category=<?php echo urlencode($cat['slug']); ?>" class="filter-tab <?php echo $categorySlug === $cat['slug'] ? 'active' : ''; ?>"><?php echo htmlspecialchars($cat['name']); ?></a>
+                <?php endwhile; ?>
             </div>
         </div>
         
         <div class="articles-grid">
-            <!-- Article 1 -->
+            <?php 
+            $colorClasses = ['orange', 'blue', 'green', 'purple', 'gray'];
+            
+            if ($allBlogs->num_rows > 0):
+                while ($blog = $allBlogs->fetch_assoc()): 
+                    // Get color class based on category
+                    $catColor = 'orange';
+                    switch ($blog['category_slug']) {
+                        case 'layout-design': $catColor = 'blue'; break;
+                        case 'case-studies': $catColor = 'green'; break;
+                        case 'industry-trends': $catColor = 'purple'; break;
+                        case 'operations': $catColor = 'gray'; break;
+                    }
+            ?>
             <article class="article-card">
                 <div class="article-card-image">
-                    <div class="image-placeholder">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                            <path d="M2 17l10 5 10-5"/>
-                            <path d="M2 12l10 5 10-5"/>
-                        </svg>
-                    </div>
+                    <?php if ($blog['featured_image']): ?>
+                        <img src="<?php echo htmlspecialchars($blog['featured_image']); ?>" alt="">
+                    <?php else: ?>
+                        <div class="image-placeholder">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M2 17l10 5 10-5"/>
+                                <path d="M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 <div class="article-card-content">
                     <div class="article-meta">
-                        <span class="article-category orange">Lean Factory</span>
-                        <span class="article-date">Dec 5, 2025</span>
+                        <span class="article-category <?php echo $catColor; ?>"><?php echo htmlspecialchars($blog['category_name'] ?? 'Article'); ?></span>
+                        <span class="article-date"><?php echo date('M j, Y', strtotime($blog['published_at'])); ?></span>
                     </div>
-                    <h3><a href="<?php echo url('blog/value-stream-mapping-guide.php'); ?>">Complete Guide to Value Stream Mapping in Modern Factories</a></h3>
-                    <p>Learn how to identify waste and optimize your manufacturing processes with this comprehensive VSM guide.</p>
+                    <h3><a href="<?php echo url('blog/article.php?slug=' . urlencode($blog['slug'])); ?>"><?php echo htmlspecialchars($blog['title']); ?></a></h3>
+                    <p><?php echo htmlspecialchars($blog['excerpt'] ?: substr(strip_tags($blog['content']), 0, 150) . '...'); ?></p>
                     <div class="article-card-footer">
                         <span class="read-time">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="12" r="10"/>
                                 <polyline points="12 6 12 12 16 14"/>
                             </svg>
-                            7 min read
+                            <?php echo $blog['read_time']; ?> min read
                         </span>
-                        <a href="<?php echo url('blog/value-stream-mapping-guide.php'); ?>" class="read-more">
+                        <a href="<?php echo url('blog/article.php?slug=' . urlencode($blog['slug'])); ?>" class="read-more">
                             Read More
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M5 12h14"/>
@@ -1094,188 +1131,17 @@ include 'includes/header.php';
                     </div>
                 </div>
             </article>
-
-            <!-- Article 2 -->
-            <article class="article-card">
-                <div class="article-card-image">
-                    <div class="image-placeholder">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <rect x="3" y="3" width="18" height="18" rx="2"/>
-                            <path d="M3 9h18"/>
-                            <path d="M9 21V9"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="article-card-content">
-                    <div class="article-meta">
-                        <span class="article-category blue">Layout Design</span>
-                        <span class="article-date">Nov 22, 2025</span>
-                    </div>
-                    <h3><a href="<?php echo url('blog/optimal-material-flow.php'); ?>">Designing Optimal Material Flow in Manufacturing Facilities</a></h3>
-                    <p>Strategies for minimizing handling time and reducing transportation waste through intelligent layout design.</p>
-                    <div class="article-card-footer">
-                        <span class="read-time">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <polyline points="12 6 12 12 16 14"/>
-                            </svg>
-                            5 min read
-                        </span>
-                        <a href="<?php echo url('blog/optimal-material-flow.php'); ?>" class="read-more">
-                            Read More
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M5 12h14"/>
-                                <path d="M12 5l7 7-7 7"/>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            </article>
-
-            <!-- Article 3 -->
-            <article class="article-card">
-                <div class="article-card-image">
-                    <div class="image-placeholder">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                            <polyline points="22 4 12 14.01 9 11.01"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="article-card-content">
-                    <div class="article-meta">
-                        <span class="article-category green">Case Study</span>
-                        <span class="article-date">Nov 8, 2025</span>
-                    </div>
-                    <h3><a href="<?php echo url('blog/pharmaceutical-facility-redesign.php'); ?>">Pharmaceutical Facility Redesign: Achieving GMP Compliance</a></h3>
-                    <p>How we helped a pharma manufacturer meet regulatory requirements while improving efficiency by 35%.</p>
-                    <div class="article-card-footer">
-                        <span class="read-time">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <polyline points="12 6 12 12 16 14"/>
-                            </svg>
-                            12 min read
-                        </span>
-                        <a href="<?php echo url('blog/pharmaceutical-facility-redesign.php'); ?>" class="read-more">
-                            Read More
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M5 12h14"/>
-                                <path d="M12 5l7 7-7 7"/>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            </article>
-
-            <!-- Article 4 -->
-            <article class="article-card">
-                <div class="article-card-image">
-                    <div class="image-placeholder">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="article-card-content">
-                    <div class="article-meta">
-                        <span class="article-category purple">Industry Trends</span>
-                        <span class="article-date">Oct 25, 2025</span>
-                    </div>
-                    <h3><a href="<?php echo url('blog/digital-twin-factory-planning.php'); ?>">Digital Twins in Factory Planning: A Practical Guide</a></h3>
-                    <p>Understanding how digital twin technology is revolutionizing factory design and optimization processes.</p>
-                    <div class="article-card-footer">
-                        <span class="read-time">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <polyline points="12 6 12 12 16 14"/>
-                            </svg>
-                            9 min read
-                        </span>
-                        <a href="<?php echo url('blog/digital-twin-factory-planning.php'); ?>" class="read-more">
-                            Read More
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M5 12h14"/>
-                                <path d="M12 5l7 7-7 7"/>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            </article>
-
-            <!-- Article 5 -->
-            <article class="article-card">
-                <div class="article-card-image">
-                    <div class="image-placeholder">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <circle cx="12" cy="12" r="3"/>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="article-card-content">
-                    <div class="article-meta">
-                        <span class="article-category orange">Lean Factory</span>
-                        <span class="article-date">Oct 18, 2025</span>
-                    </div>
-                    <h3><a href="<?php echo url('blog/5s-implementation-manufacturing.php'); ?>">5S Implementation: Beyond the Basics in Manufacturing</a></h3>
-                    <p>Advanced strategies for sustaining 5S practices and creating a culture of continuous workplace organization.</p>
-                    <div class="article-card-footer">
-                        <span class="read-time">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <polyline points="12 6 12 12 16 14"/>
-                            </svg>
-                            6 min read
-                        </span>
-                        <a href="<?php echo url('blog/5s-implementation-manufacturing.php'); ?>" class="read-more">
-                            Read More
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M5 12h14"/>
-                                <path d="M12 5l7 7-7 7"/>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            </article>
-
-            <!-- Article 6 -->
-            <article class="article-card">
-                <div class="article-card-image">
-                    <div class="image-placeholder">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="16" y1="13" x2="8" y2="13"/>
-                            <line x1="16" y1="17" x2="8" y2="17"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="article-card-content">
-                    <div class="article-meta">
-                        <span class="article-category blue">Layout Design</span>
-                        <span class="article-date">Oct 10, 2025</span>
-                    </div>
-                    <h3><a href="<?php echo url('blog/factory-expansion-planning.php'); ?>">Planning Factory Expansion Without Disrupting Operations</a></h3>
-                    <p>Key considerations and strategies for expanding manufacturing capacity while maintaining production continuity.</p>
-                    <div class="article-card-footer">
-                        <span class="read-time">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <polyline points="12 6 12 12 16 14"/>
-                            </svg>
-                            8 min read
-                        </span>
-                        <a href="<?php echo url('blog/factory-expansion-planning.php'); ?>" class="read-more">
-                            Read More
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M5 12h14"/>
-                                <path d="M12 5l7 7-7 7"/>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            </article>
+            <?php endwhile; ?>
+            <?php else: ?>
+            <div class="no-articles" style="grid-column: 1/-1; text-align: center; padding: 4rem 2rem;">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="1.5" style="margin: 0 auto 1rem;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                <h3 style="color: #1E293B; margin-bottom: 0.5rem;">No Articles Yet</h3>
+                <p style="color: #64748B;">Check back soon for new content!</p>
+            </div>
+            <?php endif; ?>
         </div>
         
         <div class="load-more-container">

@@ -37,10 +37,11 @@ define('ENVIRONMENT', 'development');
 // Uncomment the appropriate line based on your environment:
 
 // For XAMPP local development (installed at htdocs/Optispace_Website)
-// define('BASE_URL', '/Optispace_Website');
+// For XAMPP local development (installed at htdocs/Optispace_Website)
+define('BASE_URL', '/Optispace_Website');
 
 // For production (installed at domain root)
-define('BASE_URL', '');
+// define('BASE_URL', '');
 
 // For production with full URL
 // define('BASE_URL', 'https://www.optispace.com');

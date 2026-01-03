@@ -2,6 +2,66 @@
 $pageTitle = "Project Gallery | Solutions OptiSpace";
 $pageDescription = "Explore our portfolio of lean factory designs, facility transformations, and successful project implementations across industries.";
 $currentPage = "gallery";
+
+// Database connection
+require_once __DIR__ . '/database/db_config.php';
+$conn = getDBConnection();
+
+// Fetch gallery categories
+$categoriesResult = $conn->query("SELECT * FROM gallery_categories WHERE is_active = 1 ORDER BY sort_order ASC");
+$categories = [];
+while ($row = $categoriesResult->fetch_assoc()) {
+    $categories[] = $row;
+}
+
+// Fetch gallery items with category info
+$itemsResult = $conn->query("
+    SELECT gi.*, gc.name as category_name, gc.slug as category_slug, gc.bg_class, gc.color
+    FROM gallery_items gi
+    JOIN gallery_categories gc ON gi.category_id = gc.id
+    WHERE gi.is_active = 1
+    ORDER BY gi.sort_order ASC, gi.created_at DESC
+");
+$galleryItems = [];
+while ($row = $itemsResult->fetch_assoc()) {
+    $galleryItems[] = $row;
+}
+
+// Fetch featured projects with category info
+$featuredResult = $conn->query("
+    SELECT fp.*, gi.id as item_id, gc.slug as category_slug, gc.bg_class, gc.name as category_name
+    FROM featured_projects fp
+    LEFT JOIN gallery_items gi ON fp.gallery_item_id = gi.id
+    LEFT JOIN gallery_categories gc ON gi.category_id = gc.id
+    WHERE fp.is_active = 1
+    ORDER BY fp.is_primary DESC, fp.sort_order ASC
+");
+$featuredProjects = [];
+while ($row = $featuredResult->fetch_assoc()) {
+    $featuredProjects[] = $row;
+}
+
+// Fetch industries
+$industriesResult = $conn->query("SELECT * FROM gallery_industries WHERE is_active = 1 ORDER BY sort_order ASC");
+$industries = [];
+while ($row = $industriesResult->fetch_assoc()) {
+    $industries[] = $row;
+}
+
+// Calculate stats
+$totalProjects = count($galleryItems);
+$totalIndustries = count($industries);
+$totalSqFt = 0;
+foreach ($galleryItems as $item) {
+    if (preg_match('/(\d+)[,\s]*(\d*)\s*(sq\s*ft|square\s*feet)/i', $item['project_size'] ?? '', $matches)) {
+        $sqft = (int)str_replace(',', '', $matches[1] . $matches[2]);
+        $totalSqFt += $sqft;
+    }
+}
+$sqFtDisplay = $totalSqFt >= 1000000 ? round($totalSqFt / 1000000, 1) . 'M+' : round($totalSqFt / 1000) . 'K+';
+
+$conn->close();
+
 include 'includes/header.php';
 ?>
 
@@ -253,15 +313,15 @@ include 'includes/header.php';
             <p class="gallery-hero-text">Explore our collection of lean factory transformations, facility designs, and successful implementations across diverse industries.</p>
             <div class="hero-stats">
                 <div class="hero-stat">
-                    <div class="hero-stat-value">50+</div>
+                    <div class="hero-stat-value"><?php echo $totalProjects; ?>+</div>
                     <div class="hero-stat-label">Projects Completed</div>
                 </div>
                 <div class="hero-stat">
-                    <div class="hero-stat-value">12</div>
+                    <div class="hero-stat-value"><?php echo $totalIndustries; ?></div>
                     <div class="hero-stat-label">Industries Served</div>
                 </div>
                 <div class="hero-stat">
-                    <div class="hero-stat-value">1M+</div>
+                    <div class="hero-stat-value"><?php echo $sqFtDisplay; ?></div>
                     <div class="hero-stat-label">Sq Ft Optimized</div>
                 </div>
             </div>
@@ -317,36 +377,32 @@ include 'includes/header.php';
                 </svg>
                 All Projects
             </button>
-            <button class="filter-btn" data-filter="greenfield">
+            <?php foreach ($categories as $cat): ?>
+            <button class="filter-btn" data-filter="<?php echo htmlspecialchars($cat['slug']); ?>">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                    <polyline points="9 22 9 12 15 12 15 22"/>
+                    <?php
+                    // Icon based on category slug
+                    switch ($cat['slug']) {
+                        case 'greenfield':
+                            echo '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>';
+                            break;
+                        case 'brownfield':
+                            echo '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>';
+                            break;
+                        case 'layout':
+                            echo '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>';
+                            break;
+                        case 'process':
+                            echo '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4"/>';
+                            break;
+                        default:
+                            echo '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>';
+                    }
+                    ?>
                 </svg>
-                Greenfield
+                <?php echo htmlspecialchars($cat['name']); ?>
             </button>
-            <button class="filter-btn" data-filter="brownfield">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                    <line x1="12" y1="22.08" x2="12" y2="12"/>
-                </svg>
-                Brownfield
-            </button>
-            <button class="filter-btn" data-filter="layout">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                    <line x1="3" y1="9" x2="21" y2="9"/>
-                    <line x1="9" y1="21" x2="9" y2="9"/>
-                </svg>
-                Layouts
-            </button>
-            <button class="filter-btn" data-filter="process">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4"/>
-                </svg>
-                Process Flow
-            </button>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>
@@ -437,18 +493,38 @@ include 'includes/header.php';
 <section class="gallery-grid-section">
     <div class="gallery-container">
         <div class="gallery-grid">
-            <!-- Project 1 - Greenfield -->
-            <div class="gallery-item" data-category="greenfield">
+            <?php foreach ($galleryItems as $index => $item): ?>
+            <div class="gallery-item" data-category="<?php echo htmlspecialchars($item['category_slug']); ?>">
                 <div class="gallery-card">
                     <div class="gallery-image">
-                        <div class="image-placeholder greenfield-bg">
+                        <?php if (!empty($item['image_path'])): ?>
+                        <img src="<?php echo htmlspecialchars($item['image_path']); ?>" alt="<?php echo htmlspecialchars($item['title']); ?>" style="width:100%;height:100%;object-fit:cover;">
+                        <?php else: ?>
+                        <div class="image-placeholder <?php echo htmlspecialchars($item['bg_class']); ?>">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                                <polyline points="9 22 9 12 15 12 15 22"/>
+                                <?php
+                                switch ($item['category_slug']) {
+                                    case 'greenfield':
+                                        echo '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>';
+                                        break;
+                                    case 'brownfield':
+                                        echo '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>';
+                                        break;
+                                    case 'layout':
+                                        echo '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>';
+                                        break;
+                                    case 'process':
+                                        echo '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>';
+                                        break;
+                                    default:
+                                        echo '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>';
+                                }
+                                ?>
                             </svg>
                         </div>
+                        <?php endif; ?>
                         <div class="gallery-overlay">
-                            <button class="view-btn" data-index="0">
+                            <button class="view-btn" data-index="<?php echo $index; ?>">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <circle cx="11" cy="11" r="8"/>
                                     <path d="m21 21-4.35-4.35"/>
@@ -459,214 +535,19 @@ include 'includes/header.php';
                         </div>
                     </div>
                     <div class="gallery-info">
-                        <span class="gallery-tag greenfield">Greenfield</span>
-                        <h3>Automotive Assembly Plant</h3>
-                        <p>150,000 sq ft new facility with integrated lean production lines</p>
+                        <span class="gallery-tag <?php echo htmlspecialchars($item['category_slug']); ?>"><?php echo htmlspecialchars($item['category_name']); ?></span>
+                        <h3><?php echo htmlspecialchars($item['title']); ?></h3>
+                        <p><?php echo htmlspecialchars($item['description']); ?></p>
                     </div>
                 </div>
             </div>
-
-            <!-- Project 2 - Brownfield -->
-            <div class="gallery-item" data-category="brownfield">
-                <div class="gallery-card">
-                    <div class="gallery-image">
-                        <div class="image-placeholder brownfield-bg">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                            </svg>
-                        </div>
-                        <div class="gallery-overlay">
-                            <button class="view-btn" data-index="1">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="11" cy="11" r="8"/>
-                                    <path d="m21 21-4.35-4.35"/>
-                                    <line x1="11" y1="8" x2="11" y2="14"/>
-                                    <line x1="8" y1="11" x2="14" y2="11"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="gallery-info">
-                        <span class="gallery-tag brownfield">Brownfield</span>
-                        <h3>Pharmaceutical Facility Retrofit</h3>
-                        <p>Modernized 80,000 sq ft facility with zero production downtime</p>
-                    </div>
-                </div>
+            <?php endforeach; ?>
+            
+            <?php if (empty($galleryItems)): ?>
+            <div class="empty-gallery" style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                <p style="color: var(--gallery-text);">No gallery items available yet.</p>
             </div>
-
-            <!-- Project 3 - Layout -->
-            <div class="gallery-item" data-category="layout">
-                <div class="gallery-card">
-                    <div class="gallery-image">
-                        <div class="image-placeholder layout-bg">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                <line x1="3" y1="9" x2="21" y2="9"/>
-                                <line x1="9" y1="21" x2="9" y2="9"/>
-                            </svg>
-                        </div>
-                        <div class="gallery-overlay">
-                            <button class="view-btn" data-index="2">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="11" cy="11" r="8"/>
-                                    <path d="m21 21-4.35-4.35"/>
-                                    <line x1="11" y1="8" x2="11" y2="14"/>
-                                    <line x1="8" y1="11" x2="14" y2="11"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="gallery-info">
-                        <span class="gallery-tag layout">Layout Design</span>
-                        <h3>Electronics Manufacturing Layout</h3>
-                        <p>Optimized flow design reducing material handling by 40%</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Project 4 - Process Flow -->
-            <div class="gallery-item" data-category="process">
-                <div class="gallery-card">
-                    <div class="gallery-image">
-                        <div class="image-placeholder process-bg">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                            </svg>
-                        </div>
-                        <div class="gallery-overlay">
-                            <button class="view-btn" data-index="3">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="11" cy="11" r="8"/>
-                                    <path d="m21 21-4.35-4.35"/>
-                                    <line x1="11" y1="8" x2="11" y2="14"/>
-                                    <line x1="8" y1="11" x2="14" y2="11"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="gallery-info">
-                        <span class="gallery-tag process">Process Flow</span>
-                        <h3>Value Stream Mapping</h3>
-                        <p>End-to-end process optimization for food processing plant</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Project 5 - Greenfield -->
-            <div class="gallery-item" data-category="greenfield">
-                <div class="gallery-card">
-                    <div class="gallery-image">
-                        <div class="image-placeholder greenfield-bg">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                                <path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3"/>
-                            </svg>
-                        </div>
-                        <div class="gallery-overlay">
-                            <button class="view-btn" data-index="4">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="11" cy="11" r="8"/>
-                                    <path d="m21 21-4.35-4.35"/>
-                                    <line x1="11" y1="8" x2="11" y2="14"/>
-                                    <line x1="8" y1="11" x2="14" y2="11"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="gallery-info">
-                        <span class="gallery-tag greenfield">Greenfield</span>
-                        <h3>Medical Devices Manufacturing</h3>
-                        <p>Clean room integrated facility with modular design</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Project 6 - Brownfield -->
-            <div class="gallery-item" data-category="brownfield">
-                <div class="gallery-card">
-                    <div class="gallery-image">
-                        <div class="image-placeholder brownfield-bg">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <circle cx="12" cy="12" r="3"/>
-                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33"/>
-                            </svg>
-                        </div>
-                        <div class="gallery-overlay">
-                            <button class="view-btn" data-index="5">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="11" cy="11" r="8"/>
-                                    <path d="m21 21-4.35-4.35"/>
-                                    <line x1="11" y1="8" x2="11" y2="14"/>
-                                    <line x1="8" y1="11" x2="14" y2="11"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="gallery-info">
-                        <span class="gallery-tag brownfield">Brownfield</span>
-                        <h3>Textile Mill Transformation</h3>
-                        <p>Heritage building converted to modern production facility</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Project 7 - Layout -->
-            <div class="gallery-item" data-category="layout">
-                <div class="gallery-card">
-                    <div class="gallery-image">
-                        <div class="image-placeholder layout-bg">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-                                <polyline points="2 17 12 22 22 17"/>
-                                <polyline points="2 12 12 17 22 12"/>
-                            </svg>
-                        </div>
-                        <div class="gallery-overlay">
-                            <button class="view-btn" data-index="6">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="11" cy="11" r="8"/>
-                                    <path d="m21 21-4.35-4.35"/>
-                                    <line x1="11" y1="8" x2="11" y2="14"/>
-                                    <line x1="8" y1="11" x2="14" y2="11"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="gallery-info">
-                        <span class="gallery-tag layout">Layout Design</span>
-                        <h3>Warehouse Distribution Center</h3>
-                        <p>3PL facility with automated picking and packing zones</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Project 8 - Process -->
-            <div class="gallery-item" data-category="process">
-                <div class="gallery-card">
-                    <div class="gallery-image">
-                        <div class="image-placeholder process-bg">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-                            </svg>
-                        </div>
-                        <div class="gallery-overlay">
-                            <button class="view-btn" data-index="7">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="11" cy="11" r="8"/>
-                                    <path d="m21 21-4.35-4.35"/>
-                                    <line x1="11" y1="8" x2="11" y2="14"/>
-                                    <line x1="8" y1="11" x2="14" y2="11"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="gallery-info">
-                        <span class="gallery-tag process">Process Flow</span>
-                        <h3>Assembly Line Optimization</h3>
-                        <p>Cycle time reduction achieving 25% throughput increase</p>
-                    </div>
-                </div>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>
@@ -891,49 +772,83 @@ include 'includes/header.php';
         </div>
         
         <div class="featured-grid">
-            <!-- Featured Project 1 -->
-            <div class="featured-card primary">
+            <?php foreach ($featuredProjects as $index => $project): ?>
+            <?php 
+            $isPrimary = $project['is_primary'];
+            $bgClass = $project['bg_class'] ?? 'greenfield-bg';
+            $categorySlug = $project['category_slug'] ?? 'greenfield';
+            $categoryName = $project['category_name'] ?? 'Project';
+            ?>
+            <div class="featured-card <?php echo $isPrimary ? 'primary' : ''; ?>">
                 <div class="featured-image">
-                    <div class="image-placeholder greenfield-bg">
+                    <?php if (!empty($project['image_path'])): ?>
+                    <img src="<?php echo htmlspecialchars($project['image_path']); ?>" alt="<?php echo htmlspecialchars($project['title']); ?>" style="width:100%;height:100%;object-fit:cover;">
+                    <?php else: ?>
+                    <div class="image-placeholder <?php echo htmlspecialchars($bgClass); ?>">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                            <polyline points="9 22 9 12 15 12 15 22"/>
+                            <?php
+                            switch ($categorySlug) {
+                                case 'greenfield':
+                                    echo '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>';
+                                    break;
+                                case 'brownfield':
+                                    echo '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>';
+                                    break;
+                                case 'layout':
+                                    echo '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>';
+                                    break;
+                                default:
+                                    echo '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>';
+                            }
+                            ?>
                         </svg>
                     </div>
+                    <?php endif; ?>
+                    <?php if ($isPrimary): ?>
                     <div class="featured-badge">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                         </svg>
                         Featured
                     </div>
+                    <?php endif; ?>
                 </div>
                 <div class="featured-content">
                     <div class="featured-meta">
-                        <span class="gallery-tag greenfield">Greenfield</span>
+                        <span class="gallery-tag <?php echo htmlspecialchars($categorySlug); ?>"><?php echo htmlspecialchars($categoryName); ?></span>
+                        <?php if ($isPrimary && !empty($project['location'])): ?>
                         <span class="featured-location">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
                                 <circle cx="12" cy="10" r="3"/>
                             </svg>
-                            Maharashtra, India
+                            <?php echo htmlspecialchars($project['location']); ?>
                         </span>
+                        <?php endif; ?>
                     </div>
-                    <h3>Automotive Components Mega Factory</h3>
-                    <p>A complete greenfield development spanning 250,000 sq ft, featuring integrated lean production cells, automated material handling, and Industry 4.0 connectivity throughout.</p>
-                    <div class="featured-stats">
+                    <h3><?php echo htmlspecialchars($project['title']); ?></h3>
+                    <p><?php echo htmlspecialchars($project['description']); ?></p>
+                    <div class="featured-stats <?php echo $isPrimary ? '' : 'compact'; ?>">
+                        <?php if (!empty($project['stat_1_value'])): ?>
                         <div class="featured-stat">
-                            <span class="stat-value">250K</span>
-                            <span class="stat-label">Sq Ft</span>
+                            <span class="stat-value"><?php echo htmlspecialchars($project['stat_1_value']); ?></span>
+                            <span class="stat-label"><?php echo htmlspecialchars($project['stat_1_label']); ?></span>
                         </div>
+                        <?php endif; ?>
+                        <?php if (!empty($project['stat_2_value'])): ?>
                         <div class="featured-stat">
-                            <span class="stat-value">35%</span>
-                            <span class="stat-label">Efficiency Gain</span>
+                            <span class="stat-value"><?php echo htmlspecialchars($project['stat_2_value']); ?></span>
+                            <span class="stat-label"><?php echo htmlspecialchars($project['stat_2_label']); ?></span>
                         </div>
+                        <?php endif; ?>
+                        <?php if ($isPrimary && !empty($project['stat_3_value'])): ?>
                         <div class="featured-stat">
-                            <span class="stat-value">18</span>
-                            <span class="stat-label">Months</span>
+                            <span class="stat-value"><?php echo htmlspecialchars($project['stat_3_value']); ?></span>
+                            <span class="stat-label"><?php echo htmlspecialchars($project['stat_3_label']); ?></span>
                         </div>
+                        <?php endif; ?>
                     </div>
+                    <?php if ($isPrimary): ?>
                     <a href="<?php echo url('portfolio.php'); ?>" class="featured-link">
                         View Case Study
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -941,66 +856,16 @@ include 'includes/header.php';
                             <polyline points="12 5 19 12 12 19"/>
                         </svg>
                     </a>
+                    <?php endif; ?>
                 </div>
             </div>
+            <?php endforeach; ?>
             
-            <!-- Featured Project 2 -->
-            <div class="featured-card">
-                <div class="featured-image">
-                    <div class="image-placeholder brownfield-bg">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="featured-content">
-                    <div class="featured-meta">
-                        <span class="gallery-tag brownfield">Brownfield</span>
-                    </div>
-                    <h3>FMCG Distribution Hub</h3>
-                    <p>Complete retrofit of legacy warehouse into a modern lean distribution center with optimized picking routes.</p>
-                    <div class="featured-stats compact">
-                        <div class="featured-stat">
-                            <span class="stat-value">120K</span>
-                            <span class="stat-label">Sq Ft</span>
-                        </div>
-                        <div class="featured-stat">
-                            <span class="stat-value">45%</span>
-                            <span class="stat-label">Faster Picking</span>
-                        </div>
-                    </div>
-                </div>
+            <?php if (empty($featuredProjects)): ?>
+            <div class="empty-featured" style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                <p style="color: var(--gallery-text);">No featured projects available yet.</p>
             </div>
-            
-            <!-- Featured Project 3 -->
-            <div class="featured-card">
-                <div class="featured-image">
-                    <div class="image-placeholder layout-bg">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                            <line x1="3" y1="9" x2="21" y2="9"/>
-                            <line x1="9" y1="21" x2="9" y2="9"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="featured-content">
-                    <div class="featured-meta">
-                        <span class="gallery-tag layout">Layout Design</span>
-                    </div>
-                    <h3>Precision Engineering Works</h3>
-                    <p>Optimized cellular manufacturing layout for aerospace component manufacturer with enhanced quality zones.</p>
-                    <div class="featured-stats compact">
-                        <div class="featured-stat">
-                            <span class="stat-value">60K</span>
-                            <span class="stat-label">Sq Ft</span>
-                        </div>
-                        <div class="featured-stat">
-                            <span class="stat-value">50%</span>
-                            <span class="stat-label">Less WIP</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>
@@ -1420,65 +1285,21 @@ include 'includes/header.php';
 </style>
 
 <script>
-// Gallery Data
-const galleryData = [
-    {
-        category: 'greenfield',
-        tag: 'Greenfield',
-        title: 'Automotive Assembly Plant',
-        description: '150,000 sq ft new facility with integrated lean production lines',
-        bgClass: 'greenfield-bg'
-    },
-    {
-        category: 'brownfield',
-        tag: 'Brownfield',
-        title: 'Pharmaceutical Facility Retrofit',
-        description: 'Modernized 80,000 sq ft facility with zero production downtime',
-        bgClass: 'brownfield-bg'
-    },
-    {
-        category: 'layout',
-        tag: 'Layout Design',
-        title: 'Electronics Manufacturing Layout',
-        description: 'Optimized flow design reducing material handling by 40%',
-        bgClass: 'layout-bg'
-    },
-    {
-        category: 'process',
-        tag: 'Process Flow',
-        title: 'Value Stream Mapping',
-        description: 'End-to-end process optimization for food processing plant',
-        bgClass: 'process-bg'
-    },
-    {
-        category: 'greenfield',
-        tag: 'Greenfield',
-        title: 'Medical Devices Manufacturing',
-        description: 'Clean room integrated facility with modular design',
-        bgClass: 'greenfield-bg'
-    },
-    {
-        category: 'brownfield',
-        tag: 'Brownfield',
-        title: 'Textile Mill Transformation',
-        description: 'Heritage building converted to modern production facility',
-        bgClass: 'brownfield-bg'
-    },
-    {
-        category: 'layout',
-        tag: 'Layout Design',
-        title: 'Warehouse Distribution Center',
-        description: '3PL facility with automated picking and packing zones',
-        bgClass: 'layout-bg'
-    },
-    {
-        category: 'process',
-        tag: 'Process Flow',
-        title: 'Assembly Line Optimization',
-        description: 'Cycle time reduction achieving 25% throughput increase',
-        bgClass: 'process-bg'
-    }
-];
+// Gallery Data - Dynamically generated from database
+const galleryData = <?php 
+$jsGalleryData = [];
+foreach ($galleryItems as $item) {
+    $jsGalleryData[] = [
+        'category' => $item['category_slug'],
+        'tag' => $item['category_name'],
+        'title' => $item['title'],
+        'description' => $item['description'] ?? '',
+        'bgClass' => $item['bg_class'],
+        'imagePath' => $item['image_path'] ?? ''
+    ];
+}
+echo json_encode($jsGalleryData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+?>;
 
 document.addEventListener('DOMContentLoaded', function() {
     // Filter functionality
@@ -1544,7 +1365,14 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateLightbox() {
         const data = galleryData[currentIndex];
         lightboxImage.className = 'lightbox-image ' + data.bgClass;
-        lightboxImage.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+        
+        // Check if image exists
+        if (data.imagePath && data.imagePath.length > 0) {
+            lightboxImage.innerHTML = '<img src="' + data.imagePath + '" alt="' + data.title + '" style="width:100%;height:100%;object-fit:contain;">';
+        } else {
+            lightboxImage.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+        }
+        
         lightboxTag.textContent = data.tag;
         lightboxTag.className = 'lightbox-tag';
         lightboxTitle.textContent = data.title;
@@ -1596,64 +1424,49 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
         
         <div class="industries-grid">
+            <?php foreach ($industries as $industry): ?>
             <div class="industry-card">
                 <div class="industry-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M12 6v6l4 2"/>
+                        <?php
+                        switch ($industry['icon']) {
+                            case 'car':
+                                echo '<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C1.4 11.3 1 12.1 1 13v3c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>';
+                                break;
+                            case 'medical':
+                                echo '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>';
+                                break;
+                            case 'chip':
+                                echo '<rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/>';
+                                break;
+                            case 'food':
+                                echo '<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>';
+                                break;
+                            case 'plane':
+                                echo '<path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>';
+                                break;
+                            case 'heart':
+                                echo '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>';
+                                break;
+                            case 'cog':
+                                echo '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4"/>';
+                                break;
+                            default:
+                                echo '<path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/>';
+                        }
+                        ?>
                     </svg>
                 </div>
-                <h4>Automotive</h4>
-                <span>12 Projects</span>
+                <h4><?php echo htmlspecialchars($industry['name']); ?></h4>
+                <span><?php echo $industry['project_count']; ?>+ Projects</span>
             </div>
-            <div class="industry-card">
-                <div class="industry-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-                    </svg>
-                </div>
-                <h4>Pharmaceutical</h4>
-                <span>8 Projects</span>
+            <?php endforeach; ?>
+            
+            <?php if (empty($industries)): ?>
+            <div class="empty-industries" style="grid-column: 1/-1; text-align: center; padding: 2rem;">
+                <p style="color: var(--gallery-text);">No industries available yet.</p>
             </div>
-            <div class="industry-card">
-                <div class="industry-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                        <path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3"/>
-                    </svg>
-                </div>
-                <h4>FMCG</h4>
-                <span>10 Projects</span>
-            </div>
-            <div class="industry-card">
-                <div class="industry-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                    </svg>
-                </div>
-                <h4>Electronics</h4>
-                <span>7 Projects</span>
-            </div>
-            <div class="industry-card">
-                <div class="industry-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                    </svg>
-                </div>
-                <h4>Medical Devices</h4>
-                <span>5 Projects</span>
-            </div>
-            <div class="industry-card">
-                <div class="industry-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-                        <polyline points="2 17 12 22 22 17"/>
-                        <polyline points="2 12 12 17 22 12"/>
-                    </svg>
-                </div>
-                <h4>Logistics</h4>
-                <span>8 Projects</span>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>

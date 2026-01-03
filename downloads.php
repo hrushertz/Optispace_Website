@@ -3,6 +3,60 @@ $pageTitle = "Downloads | Solutions OptiSpace";
 $pageDescription = "Download brochures, case studies, and resources from Solutions OptiSpace.";
 $currentPage = "downloads";
 include 'includes/header.php';
+
+// Include database
+require_once 'database/db_config.php';
+
+// Get database connection
+$conn = getDBConnection();
+
+// Get active categories with download counts
+$categoriesQuery = "
+    SELECT c.*, 
+           (SELECT COUNT(*) FROM downloads d WHERE d.category_id = c.id AND d.is_active = 1) as download_count
+    FROM download_categories c 
+    WHERE c.is_active = 1 
+    ORDER BY c.sort_order, c.name
+";
+$categoriesResult = $conn->query($categoriesQuery);
+$categories = [];
+$totalResources = 0;
+while ($cat = $categoriesResult->fetch_assoc()) {
+    $categories[] = $cat;
+    $totalResources += $cat['download_count'];
+}
+
+// Get active downloads grouped by category
+$downloadsQuery = "
+    SELECT d.*, c.name as category_name, c.slug as category_slug, c.color as category_color
+    FROM downloads d 
+    LEFT JOIN download_categories c ON d.category_id = c.id 
+    WHERE d.is_active = 1 AND c.is_active = 1
+    ORDER BY c.sort_order, d.is_featured DESC, d.published_date DESC
+";
+$downloadsResult = $conn->query($downloadsQuery);
+$downloads = [];
+while ($download = $downloadsResult->fetch_assoc()) {
+    $downloads[] = $download;
+}
+
+$conn->close();
+
+// Icon SVGs for categories
+$categoryIcons = [
+    'book' => '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+    'document' => '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
+    'cog' => '<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>',
+    'academic-cap' => '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+    'folder' => '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>',
+    'chart' => '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+    'lightbulb' => '<path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>',
+    'puzzle' => '<path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1.026 1.026 0 0 0-.877-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1.026 1.026 0 0 0-.289-.877l-1.568-1.568A2.402 2.402 0 0 1 1.998 12c0-.617.236-1.234.706-1.704L4.23 8.77c.24-.24.581-.353.917-.303.515.077.877.528 1.073 1.01a2.5 2.5 0 1 0 3.259-3.259c-.482-.196-.933-.558-1.01-1.073-.05-.336.062-.676.303-.917l1.525-1.525A2.402 2.402 0 0 1 12 1.998c.617 0 1.234.236 1.704.706l1.568 1.568c.23.23.556.338.878.29.493-.074.84-.504 1.02-.968a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02Z"/>'
+];
+
+function getIconSvg($icon, $icons) {
+    return $icons[$icon] ?? $icons['document'];
+}
 ?>
 
 <style>
@@ -664,11 +718,11 @@ include 'includes/header.php';
             <p class="downloads-hero-text">Access our comprehensive library of brochures, case studies, technical resources, and white papers to help you make informed decisions about your facility optimization.</p>
             <div class="hero-stats">
                 <div class="hero-stat">
-                    <div class="hero-stat-value">15+</div>
+                    <div class="hero-stat-value"><?php echo $totalResources; ?>+</div>
                     <div class="hero-stat-label">Resources</div>
                 </div>
                 <div class="hero-stat">
-                    <div class="hero-stat-value">4</div>
+                    <div class="hero-stat-value"><?php echo count($categories); ?></div>
                     <div class="hero-stat-label">Categories</div>
                 </div>
                 <div class="hero-stat">
@@ -679,48 +733,23 @@ include 'includes/header.php';
         </div>
         <div class="hero-visual">
             <div class="hero-resource-preview">
+            <?php 
+                $previewColors = ['#E99431', '#3B82F6', '#10B981', '#8B5CF6'];
+                $colorIndex = 0;
+                foreach (array_slice($categories, 0, 4) as $category): 
+                    $bgColor = $previewColors[$colorIndex % 4];
+                    $colorIndex++;
+                ?>
                 <div class="preview-resource">
-                    <div class="preview-resource-icon">
+                    <div class="preview-resource-icon" style="background: linear-gradient(135deg, <?php echo $bgColor; ?> 0%, <?php echo $bgColor; ?>cc 100%);">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                            <?php echo getIconSvg($category['icon'], $categoryIcons); ?>
                         </svg>
                     </div>
-                    <div class="preview-resource-title">Brochures</div>
-                    <div class="preview-resource-count">4 files</div>
+                    <div class="preview-resource-title"><?php echo htmlspecialchars($category['name']); ?></div>
+                    <div class="preview-resource-count"><?php echo $category['download_count']; ?> files</div>
                 </div>
-                <div class="preview-resource">
-                    <div class="preview-resource-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="16" y1="13" x2="8" y2="13"/>
-                            <line x1="16" y1="17" x2="8" y2="17"/>
-                        </svg>
-                    </div>
-                    <div class="preview-resource-title">Case Studies</div>
-                    <div class="preview-resource-count">5 files</div>
-                </div>
-                <div class="preview-resource">
-                    <div class="preview-resource-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 20h9"/>
-                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                        </svg>
-                    </div>
-                    <div class="preview-resource-title">Technical Docs</div>
-                    <div class="preview-resource-count">4 files</div>
-                </div>
-                <div class="preview-resource">
-                    <div class="preview-resource-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                        </svg>
-                    </div>
-                    <div class="preview-resource-title">White Papers</div>
-                    <div class="preview-resource-count">2 files</div>
-                </div>
+                <?php endforeach; ?>
             </div>
         </div>
     </div>
@@ -742,101 +771,62 @@ include 'includes/header.php';
             <p>Download free resources to learn more about lean factory building, space optimization, and our proven methodologies</p>
         </div>
 
+        <?php if (!empty($categories)): ?>
         <!-- Category Filter Cards -->
         <div class="category-grid">
-            <div class="category-card active">
-                <div class="category-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            <?php 
+            $categoryIndex = 0;
+            foreach ($categories as $category): 
+                $bgColor = $category['color'] ?? $previewColors[$categoryIndex % 4];
+            ?>
+            <div class="category-card<?php echo $categoryIndex === 0 ? ' active' : ''; ?>" data-category="<?php echo htmlspecialchars($category['slug']); ?>">
+                <div class="category-icon" style="background: <?php echo $bgColor; ?>15;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="<?php echo $bgColor; ?>" stroke-width="1.5">
+                        <?php echo getIconSvg($category['icon'], $categoryIcons); ?>
                     </svg>
                 </div>
-                <h3>Brochures</h3>
-                <p>Company and service overviews</p>
+                <h3><?php echo htmlspecialchars($category['name']); ?></h3>
+                <p><?php echo htmlspecialchars($category['description'] ?: 'Browse ' . strtolower($category['name'])); ?></p>
                 <span class="category-count">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                     </svg>
-                    4 files
+                    <?php echo $category['download_count']; ?> files
                 </span>
             </div>
-
-            <div class="category-card">
-                <div class="category-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <line x1="16" y1="13" x2="8" y2="13"/>
-                        <line x1="16" y1="17" x2="8" y2="17"/>
-                    </svg>
-                </div>
-                <h3>Case Studies</h3>
-                <p>Real project success stories</p>
-                <span class="category-count">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    </svg>
-                    5 files
-                </span>
-            </div>
-
-            <div class="category-card">
-                <div class="category-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M12 20h9"/>
-                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                    </svg>
-                </div>
-                <h3>Technical Resources</h3>
-                <p>Guidelines and specifications</p>
-                <span class="category-count">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    </svg>
-                    4 files
-                </span>
-            </div>
-
-            <div class="category-card">
-                <div class="category-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                    </svg>
-                </div>
-                <h3>White Papers</h3>
-                <p>In-depth research and insights</p>
-                <span class="category-count">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    </svg>
-                    2 files
-                </span>
-            </div>
+            <?php 
+                $categoryIndex++;
+            endforeach; 
+            endif;
+            ?>
         </div>
 
         <!-- Downloads Grid -->
         <div class="downloads-grid">
-            <!-- Brochure 1 -->
-            <div class="download-card">
+            <?php if (!empty($downloads)): ?>
+            <?php foreach ($downloads as $download): 
+                $categorySlug = strtolower(str_replace(' ', '-', $download['category_name']));
+                $fileTypeUpper = strtoupper($download['file_type'] ?: 'PDF');
+            ?>
+            <div class="download-card" data-category="<?php echo htmlspecialchars($categorySlug); ?>">
                 <div class="download-thumbnail">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                         <polyline points="14 2 14 8 20 8"/>
                     </svg>
-                    <span class="file-type-badge">PDF</span>
+                    <span class="file-type-badge"><?php echo htmlspecialchars($fileTypeUpper); ?></span>
                 </div>
                 <div class="download-content">
-                    <span class="download-category">Brochure</span>
-                    <h4>Solutions OptiSpace Company Overview</h4>
-                    <p>Learn about our mission, expertise, and comprehensive approach to lean factory building and space optimization.</p>
+                    <span class="download-category"><?php echo htmlspecialchars($download['category_name']); ?></span>
+                    <h4><?php echo htmlspecialchars($download['title']); ?></h4>
+                    <p><?php echo htmlspecialchars($download['description']); ?></p>
                     <div class="download-meta">
                         <div class="download-info">
                             <span>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                                 </svg>
-                                2.4 MB
+                                <?php echo htmlspecialchars($download['file_size'] ?: 'N/A'); ?>
                             </span>
                             <span>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -845,10 +835,10 @@ include 'includes/header.php';
                                     <line x1="8" y1="2" x2="8" y2="6"/>
                                     <line x1="3" y1="10" x2="21" y2="10"/>
                                 </svg>
-                                Dec 2025
+                                <?php echo date('M Y', strtotime($download['published_date'])); ?>
                             </span>
                         </div>
-                        <a href="#" class="btn-download">
+                        <a href="<?php echo htmlspecialchars($download['file_path']); ?>" class="btn-download" target="_blank">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                                 <polyline points="7 10 12 15 17 10"/>
@@ -859,307 +849,17 @@ include 'includes/header.php';
                     </div>
                 </div>
             </div>
-
-            <!-- Brochure 2 -->
-            <div class="download-card">
-                <div class="download-thumbnail">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    <span class="file-type-badge">PDF</span>
-                </div>
-                <div class="download-content">
-                    <span class="download-category">Brochure</span>
-                    <h4>Lean Factory Building (LFB) Services</h4>
-                    <p>Detailed overview of our LFB methodology and how it transforms manufacturing facilities.</p>
-                    <div class="download-meta">
-                        <div class="download-info">
-                            <span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                </svg>
-                                3.1 MB
-                            </span>
-                            <span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                                    <line x1="16" y1="2" x2="16" y2="6"/>
-                                    <line x1="8" y1="2" x2="8" y2="6"/>
-                                    <line x1="3" y1="10" x2="21" y2="10"/>
-                                </svg>
-                                Nov 2025
-                            </span>
-                        </div>
-                        <a href="#" class="btn-download">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="7 10 12 15 17 10"/>
-                                <line x1="12" y1="15" x2="12" y2="3"/>
-                            </svg>
-                            Download
-                        </a>
-                    </div>
-                </div>
+            <?php endforeach; ?>
+            <?php else: ?>
+            <div class="no-downloads-message" style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 64px; height: 64px; margin: 0 auto 1rem; opacity: 0.5;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                <h3 style="color: var(--neutral-800); margin-bottom: 0.5rem;">No Downloads Available</h3>
+                <p style="color: var(--neutral-600);">Check back soon for new resources and materials.</p>
             </div>
-
-            <!-- Case Study 1 -->
-            <div class="download-card">
-                <div class="download-thumbnail">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    <span class="file-type-badge">PDF</span>
-                </div>
-                <div class="download-content">
-                    <span class="download-category">Case Study</span>
-                    <h4>Automotive Manufacturing: 40% Space Optimization</h4>
-                    <p>How we helped a leading automotive supplier achieve 40% space reduction while increasing throughput by 25%.</p>
-                    <div class="download-meta">
-                        <div class="download-info">
-                            <span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                </svg>
-                                1.8 MB
-                            </span>
-                            <span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                                    <line x1="16" y1="2" x2="16" y2="6"/>
-                                    <line x1="8" y1="2" x2="8" y2="6"/>
-                                    <line x1="3" y1="10" x2="21" y2="10"/>
-                                </svg>
-                                Oct 2025
-                            </span>
-                        </div>
-                        <a href="#" class="btn-download">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="7 10 12 15 17 10"/>
-                                <line x1="12" y1="15" x2="12" y2="3"/>
-                            </svg>
-                            Download
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Case Study 2 -->
-            <div class="download-card">
-                <div class="download-thumbnail">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    <span class="file-type-badge">PDF</span>
-                </div>
-                <div class="download-content">
-                    <span class="download-category">Case Study</span>
-                    <h4>Electronics Greenfield: Zero to Production in 6 Months</h4>
-                    <p>Complete greenfield project from site selection to production launch for an electronics manufacturer.</p>
-                    <div class="download-meta">
-                        <div class="download-info">
-                            <span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                </svg>
-                                2.2 MB
-                            </span>
-                            <span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                                    <line x1="16" y1="2" x2="16" y2="6"/>
-                                    <line x1="8" y1="2" x2="8" y2="6"/>
-                                    <line x1="3" y1="10" x2="21" y2="10"/>
-                                </svg>
-                                Sep 2025
-                            </span>
-                        </div>
-                        <a href="#" class="btn-download">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="7 10 12 15 17 10"/>
-                                <line x1="12" y1="15" x2="12" y2="3"/>
-                            </svg>
-                            Download
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Technical Resource 1 -->
-            <div class="download-card">
-                <div class="download-thumbnail">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    <span class="file-type-badge">PDF</span>
-                </div>
-                <div class="download-content">
-                    <span class="download-category">Technical Resource</span>
-                    <h4>Layout Design Principles & Guidelines</h4>
-                    <p>Essential principles for designing efficient manufacturing layouts with lean methodology integration.</p>
-                    <div class="download-meta">
-                        <div class="download-info">
-                            <span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                </svg>
-                                4.5 MB
-                            </span>
-                            <span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                                    <line x1="16" y1="2" x2="16" y2="6"/>
-                                    <line x1="8" y1="2" x2="8" y2="6"/>
-                                    <line x1="3" y1="10" x2="21" y2="10"/>
-                                </svg>
-                                Nov 2025
-                            </span>
-                        </div>
-                        <a href="#" class="btn-download">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="7 10 12 15 17 10"/>
-                                <line x1="12" y1="15" x2="12" y2="3"/>
-                            </svg>
-                            Download
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- White Paper 1 -->
-            <div class="download-card">
-                <div class="download-thumbnail">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    <span class="file-type-badge">PDF</span>
-                </div>
-                <div class="download-content">
-                    <span class="download-category">White Paper</span>
-                    <h4>The Future of Lean Manufacturing in Industry 4.0</h4>
-                    <p>Research insights on integrating lean principles with digital transformation and smart factory concepts.</p>
-                    <div class="download-meta">
-                        <div class="download-info">
-                            <span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                </svg>
-                                3.8 MB
-                            </span>
-                            <span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                                    <line x1="16" y1="2" x2="16" y2="6"/>
-                                    <line x1="8" y1="2" x2="8" y2="6"/>
-                                    <line x1="3" y1="10" x2="21" y2="10"/>
-                                </svg>
-                                Oct 2025
-                            </span>
-                        </div>
-                        <a href="#" class="btn-download">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="7 10 12 15 17 10"/>
-                                <line x1="12" y1="15" x2="12" y2="3"/>
-                            </svg>
-                            Download
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Brochure 3 -->
-            <div class="download-card">
-                <div class="download-thumbnail">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    <span class="file-type-badge">PDF</span>
-                </div>
-                <div class="download-content">
-                    <span class="download-category">Brochure</span>
-                    <h4>Brownfield Optimization Services</h4>
-                    <p>Transform your existing facility with our brownfield optimization expertise and proven methodology.</p>
-                    <div class="download-meta">
-                        <div class="download-info">
-                            <span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                </svg>
-                                2.8 MB
-                            </span>
-                            <span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                                    <line x1="16" y1="2" x2="16" y2="6"/>
-                                    <line x1="8" y1="2" x2="8" y2="6"/>
-                                    <line x1="3" y1="10" x2="21" y2="10"/>
-                                </svg>
-                                Nov 2025
-                            </span>
-                        </div>
-                        <a href="#" class="btn-download">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="7 10 12 15 17 10"/>
-                                <line x1="12" y1="15" x2="12" y2="3"/>
-                            </svg>
-                            Download
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Case Study 3 -->
-            <div class="download-card">
-                <div class="download-thumbnail">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    <span class="file-type-badge">PDF</span>
-                </div>
-                <div class="download-content">
-                    <span class="download-category">Case Study</span>
-                    <h4>Pharmaceutical Facility: Compliance & Efficiency</h4>
-                    <p>Balancing regulatory compliance with lean principles in a pharmaceutical manufacturing environment.</p>
-                    <div class="download-meta">
-                        <div class="download-info">
-                            <span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                </svg>
-                                2.0 MB
-                            </span>
-                            <span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                                    <line x1="16" y1="2" x2="16" y2="6"/>
-                                    <line x1="8" y1="2" x2="8" y2="6"/>
-                                    <line x1="3" y1="10" x2="21" y2="10"/>
-                                </svg>
-                                Aug 2025
-                            </span>
-                        </div>
-                        <a href="#" class="btn-download">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="7 10 12 15 17 10"/>
-                                <line x1="12" y1="15" x2="12" y2="3"/>
-                            </svg>
-                            Download
-                        </a>
-                    </div>
-                </div>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>
@@ -1190,5 +890,53 @@ include 'includes/header.php';
         </div>
     </div>
 </section>
+
+<!-- Category Filter JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const categoryCards = document.querySelectorAll('.category-card');
+    const downloadCards = document.querySelectorAll('.download-card');
+    
+    // Add "All" category card click handler
+    categoryCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Remove active class from all cards
+            categoryCards.forEach(c => c.classList.remove('active'));
+            // Add active class to clicked card
+            this.classList.add('active');
+            
+            const selectedCategory = this.dataset.category;
+            
+            // Filter download cards
+            downloadCards.forEach(downloadCard => {
+                const cardCategory = downloadCard.dataset.category;
+                
+                if (selectedCategory === 'all' || cardCategory === selectedCategory) {
+                    downloadCard.style.display = 'block';
+                    downloadCard.style.animation = 'fadeIn 0.3s ease forwards';
+                } else {
+                    downloadCard.style.display = 'none';
+                }
+            });
+        });
+    });
+});
+
+// Add fadeIn animation
+const styleSheet = document.createElement('style');
+styleSheet.textContent = `
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+`;
+document.head.appendChild(styleSheet);
+</script>
 
 <?php include 'includes/footer.php'; ?>

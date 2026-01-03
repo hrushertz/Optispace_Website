@@ -1,11 +1,10 @@
 <?php
 /**
- * Admin Logout
+ * Blogger Logout
  */
 
 require_once __DIR__ . '/includes/auth.php';
 
-logoutAdmin();
-
+logoutBlogger();
 header('Location: login.php');
 exit;

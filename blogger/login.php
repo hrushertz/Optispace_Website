@@ -1,17 +1,23 @@
 <?php
 /**
- * Admin Login Page
+ * Blogger Login Page
  */
 
 require_once __DIR__ . '/includes/auth.php';
 
 // Redirect if already logged in
-if (isAdminLoggedIn()) {
+if (isBloggerLoggedIn()) {
     header('Location: dashboard.php');
     exit;
 }
 
 $error = '';
+$info = '';
+
+// Check if redirected from admin panel
+if (isset($_GET['redirect']) && $_GET['redirect'] === 'admin') {
+    $info = 'Editors should use the Blogger Panel. Please log in below.';
+}
 
 // Handle login form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -21,21 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($username) || empty($password)) {
         $error = 'Please enter both username and password.';
     } else {
-        $user = authenticateAdmin($username, $password);
+        $user = authenticateBlogger($username, $password);
         
         if ($user) {
-            // Check if user is an editor - redirect to blogger panel
-            if ($user['role'] === 'editor') {
-                // Don't set admin session, redirect to blogger panel
-                header('Location: ../blogger/login.php?redirect=admin');
-                exit;
-            }
-            
-            setAdminSession($user);
+            setBloggerSession($user);
             header('Location: dashboard.php');
             exit;
         } else {
-            $error = 'Invalid username or password.';
+            $error = 'Invalid credentials or you do not have blogger access.';
         }
     }
 }
@@ -45,9 +44,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - OptiSpace</title>
+    <title>Blogger Login - OptiSpace</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/admin.css">
+    <link rel="stylesheet" href="../admin/assets/css/admin.css">
+    <style>
+        .login-card { max-width: 420px; }
+        .login-logo { background: linear-gradient(135deg, #3B82F6 0%, #2563eb 100%); }
+        .btn-primary { background: linear-gradient(135deg, #3B82F6 0%, #2563eb 100%); }
+        .btn-primary:hover { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); }
+        .blogger-note {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(59, 130, 246, 0.08);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #64748b;
+            text-align: center;
+        }
+        .blogger-note a {
+            color: #3B82F6;
+            text-decoration: none;
+        }
+        .blogger-note a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body class="admin-body login-page">
     <div class="login-container">
@@ -55,13 +76,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="login-header">
                 <div class="login-logo">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                        <polyline points="9 22 9 12 15 12 15 22"/>
+                        <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+                        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+                        <path d="M2 2l7.586 7.586"/>
+                        <circle cx="11" cy="11" r="2"/>
                     </svg>
                 </div>
-                <h1>Welcome Back</h1>
-                <p>Sign in to OptiSpace Admin Panel</p>
+                <h1>Blogger Panel</h1>
+                <p>Sign in to write and manage your blogs</p>
             </div>
+
+            <?php if ($info): ?>
+                <div class="alert alert-info" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); color: #1E40AF;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
+                    <span><?php echo htmlspecialchars($info); ?></span>
+                </div>
+            <?php endif; ?>
 
             <?php if ($error): ?>
                 <div class="alert alert-danger">
@@ -74,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             <?php endif; ?>
 
-            <form method="POST" class="login-form" data-validate>
+            <form method="POST" class="login-form">
                 <div class="form-group">
                     <label for="username" class="form-label">Username or Email</label>
                     <input type="text" id="username" name="username" class="form-control" 
@@ -97,6 +131,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     Sign In
                 </button>
             </form>
+
+            <div class="blogger-note">
+                <p>This panel is for blog writers (editors) only.<br>
+                Admin users should <a href="../admin/login.php">login here</a>.</p>
+            </div>
 
             <div class="login-footer">
                 <p>&copy; <?php echo date('Y'); ?> Solutions OptiSpace. All rights reserved.</p>

@@ -1,137 +1,221 @@
 <?php
-require_once 'auth_check.php';
-require_once '../database/db_config.php';
+/**
+ * Admin Dashboard
+ */
 
-$conn = getDBConnection();
+$pageTitle = "Dashboard";
+require_once __DIR__ . '/includes/auth.php';
+requireAdminLogin();
+
+require_once __DIR__ . '/../database/db_config.php';
 
 // Get statistics
-$stats = [];
+$conn = getDBConnection();
 
-// Count blogs
-$result = $conn->query("SELECT COUNT(*) as count FROM blogs");
-$stats['blogs'] = $result ? $result->fetch_assoc()['count'] : 0;
+// Total downloads
+$result = $conn->query("SELECT COUNT(*) as total FROM downloads WHERE is_active = 1");
+$totalDownloads = $result->fetch_assoc()['total'];
 
-// Count resources
-$result = $conn->query("SELECT COUNT(*) as count FROM resources");
-$stats['resources'] = $result ? $result->fetch_assoc()['count'] : 0;
+// Total categories
+$result = $conn->query("SELECT COUNT(*) as total FROM download_categories WHERE is_active = 1");
+$totalCategories = $result->fetch_assoc()['total'];
 
-// Count gallery images
-$result = $conn->query("SELECT COUNT(*) as count FROM gallery");
-$stats['gallery'] = $result ? $result->fetch_assoc()['count'] : 0;
+// Total download counts
+$result = $conn->query("SELECT SUM(download_count) as total FROM downloads");
+$totalDownloadCount = $result->fetch_assoc()['total'] ?? 0;
+
+// Recent downloads
+$recentDownloads = $conn->query("
+    SELECT d.*, c.name as category_name 
+    FROM downloads d 
+    LEFT JOIN download_categories c ON d.category_id = c.id 
+    ORDER BY d.created_at DESC 
+    LIMIT 5
+");
+
+// Recent activity
+$recentActivity = $conn->query("
+    SELECT a.*, u.full_name 
+    FROM admin_activity_log a 
+    LEFT JOIN admin_users u ON a.user_id = u.id 
+    ORDER BY a.created_at DESC 
+    LIMIT 10
+");
 
 $conn->close();
 
-$page_title = 'Dashboard';
-$current_page = 'dashboard';
+include __DIR__ . '/includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $page_title; ?> - Admin Panel</title>
-    <link rel="stylesheet" href="assets/css/admin.css">
-</head>
-<body>
-    <div class="admin-wrapper">
-        <!-- Sidebar -->
-        <?php include 'includes/sidebar.php'; ?>
-        
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Top Bar -->
-            <?php include 'includes/topbar.php'; ?>
-            
-            <!-- Page Content -->
-            <div class="page-content">
-                <div class="page-header">
-                    <h1>Dashboard</h1>
-                    <p class="page-subtitle">Overview of your website content and activity</p>
-                </div>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1);">
-                            <svg style="color: #3b82f6;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                                <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
-                            </svg>
-                        </div>
-                        <div class="stat-info">
-                            <div class="stat-value"><?php echo $stats['blogs']; ?></div>
-                            <div class="stat-label">Blog Posts</div>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: rgba(233, 148, 49, 0.1);">
-                            <svg style="color: #e99431;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
-                                <polyline points="13 2 13 9 20 9"/>
-                            </svg>
-                        </div>
-                        <div class="stat-info">
-                            <div class="stat-value"><?php echo $stats['resources']; ?></div>
-                            <div class="stat-label">Resources</div>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1);">
-                            <svg style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                <circle cx="8.5" cy="8.5" r="1.5"/>
-                                <polyline points="21 15 16 10 5 21"/>
-                            </svg>
-                        </div>
-                        <div class="stat-info">
-                            <div class="stat-value"><?php echo $stats['gallery']; ?></div>
-                            <div class="stat-label">Gallery Images</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="quick-actions">
-                    <h2>Quick Actions</h2>
-                    <div class="actions-grid">
-                        <a href="add-blog.php" class="action-card">
-                            <div class="action-icon" style="background: #3b82f6;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="12" y1="5" x2="12" y2="19"/>
-                                    <line x1="5" y1="12" x2="19" y2="12"/>
+
+<div class="page-header">
+    <div class="page-title-section">
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Welcome back, <?php echo htmlspecialchars($_SESSION['admin_name'] ?? 'Admin'); ?>!</p>
+    </div>
+    <div class="page-actions">
+        <a href="download-add.php" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add New Download
+        </a>
+    </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon orange">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+            </svg>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value"><?php echo $totalDownloads; ?></div>
+            <div class="stat-label">Total Resources</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            </svg>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value"><?php echo $totalCategories; ?></div>
+            <div class="stat-label">Categories</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value"><?php echo number_format($totalDownloadCount); ?></div>
+            <div class="stat-label">Total Downloads</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">1</div>
+            <div class="stat-label">Admin Users</div>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+    <!-- Recent Downloads -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Recent Downloads</h3>
+            <a href="downloads.php" class="btn btn-secondary btn-sm">View All</a>
+        </div>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Resource</th>
+                        <th>Category</th>
+                        <th>Downloads</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if ($recentDownloads->num_rows > 0): ?>
+                        <?php while ($download = $recentDownloads->fetch_assoc()): ?>
+                            <tr>
+                                <td>
+                                    <div class="table-item">
+                                        <div class="table-item-icon">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                                <polyline points="14 2 14 8 20 8"/>
+                                            </svg>
+                                        </div>
+                                        <div class="table-item-info">
+                                            <h4><?php echo htmlspecialchars($download['title']); ?></h4>
+                                            <p><?php echo htmlspecialchars($download['file_type']); ?> • <?php echo htmlspecialchars($download['file_size']); ?></p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-info"><?php echo htmlspecialchars($download['category_name']); ?></span>
+                                </td>
+                                <td><?php echo number_format($download['download_count']); ?></td>
+                                <td>
+                                    <?php if ($download['is_active']): ?>
+                                        <span class="badge badge-success">Active</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-gray">Inactive</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="4">
+                                <div class="empty-state" style="padding: 2rem;">
+                                    <p>No downloads found.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Recent Activity</h3>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <div class="activity-list">
+                <?php if ($recentActivity->num_rows > 0): ?>
+                    <?php while ($activity = $recentActivity->fetch_assoc()): ?>
+                        <div class="activity-item" style="display: flex; gap: 0.75rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--admin-gray-200);">
+                            <div class="activity-icon" style="width: 32px; height: 32px; background: var(--admin-gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; color: var(--admin-gray-500);">
+                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
                                 </svg>
                             </div>
-                            <h3>Add New Blog Post</h3>
-                            <p>Create and publish new blog content</p>
-                        </a>
-                        
-                        <a href="add-resources.php" class="action-card">
-                            <div class="action-icon" style="background: #e99431;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                    <polyline points="7 10 12 15 17 10"/>
-                                    <line x1="12" y1="15" x2="12" y2="3"/>
-                                </svg>
+                            <div class="activity-content">
+                                <p style="font-size: 0.875rem; color: var(--admin-gray-700); margin-bottom: 0.25rem;">
+                                    <strong><?php echo htmlspecialchars($activity['full_name'] ?? 'System'); ?></strong>
+                                    <?php echo htmlspecialchars($activity['action']); ?>
+                                </p>
+                                <span style="font-size: 0.75rem; color: var(--admin-gray-500);">
+                                    <?php echo date('M j, Y g:i A', strtotime($activity['created_at'])); ?>
+                                </span>
                             </div>
-                            <h3>Add New Resource</h3>
-                            <p>Upload downloadable resources</p>
-                        </a>
-                        
-                        <a href="add-gallery.php" class="action-card">
-                            <div class="action-icon" style="background: #10b981;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                    <circle cx="8.5" cy="8.5" r="1.5"/>
-                                    <polyline points="21 15 16 10 5 21"/>
-                                </svg>
-                            </div>
-                            <h3>Add Gallery Image</h3>
-                            <p>Upload new images to gallery</p>
-                        </a>
+                        </div>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <div class="empty-state" style="padding: 2rem;">
+                        <p>No recent activity.</p>
                     </div>
-                </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
-</body>
-</html>
+</div>
+
+<?php include __DIR__ . '/includes/footer.php'; ?>
