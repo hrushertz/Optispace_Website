@@ -5,9 +5,11 @@ $pageDescription = 'Request your complimentary Pulse Check from Solutions OptiSp
 
 // Handle form submission
 require_once 'database/db_config.php';
+require_once 'includes/mailer.php';
 
 $formSuccess = false;
 $formError = '';
+$emailError = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -74,6 +76,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 if ($stmt->execute()) {
                     $formSuccess = true;
+                    
+                    // Send notification email to internal team (if enabled)
+                    if (env('MAIL_ENABLED', false) === true || env('MAIL_ENABLED', false) === 'true') {
+                        // Prepare data for email
+                        $emailData = [
+                            'firstName' => $firstName,
+                            'lastName' => $lastName,
+                            'designation' => $designation,
+                            'email' => $email,
+                            'phone' => $phone,
+                            'altPhone' => $altPhone,
+                            'companyName' => $companyName,
+                            'website' => $website,
+                            'industry' => $industry,
+                            'facilityAddress' => $facilityAddress,
+                            'facilityCity' => $facilityCity,
+                            'facilityState' => $facilityState,
+                            'facilityCountry' => $facilityCountry,
+                            'facilitySize' => $facilitySize,
+                            'employees' => $employees,
+                            'annualRevenue' => $annualRevenue,
+                            'projectType' => $projectType,
+                            'interests' => $interests,
+                            'currentChallenges' => $currentChallenges,
+                            'projectGoals' => $projectGoals,
+                            'timeline' => $timeline,
+                            'referral' => $referral,
+                            'preferredContact' => $preferredContact
+                        ];
+                        
+                        $notificationResult = sendPulseCheckNotification($emailData);
+                        if (!$notificationResult['success']) {
+                            // Log the error but don't show to user - form was still submitted successfully
+                            error_log("Pulse Check notification email failed: " . $notificationResult['message']);
+                        }
+                    }
+                    
                 } else {
                     $formError = 'Database error: ' . $stmt->error;
                 }
