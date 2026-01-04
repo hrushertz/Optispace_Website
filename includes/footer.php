@@ -242,6 +242,6 @@
         </div>
     </footer>
 
-    <script src="<?php echo asset('js/main.js'); ?>"></script>
+    <script src="<?php echo asset('js/main.js'); ?>?v=<?php echo filemtime(__DIR__ . '/../assets/js/main.js'); ?>"></script>
 </body>
 </html>

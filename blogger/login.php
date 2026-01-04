@@ -14,9 +14,16 @@ if (isBloggerLoggedIn()) {
 $error = '';
 $info = '';
 
-// Check if redirected from admin panel
-if (isset($_GET['redirect']) && $_GET['redirect'] === 'admin') {
-    $info = 'Editors should use the Blogger Panel. Please log in below.';
+// Check for messages
+if (isset($_GET['msg'])) {
+    switch ($_GET['msg']) {
+        case 'editor':
+            $info = 'Editors should use this panel to log in and manage blogs.';
+            break;
+        case 'admin_redirect':
+            $info = 'This is the Editor/Blogger panel. Admins should use the <a href="../admin/login.php" style="color: #3B82F6; font-weight: 600;">Admin Panel</a>.';
+            break;
+    }
 }
 
 // Handle login form submission
@@ -34,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: dashboard.php');
             exit;
         } else {
-            $error = 'Invalid credentials or you do not have blogger access.';
+            $error = 'Invalid credentials or you do not have editor access. <br>Admins should use the <a href="../admin/login.php" style="color: #3B82F6; font-weight: 600;">Admin Panel</a>.';
         }
     }
 }
@@ -93,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <line x1="12" y1="16" x2="12" y2="12"/>
                         <line x1="12" y1="8" x2="12.01" y2="8"/>
                     </svg>
-                    <span><?php echo htmlspecialchars($info); ?></span>
+                    <span><?php echo $info; ?></span>
                 </div>
             <?php endif; ?>
 
@@ -104,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <line x1="12" y1="8" x2="12" y2="12"/>
                         <line x1="12" y1="16" x2="12.01" y2="16"/>
                     </svg>
-                    <span><?php echo htmlspecialchars($error); ?></span>
+                    <span><?php echo $error; ?></span>
                 </div>
             <?php endif; ?>
 
@@ -133,8 +140,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
 
             <div class="blogger-note">
-                <p>This panel is for blog writers (editors) only.<br>
-                Admin users should <a href="../admin/login.php">login here</a>.</p>
+                <strong>Are you an administrator?</strong><br>
+                Please use the <a href="../admin/login.php">Admin Panel</a> to log in.
             </div>
 
             <div class="login-footer">

@@ -146,22 +146,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
+    // Handle demo forms (exclude actual backend forms like pulse check and contact form)
+    const demoForms = document.querySelectorAll('form:not(#pulseCheckForm):not(#contactForm)');
+    demoForms.forEach(form => {
         form.addEventListener('submit', function(e) {
-            e.preventDefault();
+            // Only intercept forms that don't have a method attribute or aren't POST
+            if (!this.method || this.method.toLowerCase() !== 'post') {
+                e.preventDefault();
 
-            const formData = new FormData(this);
-            const formObject = {};
-            formData.forEach((value, key) => {
-                formObject[key] = value;
-            });
+                const formData = new FormData(this);
+                const formObject = {};
+                formData.forEach((value, key) => {
+                    formObject[key] = value;
+                });
 
-            console.log('Form submitted:', formObject);
+                console.log('Form submitted:', formObject);
 
-            alert('Thank you for your submission! This is a demo form. In production, this would send your information to Solutions OptiSpace.');
+                alert('Thank you for your submission! This is a demo form. In production, this would send your information to Solutions OptiSpace.');
 
-            this.reset();
+                this.reset();
+            }
         });
     });
 

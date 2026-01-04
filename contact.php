@@ -2,6 +2,66 @@
 $currentPage = 'contact';
 $pageTitle = 'Contact Us | Request a Pulse Check | Solutions OptiSpace';
 $pageDescription = 'Get in touch with Solutions OptiSpace. Request a complimentary Pulse Check visit to discuss your factory design or optimization needs.';
+
+// Handle form submission
+require_once 'database/db_config.php';
+
+$formSuccess = false;
+$formError = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $conn = getDBConnection();
+        
+        // Sanitize and collect form data
+        $firstName = trim($_POST['firstName'] ?? '');
+        $lastName = trim($_POST['lastName'] ?? '');
+        $name = trim($firstName . ' ' . $lastName);
+        $email = trim($_POST['email'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $subject = trim($_POST['subject'] ?? '');
+        $message = trim($_POST['message'] ?? '');
+        
+        $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '';
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        
+        // Basic validation
+        if (empty($firstName) || empty($lastName) || empty($email) || empty($subject) || empty($message)) {
+            $formError = 'Please fill in all required fields.';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $formError = 'Please enter a valid email address.';
+        } else {
+            // Insert into database
+            $stmt = $conn->prepare("
+                INSERT INTO inquiry_submissions (
+                    name, email, phone, subject, message, ip_address, user_agent
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            ");
+            
+            if (!$stmt) {
+                $formError = 'Database error: ' . $conn->error;
+            } else {
+                $stmt->bind_param(
+                    "sssssss",
+                    $name, $email, $phone, $subject, $message, $ipAddress, $userAgent
+                );
+                
+                if ($stmt->execute()) {
+                    $formSuccess = true;
+                } else {
+                    $formError = 'Database error: ' . $stmt->error;
+                }
+                
+                $stmt->close();
+            }
+        }
+        
+        $conn->close();
+    } catch (Exception $e) {
+        $formError = 'Error: ' . $e->getMessage();
+    }
+}
+
 include 'includes/header.php';
 ?>
 
@@ -683,12 +743,41 @@ textarea.form-input {
             
             <!-- Contact Form -->
             <div class="contact-form-card">
+                <?php if ($formSuccess): ?>
+                <div style="text-align: center; padding: 2rem;">
+                    <div style="width: 80px; height: 80px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem;">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+                    <h3 style="font-size: 2rem; color: #1E293B; margin-bottom: 1rem;">Thank You!</h3>
+                    <p style="font-size: 1.1rem; color: #64748B; max-width: 500px; margin: 0 auto 2rem; line-height: 1.7;">Your message has been sent successfully. Our team will review your inquiry and get back to you shortly.</p>
+                    <a href="<?php echo url('index.php'); ?>" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #E99431; color: white; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            <polyline points="9 22 9 12 15 12 15 22"/>
+                        </svg>
+                        Back to Home
+                    </a>
+                </div>
+                <?php else: ?>
                 <div class="form-header">
                     <h3>Send Us a Message</h3>
                     <p>Questions not related to a factory project? Use this form.</p>
                 </div>
                 
-                <form id="contactForm" method="post" action="#">
+                <?php if ($formError): ?>
+                <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem; color: #991B1B;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <?php echo htmlspecialchars($formError); ?>
+                </div>
+                <?php endif; ?>
+                
+                <form id="contactForm" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>">
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="firstName">First Name <span class="required">*</span></label>
@@ -697,6 +786,7 @@ textarea.form-input {
                         <div class="form-group">
                             <label for="lastName">Last Name <span class="required">*</span></label>
                             <input type="text" id="lastName" name="lastName" class="form-input" placeholder="Your last name" required>
+                <?php endif; ?>
                         </div>
                         <div class="form-group">
                             <label for="email">Email Address <span class="required">*</span></label>

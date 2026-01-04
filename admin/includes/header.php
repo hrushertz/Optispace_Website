@@ -6,6 +6,13 @@
 
 require_once __DIR__ . '/auth.php';
 
+// Prevent editors from accessing admin panel
+if (isset($_SESSION['admin_role']) && $_SESSION['admin_role'] === 'editor') {
+    logoutAdmin();
+    header('Location: ../../blogger/login.php?msg=admin_redirect');
+    exit;
+}
+
 // Get current page for active state
 $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 $admin = getCurrentAdmin();
@@ -60,6 +67,43 @@ $admin = getCurrentAdmin();
                                     </svg>
                                 </span>
                                 <span class="nav-text">Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="pulse-checks.php" class="nav-link <?php echo $currentPage === 'pulse-checks' || $currentPage === 'pulse-check-view' ? 'active' : ''; ?>">
+                                <span class="nav-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                                    </svg>
+                                </span>
+                                <span class="nav-text">Pulse Checks</span>
+                                <?php
+                                // Show new submissions count badge
+                                $pulseConn = getDBConnection();
+                                $newPulseCount = $pulseConn->query("SELECT COUNT(*) as cnt FROM pulse_check_submissions WHERE status = 'new'")->fetch_assoc()['cnt'];
+                                $pulseConn->close();
+                                if ($newPulseCount > 0): ?>
+                                    <span class="nav-badge"><?php echo $newPulseCount; ?></span>
+                                <?php endif; ?>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="inquiries.php" class="nav-link <?php echo $currentPage === 'inquiries' || $currentPage === 'inquiry-view' ? 'active' : ''; ?>">
+                                <span class="nav-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                        <polyline points="22,6 12,13 2,6"/>
+                                    </svg>
+                                </span>
+                                <span class="nav-text">Inquiries</span>
+                                <?php
+                                // Show new inquiries count badge
+                                $inquiryConn = getDBConnection();
+                                $newInquiryCount = $inquiryConn->query("SELECT COUNT(*) as cnt FROM inquiry_submissions WHERE status = 'new'")->fetch_assoc()['cnt'];
+                                $inquiryConn->close();
+                                if ($newInquiryCount > 0): ?>
+                                    <span class="nav-badge"><?php echo $newInquiryCount; ?></span>
+                                <?php endif; ?>
                             </a>
                         </li>
                     </ul>
@@ -220,6 +264,23 @@ $admin = getCurrentAdmin();
                                     </svg>
                                 </span>
                                 <span class="nav-text">Users</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="settings.php" class="nav-link <?php echo $currentPage === 'settings' ? 'active' : ''; ?>">
+                                <span class="nav-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="3"/>
+                                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                                    </svg>
+                                </span>
+                                <span class="nav-text">Site Settings</span>
+                                <?php
+                                // Show maintenance badge if enabled
+                                require_once __DIR__ . '/../../includes/config.php';
+                                if (isMaintenanceMode()): ?>
+                                    <span class="nav-badge" style="background: #EF4444;">!</span>
+                                <?php endif; ?>
                             </a>
                         </li>
                         <li class="nav-item">

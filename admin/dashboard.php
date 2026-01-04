@@ -7,7 +7,35 @@ $pageTitle = "Dashboard";
 require_once __DIR__ . '/includes/auth.php';
 requireAdminLogin();
 
+// Prevent editors from accessing admin panel
+if (isset($_SESSION['admin_role']) && $_SESSION['admin_role'] === 'editor') {
+    logoutAdmin();
+    header('Location: ../blogger/login.php?msg=admin_redirect');
+    exit;
+}
+
 require_once __DIR__ . '/../database/db_config.php';
+require_once __DIR__ . '/../includes/config.php';
+
+// Handle quick maintenance toggle
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quick_maintenance_toggle'])) {
+    if (verifyCSRFToken($_POST['csrf_token'] ?? '') && hasAdminRole('admin')) {
+        $currentMode = isMaintenanceMode();
+        updateSiteSetting('maintenance_mode', !$currentMode, $_SESSION['admin_id']);
+        logAdminActivity(
+            $_SESSION['admin_id'], 
+            !$currentMode ? 'maintenance_enabled' : 'maintenance_disabled', 
+            'site_settings', 
+            null, 
+            !$currentMode ? 'Maintenance mode enabled from dashboard' : 'Maintenance mode disabled from dashboard'
+        );
+        header('Location: dashboard.php');
+        exit;
+    }
+}
+
+// Check maintenance status
+$isMaintenanceActive = isMaintenanceMode();
 
 // Get statistics
 $conn = getDBConnection();
@@ -62,6 +90,37 @@ include __DIR__ . '/includes/header.php';
         </a>
     </div>
 </div>
+
+<?php if ($isMaintenanceActive && hasAdminRole('admin')): ?>
+<!-- Maintenance Mode Alert -->
+<div class="maintenance-alert" style="background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border: 1px solid #F59E0B; border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <div style="width: 40px; height: 40px; background: #F59E0B; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width: 22px; height: 22px;">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+            </svg>
+        </div>
+        <div>
+            <strong style="color: #92400E; font-size: 1rem;">Maintenance Mode Active</strong>
+            <p style="color: #A16207; font-size: 0.875rem; margin: 0.25rem 0 0;">Public pages are restricted. Admin, blogger panels and blog pages remain accessible.</p>
+        </div>
+    </div>
+    <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <a href="settings.php" style="color: #92400E; font-size: 0.875rem; text-decoration: underline;">Manage Settings</a>
+        <form method="post" style="margin: 0;" onsubmit="return confirm('Are you sure you want to disable maintenance mode?');">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generateCSRFToken()); ?>">
+            <input type="hidden" name="quick_maintenance_toggle" value="1">
+            <button type="submit" style="background: #10B981; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                    <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/>
+                    <line x1="12" y1="2" x2="12" y2="12"/>
+                </svg>
+                Disable
+            </button>
+        </form>
+    </div>
+</div>
+<?php endif; ?>
 
 <!-- Stats Grid -->
 <div class="stats-grid">

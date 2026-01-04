@@ -458,11 +458,11 @@ include '../includes/header.php';
     gap: 0.5rem;
     width: 100%;
     justify-content: center;
-    padding: 0.75rem 1.25rem;
+    padding: 0.625rem 1rem;
     background: var(--article-orange);
     color: white;
-    border-radius: 8px;
-    font-size: 0.9rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
     font-weight: 600;
     text-decoration: none;
     transition: all 0.2s ease;
@@ -471,6 +471,11 @@ include '../includes/header.php';
 .cta-widget .btn-cta:hover {
     background: #d4851c;
     transform: translateY(-1px);
+}
+
+.cta-widget .btn-cta svg {
+    width: 16px;
+    height: 16px;
 }
 
 /* Related Articles Section */

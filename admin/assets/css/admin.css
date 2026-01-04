@@ -556,9 +556,19 @@ button {
     padding: 0;
 }
 
+.btn-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
 .btn-icon.btn-sm {
     width: 32px;
     height: 32px;
+}
+
+.btn-icon.btn-sm svg {
+    width: 14px;
+    height: 14px;
 }
 
 /* ========================================

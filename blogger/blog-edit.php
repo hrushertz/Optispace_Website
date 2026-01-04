@@ -134,6 +134,111 @@ $conn->close();
 include __DIR__ . '/includes/header.php';
 ?>
 
+<!-- Summernote CSS -->
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+
+<style>
+/* Summernote Toolbar Customization */
+.note-editor {
+    border: 2px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+}
+
+.note-toolbar {
+    background: #F8FAFC !important;
+    border-bottom: 2px solid #E2E8F0 !important;
+    padding: 12px 16px !important;
+}
+
+.note-btn-group {
+    margin-right: 8px !important;
+}
+
+.note-btn {
+    background: white !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 6px !important;
+    color: #475569 !important;
+    padding: 6px 10px !important;
+    margin: 0 2px !important;
+    transition: all 0.2s ease !important;
+    font-size: 14px !important;
+}
+
+.note-btn:hover {
+    background: #E99431 !important;
+    border-color: #E99431 !important;
+    color: white !important;
+    transform: translateY(-1px);
+}
+
+.note-btn.active,
+.note-btn:active {
+    background: #E99431 !important;
+    border-color: #E99431 !important;
+    color: white !important;
+}
+
+.note-dropdown-menu {
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    padding: 8px !important;
+}
+
+.note-dropdown-item {
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
+    transition: all 0.2s ease !important;
+}
+
+.note-dropdown-item:hover {
+    background: #F1F5F9 !important;
+    color: #E99431 !important;
+}
+
+.note-editable {
+    background: white !important;
+    padding: 20px !important;
+    min-height: 400px !important;
+    font-size: 15px !important;
+    line-height: 1.7 !important;
+    color: #334155 !important;
+}
+
+.note-editable:focus {
+    background: white !important;
+}
+
+.note-statusbar {
+    background: #F8FAFC !important;
+    border-top: 1px solid #E2E8F0 !important;
+    padding: 8px 16px !important;
+}
+
+.note-resizebar {
+    background: #E2E8F0 !important;
+    height: 3px !important;
+}
+
+/* Color palette customization */
+.note-color .dropdown-toggle {
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 4px !important;
+}
+
+/* Tooltip styling */
+.note-tooltip {
+    background: #1E293B !important;
+    color: white !important;
+    border-radius: 6px !important;
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+}
+</style>
+
 <div class="page-header">
     <div class="page-title-section">
         <nav class="breadcrumb">
@@ -247,9 +352,7 @@ include __DIR__ . '/includes/header.php';
                         <label for="content" class="form-label">
                             Content <span class="required">*</span>
                         </label>
-                        <textarea id="content" name="content" class="form-control content-editor <?php echo isset($errors['content']) ? 'error' : ''; ?>" 
-                                  rows="20" placeholder="Write your blog content here..."><?php echo htmlspecialchars($_POST['content'] ?? $blog['content']); ?></textarea>
-                        <span class="form-hint">You can use HTML tags for formatting</span>
+                        <textarea id="content" name="content" class="form-control <?php echo isset($errors['content']) ? 'error' : ''; ?>"><?php echo htmlspecialchars($_POST['content'] ?? $blog['content']); ?></textarea>
                         <?php if (isset($errors['content'])): ?>
                             <span class="form-error"><?php echo $errors['content']; ?></span>
                         <?php endif; ?>
@@ -439,3 +542,37 @@ include __DIR__ . '/includes/header.php';
 </style>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
+
+<!-- jQuery (required for Summernote) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Summernote JS -->
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    $('#content').summernote({
+        placeholder: 'Write your blog content here...',
+        height: 400,
+        toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            ['fontname', ['fontname']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture']],
+            ['view', ['fullscreen', 'codeview', 'help']]
+        ],
+        styleTags: [
+            'p',
+            { title: 'Heading 1', tag: 'h2', className: '', value: 'h2' },
+            { title: 'Heading 2', tag: 'h3', className: '', value: 'h3' },
+            { title: 'Heading 3', tag: 'h4', className: '', value: 'h4' },
+            { title: 'Blockquote', tag: 'blockquote', className: '', value: 'blockquote' }
+        ]
+    });
+});
+</script>
+
+<!-- Load admin.js last -->
+<script src="../admin/assets/js/admin.js"></script>

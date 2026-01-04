@@ -24,16 +24,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = authenticateAdmin($username, $password);
         
         if ($user) {
-            // Check if user is an editor - redirect to blogger panel
+            // Check if user is an editor - they should use blogger panel
             if ($user['role'] === 'editor') {
-                // Don't set admin session, redirect to blogger panel
-                header('Location: ../blogger/login.php?redirect=admin');
+                // Don't set admin session, show error with redirect link
+                $error = 'Editors should use the <a href="../blogger/login.php" style="color: #E99431; font-weight: 600;">Blogger Panel</a> to log in.';
+            } else {
+                // Only super_admin and admin can access admin panel
+                setAdminSession($user);
+                header('Location: dashboard.php');
                 exit;
             }
-            
-            setAdminSession($user);
-            header('Location: dashboard.php');
-            exit;
         } else {
             $error = 'Invalid username or password.';
         }
@@ -48,6 +48,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Admin Login - OptiSpace</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/admin.css">
+    <style>
+        .blogger-note {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(233, 148, 49, 0.08);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #64748b;
+            text-align: center;
+        }
+        .blogger-note a {
+            color: #E99431;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .blogger-note a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body class="admin-body login-page">
     <div class="login-container">
@@ -70,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <line x1="12" y1="8" x2="12" y2="12"/>
                         <line x1="12" y1="16" x2="12.01" y2="16"/>
                     </svg>
-                    <span><?php echo htmlspecialchars($error); ?></span>
+                    <span><?php echo $error; ?></span>
                 </div>
             <?php endif; ?>
 
@@ -97,6 +116,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     Sign In
                 </button>
             </form>
+
+            <div class="blogger-note">
+                <strong>Are you a blogger/editor?</strong><br>
+                Please use the <a href="../blogger/login.php">Blogger Panel</a> to log in.
+            </div>
 
             <div class="login-footer">
                 <p>&copy; <?php echo date('Y'); ?> Solutions OptiSpace. All rights reserved.</p>

@@ -1,6 +1,9 @@
 <?php
 // Include configuration
 require_once __DIR__ . '/config.php';
+
+// Check maintenance mode (allows blog pages by default)
+checkMaintenanceMode(true);
 ?>
 <!DOCTYPE html>
 <html lang="en">

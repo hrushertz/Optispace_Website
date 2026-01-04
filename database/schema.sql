@@ -303,3 +303,107 @@ CREATE INDEX IF NOT EXISTS idx_blogs_featured ON blogs(is_featured);
 CREATE INDEX IF NOT EXISTS idx_blogs_slug ON blogs(slug);
 CREATE INDEX IF NOT EXISTS idx_blog_delete_requests_status ON blog_delete_requests(status);
 CREATE INDEX IF NOT EXISTS idx_blog_delete_requests_blog ON blog_delete_requests(blog_id);
+
+-- ========================================
+-- PULSE CHECK SUBMISSIONS TABLE
+-- ========================================
+
+-- Pulse Check Form Submissions
+CREATE TABLE IF NOT EXISTS pulse_check_submissions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    
+    -- Contact Information
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    designation VARCHAR(150) DEFAULT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(50) NOT NULL,
+    alt_phone VARCHAR(50) DEFAULT NULL,
+    
+    -- Company Information
+    company_name VARCHAR(255) NOT NULL,
+    website VARCHAR(500) DEFAULT NULL,
+    industry VARCHAR(100) DEFAULT NULL,
+    facility_address TEXT DEFAULT NULL,
+    facility_city VARCHAR(100) DEFAULT NULL,
+    facility_state VARCHAR(100) DEFAULT NULL,
+    facility_country VARCHAR(100) DEFAULT 'India',
+    facility_size VARCHAR(50) DEFAULT NULL,
+    employees VARCHAR(50) DEFAULT NULL,
+    annual_revenue VARCHAR(50) DEFAULT NULL,
+    
+    -- Project Information
+    project_type VARCHAR(100) DEFAULT NULL,
+    interests TEXT DEFAULT NULL,
+    current_challenges TEXT DEFAULT NULL,
+    project_goals TEXT DEFAULT NULL,
+    timeline VARCHAR(50) DEFAULT NULL,
+    referral VARCHAR(100) DEFAULT NULL,
+    preferred_contact VARCHAR(50) DEFAULT NULL,
+    
+    -- Meta Information
+    status ENUM('new', 'contacted', 'scheduled', 'completed', 'declined') DEFAULT 'new',
+    admin_notes TEXT DEFAULT NULL,
+    ip_address VARCHAR(45) DEFAULT NULL,
+    user_agent TEXT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create indexes for pulse check submissions
+CREATE INDEX IF NOT EXISTS idx_pulse_check_status ON pulse_check_submissions(status);
+CREATE INDEX IF NOT EXISTS idx_pulse_check_email ON pulse_check_submissions(email);
+CREATE INDEX IF NOT EXISTS idx_pulse_check_created ON pulse_check_submissions(created_at);
+
+-- ========================================
+-- GENERAL INQUIRY SUBMISSIONS TABLE
+-- ========================================
+
+-- General Inquiry Form Submissions
+CREATE TABLE IF NOT EXISTS inquiry_submissions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    
+    -- Contact Information
+    name VARCHAR(200) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(50) DEFAULT NULL,
+    subject VARCHAR(255) DEFAULT NULL,
+    message TEXT NOT NULL,
+    
+    -- Meta Information
+    status ENUM('new', 'read', 'replied', 'closed') DEFAULT 'new',
+    admin_notes TEXT DEFAULT NULL,
+    ip_address VARCHAR(45) DEFAULT NULL,
+    user_agent TEXT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create indexes for inquiry submissions
+CREATE INDEX IF NOT EXISTS idx_inquiry_status ON inquiry_submissions(status);
+CREATE INDEX IF NOT EXISTS idx_inquiry_email ON inquiry_submissions(email);
+CREATE INDEX IF NOT EXISTS idx_inquiry_created ON inquiry_submissions(created_at);
+
+-- ========================================
+-- SITE SETTINGS TABLE
+-- ========================================
+
+-- Site Settings Table (key-value store for site configuration)
+CREATE TABLE IF NOT EXISTS site_settings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    setting_key VARCHAR(100) NOT NULL UNIQUE,
+    setting_value TEXT DEFAULT NULL,
+    setting_type ENUM('string', 'boolean', 'integer', 'json') DEFAULT 'string',
+    description VARCHAR(255) DEFAULT NULL,
+    updated_by INT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (updated_by) REFERENCES admin_users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Insert default site settings
+INSERT INTO site_settings (setting_key, setting_value, setting_type, description) VALUES
+('maintenance_mode', '0', 'boolean', 'Enable maintenance mode to restrict public access'),
+('maintenance_message', 'We are currently performing scheduled maintenance. Please check back soon.', 'string', 'Message displayed during maintenance mode'),
+('maintenance_end_time', NULL, 'string', 'Estimated end time for maintenance')
+ON DUPLICATE KEY UPDATE setting_key = setting_key;

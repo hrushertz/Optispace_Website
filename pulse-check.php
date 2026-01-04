@@ -2,6 +2,92 @@
 $currentPage = 'pulse-check';
 $pageTitle = 'Request a Pulse Check | Free Factory Assessment | Solutions OptiSpace';
 $pageDescription = 'Request your complimentary Pulse Check from Solutions OptiSpace. Our on-site visit helps identify opportunities for factory optimization and improvement.';
+
+// Handle form submission
+require_once 'database/db_config.php';
+
+$formSuccess = false;
+$formError = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $conn = getDBConnection();
+        
+        // Sanitize and collect form data
+        $firstName = trim($_POST['firstName'] ?? '');
+        $lastName = trim($_POST['lastName'] ?? '');
+        $designation = trim($_POST['designation'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $altPhone = trim($_POST['altPhone'] ?? '');
+        
+        $companyName = trim($_POST['companyName'] ?? '');
+        $website = trim($_POST['website'] ?? '');
+        $industry = trim($_POST['industry'] ?? '');
+        $facilityAddress = trim($_POST['facilityAddress'] ?? '');
+        $facilityCity = trim($_POST['facilityCity'] ?? '');
+        $facilityState = trim($_POST['facilityState'] ?? '');
+        $facilityCountry = trim($_POST['facilityCountry'] ?? 'India');
+        $facilitySize = trim($_POST['facilitySize'] ?? '');
+        $employees = trim($_POST['employees'] ?? '');
+        $annualRevenue = trim($_POST['annualRevenue'] ?? '');
+        
+        $projectType = trim($_POST['projectType'] ?? '');
+        $interests = isset($_POST['interests']) ? implode(', ', $_POST['interests']) : '';
+        $currentChallenges = trim($_POST['currentChallenges'] ?? '');
+        $projectGoals = trim($_POST['projectGoals'] ?? '');
+        $timeline = trim($_POST['timeline'] ?? '');
+        $referral = trim($_POST['referral'] ?? '');
+        $preferredContact = trim($_POST['preferredContact'] ?? '');
+        
+        $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '';
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        
+        // Basic validation
+        if (empty($firstName) || empty($lastName) || empty($email) || empty($phone) || empty($companyName) || empty($industry) || empty($facilityAddress) || empty($facilityCity) || empty($facilityState) || empty($projectType)) {
+            $formError = 'Please fill in all required fields.';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $formError = 'Please enter a valid email address.';
+        } else {
+            // Insert into database
+            $stmt = $conn->prepare("
+                INSERT INTO pulse_check_submissions (
+                    first_name, last_name, designation, email, phone, alt_phone,
+                    company_name, website, industry, facility_address, facility_city, 
+                    facility_state, facility_country, facility_size, employees, annual_revenue,
+                    project_type, interests, current_challenges, project_goals, 
+                    timeline, referral, preferred_contact, ip_address, user_agent
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            
+            if (!$stmt) {
+                $formError = 'Database error: ' . $conn->error;
+            } else {
+                $stmt->bind_param(
+                    "sssssssssssssssssssssssss",
+                    $firstName, $lastName, $designation, $email, $phone, $altPhone,
+                    $companyName, $website, $industry, $facilityAddress, $facilityCity,
+                    $facilityState, $facilityCountry, $facilitySize, $employees, $annualRevenue,
+                    $projectType, $interests, $currentChallenges, $projectGoals,
+                    $timeline, $referral, $preferredContact, $ipAddress, $userAgent
+                );
+                
+                if ($stmt->execute()) {
+                    $formSuccess = true;
+                } else {
+                    $formError = 'Database error: ' . $stmt->error;
+                }
+                
+                $stmt->close();
+            }
+        }
+        
+        $conn->close();
+    } catch (Exception $e) {
+        $formError = 'Error: ' . $e->getMessage();
+    }
+}
+
 include 'includes/header.php';
 ?>
 
@@ -984,13 +1070,42 @@ textarea.form-input {
 <section class="pulse-form-section" id="request-form">
     <div class="pulse-container">
         <div class="pulse-form-wrapper">
+            <?php if ($formSuccess): ?>
+            <div class="pulse-form-card" style="text-align: center; padding: 4rem;">
+                <div style="width: 80px; height: 80px; background: var(--pulse-green-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem;">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--pulse-green)" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                </div>
+                <h3 style="font-size: 2rem; color: var(--pulse-dark); margin-bottom: 1rem;">Thank You!</h3>
+                <p style="font-size: 1.1rem; color: var(--pulse-text); max-width: 500px; margin: 0 auto 2rem; line-height: 1.7;">Your Pulse Check request has been submitted successfully. Our team will review your information and contact you shortly to schedule your complimentary assessment.</p>
+                <a href="<?php echo url('index.php'); ?>" style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--pulse-orange); color: white; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                    Back to Home
+                </a>
+            </div>
+            <?php else: ?>
             <div class="pulse-form-card">
                 <div class="form-header">
                     <h3>Request Your Pulse Check</h3>
                     <p>Please fill out the form below and we'll get in touch to schedule your visit.</p>
                 </div>
                 
-                <form id="pulseCheckForm" method="post" action="#">
+                <?php if ($formError): ?>
+                <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem; color: #991B1B;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <?php echo htmlspecialchars($formError); ?>
+                </div>
+                <?php endif; ?>
+                
+                <form id="pulseCheckForm" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>#request-form">
                     <!-- Contact Information -->
                     <div class="form-section-title">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1237,6 +1352,7 @@ textarea.form-input {
                     </div>
                 </form>
             </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>

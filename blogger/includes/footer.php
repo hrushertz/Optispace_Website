@@ -1,7 +1,5 @@
             </div><!-- .admin-content -->
         </main><!-- .admin-main -->
     </div><!-- .admin-wrapper -->
-
-    <script src="../admin/assets/js/admin.js"></script>
-</body>
-</html>
+    
+    <!-- Admin JS will be loaded after page-specific scripts -->

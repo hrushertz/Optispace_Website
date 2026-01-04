@@ -286,3 +286,7 @@ include __DIR__ . '/includes/header.php';
 </style>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
+
+<script src="../admin/assets/js/admin.js"></script>
+</body>
+</html>
