@@ -2,6 +2,7 @@
 $currentPage = 'about';
 $pageTitle = 'Who We Are | Solutions OptiSpace';
 $pageDescription = 'Lean manufacturing consultants who design buildings around your process. A division of Solutions KMS with 20 years of operational excellence experience.';
+$pageKeywords = 'Solutions OptiSpace, Solutions KMS, lean manufacturing consultants, factory design experts, operational excellence, lean consultants India, manufacturing consultants, industrial architects, LFB experts, Minish Umrani, factory optimization consultants, lean six sigma, process optimization';
 include 'includes/header.php';
 ?>
 
@@ -912,6 +913,7 @@ include 'includes/header.php';
     </div>
 </section>
 
+<?php $hideFooterCTA = true; ?>
 <!-- CTA Section -->
 <section class="about-cta">
     <div class="about-cta-inner">

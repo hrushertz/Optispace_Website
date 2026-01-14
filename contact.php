@@ -2,6 +2,7 @@
 $currentPage = 'contact';
 $pageTitle = 'Contact Us | Request a Pulse Check | Solutions OptiSpace';
 $pageDescription = 'Get in touch with Solutions OptiSpace. Request a complimentary Pulse Check visit to discuss your factory design or optimization needs.';
+$pageKeywords = 'contact OptiSpace, factory design consultation, pulse check request, lean manufacturing consultation, factory planning inquiry, OptiSpace offices, manufacturing consultants contact, LFB consultation, factory optimization inquiry, industrial design consultation, reach OptiSpace India';
 
 // Handle form submission
 require_once 'database/db_config.php';
@@ -9,9 +10,11 @@ require_once 'database/db_config.php';
 $formSuccess = false;
 $formError = '';
 
+// Get database connection for the entire page
+$conn = getDBConnection();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        $conn = getDBConnection();
         
         // Sanitize and collect form data
         $firstName = trim($_POST['firstName'] ?? '');
@@ -55,8 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->close();
             }
         }
-        
-        $conn->close();
     } catch (Exception $e) {
         $formError = 'Error: ' . $e->getMessage();
     }
@@ -829,7 +830,20 @@ textarea.form-input {
             <p>Quick answers to common questions about working with us</p>
         </div>
         
+        <?php
+        // Fetch active FAQs from database
+        $faqResult = $conn->query("SELECT * FROM pulse_check_faqs WHERE is_active = 1 ORDER BY sort_order ASC, id ASC");
+        $faqs = [];
+        if ($faqResult) {
+            while ($row = $faqResult->fetch_assoc()) {
+                $faqs[] = $row;
+            }
+        }
+        ?>
+        
+        <?php if (!empty($faqs)): ?>
         <div class="faq-grid">
+            <?php foreach ($faqs as $faq): ?>
             <div class="faq-card">
                 <h4>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -837,69 +851,21 @@ textarea.form-input {
                         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
                         <line x1="12" y1="17" x2="12.01" y2="17"/>
                     </svg>
-                    What is Lean Factory Building (LFB)?
+                    <?php echo htmlspecialchars($faq['question']); ?>
                 </h4>
-                <p>LFB is our inside-out approach: we design your manufacturing process first using Lean principles, then design the building around that optimized process — not the other way around.</p>
+                <p><?php echo $faq['answer']; ?></p>
             </div>
-            <div class="faq-card">
-                <h4>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                        <line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
-                    Is the Pulse Check really free?
-                </h4>
-                <p>Yes, absolutely. The Pulse Check is complimentary with no obligation. We invest this time to understand your needs and demonstrate our value.</p>
-            </div>
-            <div class="faq-card">
-                <h4>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                        <line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
-                    Do you work outside of India?
-                </h4>
-                <p>Yes. While most of our work is in India, we have experience with international projects. We can travel or coordinate remotely depending on project needs.</p>
-            </div>
-            <div class="faq-card">
-                <h4>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                        <line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
-                    What if I'm not ready to proceed right away?
-                </h4>
-                <p>That's perfectly fine. Many clients engage us months or even years after the initial Pulse Check. We're here when you're ready.</p>
-            </div>
-            <div class="faq-card">
-                <h4>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                        <line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
-                    Can you provide references?
-                </h4>
-                <p>Yes, we can connect you with existing clients in your industry who can share their experience working with us.</p>
-            </div>
-            <div class="faq-card">
-                <h4>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                        <line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
-                    How long does a typical project take?
-                </h4>
-                <p>It varies by scope. Layout optimization projects typically take 2-3 months. Full greenfield architectural projects can take 6-12 months.</p>
-            </div>
+            <?php endforeach; ?>
         </div>
+        <?php else: ?>
+        <div style="text-align: center; padding: 3rem; color: #64748B;">
+            <p>No FAQs available at the moment. Please check back later.</p>
+        </div>
+        <?php endif; ?>
     </div>
 </section>
 
+<?php $hideFooterCTA = true; ?>
 <!-- CTA Section -->
 <section class="contact-cta">
     <div class="contact-cta-inner">
@@ -925,4 +891,7 @@ textarea.form-input {
     </div>
 </section>
 
-<?php include 'includes/footer.php'; ?>
+<?php
+$conn->close();
+include 'includes/footer.php';
+?>

@@ -1,6 +1,7 @@
 <?php
 $pageTitle = "Downloads | Solutions OptiSpace";
 $pageDescription = "Download brochures, case studies, and resources from Solutions OptiSpace.";
+$pageKeywords = "OptiSpace downloads, factory design resources, lean manufacturing brochures, LFB case studies, manufacturing resources, factory planning resources, OptiSpace brochures, lean factory resources, downloadable resources";
 $currentPage = "downloads";
 include 'includes/header.php';
 
@@ -864,6 +865,7 @@ function getIconSvg($icon, $icons) {
     </div>
 </section>
 
+<?php $hideFooterCTA = true; ?>
 <!-- CTA Section -->
 <section class="download-cta-section">
     <div class="download-cta-container">

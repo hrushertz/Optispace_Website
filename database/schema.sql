@@ -81,6 +81,29 @@ INSERT INTO download_categories (name, slug, description, icon, color, sort_orde
 ('White Papers', 'white-papers', 'In-depth research and insights', 'academic-cap', '#8B5CF6', 4)
 ON DUPLICATE KEY UPDATE name = VALUES(name);
 
+-- Pulse Check FAQs Table
+CREATE TABLE IF NOT EXISTS pulse_check_faqs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    question VARCHAR(500) NOT NULL,
+    answer TEXT NOT NULL,
+    sort_order INT DEFAULT 0,
+    is_active TINYINT(1) DEFAULT 1,
+    created_by INT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES admin_users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Insert default FAQs
+INSERT INTO pulse_check_faqs (question, answer, sort_order, is_active) VALUES
+('Is the Pulse Check really free?', 'Yes, completely free with no obligation. We invest this time to understand your needs and demonstrate the value we can bring. <br><strong>You will only bear the logistic charges (travel and stay, if applicable).</strong>', 1, 1),
+('How long does a Pulse Check take?', 'Typically 2-4 hours depending on facility size. We\'ll discuss timing during the initial call based on your specific situation.', 2, 1),
+('Who will conduct the Pulse Check?', 'Our founder, Dr. Prasad Arolkar, personally conducts most Pulse Checks to ensure you get expert-level insights from the start.', 3, 1),
+('What happens after the Pulse Check?', 'We provide verbal feedback during the visit. If there\'s a fit for a project, we\'ll discuss next steps. There\'s no pressure or hard sell.', 4, 1),
+('What if my facility is outside India?', 'We can travel internationally for projects. We\'ll discuss logistics and any travel requirements during our initial conversation.', 5, 1),
+('Do I need to prepare anything?', 'Just ensure we have access to walk through the production areas. Having layouts or floor plans available is helpful but not mandatory.', 6, 1)
+ON DUPLICATE KEY UPDATE question = VALUES(question);
+
 -- Insert sample downloads
 INSERT INTO downloads (category_id, title, description, file_path, file_name, file_type, file_size, published_date, is_active) VALUES
 (1, 'Solutions OptiSpace Company Overview', 'Learn about our mission, expertise, and comprehensive approach to lean factory building and space optimization.', '/downloads/brochures/company-overview.pdf', 'company-overview.pdf', 'PDF', '2.4 MB', '2025-12-01', 1),
@@ -405,5 +428,142 @@ CREATE TABLE IF NOT EXISTS site_settings (
 INSERT INTO site_settings (setting_key, setting_value, setting_type, description) VALUES
 ('maintenance_mode', '0', 'boolean', 'Enable maintenance mode to restrict public access'),
 ('maintenance_message', 'We are currently performing scheduled maintenance. Please check back soon.', 'string', 'Message displayed during maintenance mode'),
-('maintenance_end_time', NULL, 'string', 'Estimated end time for maintenance')
+('maintenance_end_time', NULL, 'string', 'Estimated end time for maintenance'),
+('gallery_enabled', '1', 'boolean', 'Enable or disable the gallery section')
 ON DUPLICATE KEY UPDATE setting_key = setting_key;
+
+-- ========================================
+-- WASTE/MUDA MANAGEMENT TABLES
+-- ========================================
+
+-- Waste Items Table (for Philosophy page - Eliminating Mudas section)
+CREATE TABLE IF NOT EXISTS waste_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    icon_svg TEXT DEFAULT NULL,
+    problem_text TEXT NOT NULL,
+    solution_text TEXT NOT NULL,
+    impact_text VARCHAR(500) DEFAULT NULL,
+    sort_order INT DEFAULT 0,
+    is_active TINYINT(1) DEFAULT 1,
+    created_by INT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES admin_users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ========================================
+-- CLIENT SUCCESS STORIES TABLE
+-- ========================================
+
+-- Success Stories Table (for Portfolio page - Client Success Stories section)
+CREATE TABLE IF NOT EXISTS success_stories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    project_type VARCHAR(50) DEFAULT NULL COMMENT 'Brownfield, Greenfield, etc.',
+    industry VARCHAR(100) DEFAULT NULL,
+    challenge TEXT NOT NULL,
+    solution TEXT NOT NULL,
+    results JSON DEFAULT NULL COMMENT 'Array of result items',
+    sort_order INT DEFAULT 0,
+    is_active TINYINT(1) DEFAULT 1,
+    created_by INT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES admin_users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create index for success stories
+CREATE INDEX IF NOT EXISTS idx_success_stories_active ON success_stories(is_active);
+CREATE INDEX IF NOT EXISTS idx_success_stories_sort ON success_stories(sort_order);
+
+-- Insert default waste items
+INSERT INTO waste_items (title, icon_svg, problem_text, solution_text, impact_text, sort_order, is_active) VALUES
+('Transportation Waste', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>', 'Forklifts traveling 300 meters between machining and assembly every cycle', 'Minimal or near-zero transportation through optimized adjacency and flow design', 'Reduced handling costs, faster throughput, lower damage', 1, 1),
+('Motion Waste', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>', 'Operators walking 15 meters to retrieve parts, adding fatigue and cycle time', 'Ergonomic workstation design with materials positioned within easy reach', 'Increased productivity, reduced fatigue, improved quality', 2, 1),
+('Waiting Waste', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>', 'Sub-assemblies piling up while the next operation sits idle due to imbalanced flow', 'Balanced production flow with synchronized takt time across operations', 'Smoother flow, predictable lead times, better utilization', 3, 1),
+('Excess Inventory Waste', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>', 'Excessive buffer stocks consuming floor space and working capital', 'Continuous flow with minimal WIP through balanced layout and visual management', 'Reduced capital, faster quality feedback, less obsolescence', 4, 1)
+ON DUPLICATE KEY UPDATE title = VALUES(title);
+
+-- Insert default success stories
+INSERT INTO success_stories (title, project_type, industry, challenge, solution, results, sort_order, is_active) VALUES
+(
+    'Automotive Component Manufacturer',
+    'Brownfield',
+    'Automotive',
+    'Excessive material travel, bottlenecks, and high WIP inventory in 50,000 sq ft facility.',
+    'Complete layout redesign using value stream mapping and lean principles.',
+    '[
+        "47% reduction in material travel",
+        "35% reduction in WIP inventory",
+        "22% improvement in throughput",
+        "OTD improved 78% → 94%"
+    ]',
+    1,
+    1
+),
+(
+    'Electronics Assembly Operation',
+    'Greenfield',
+    'Electronics',
+    'New facility design for expanding business with projected 3x volume growth.',
+    'Greenfield design with flexible layout accommodating current and future volumes.',
+    '[
+        "30% smaller building planned",
+        "Built-in flexibility for growth",
+        "20% lower energy costs",
+        "6-week full production ramp-up"
+    ]',
+    2,
+    1
+),
+(
+    'Pharmaceutical Packaging',
+    'Greenfield',
+    'Pharma',
+    'Regulatory compliance, contamination control, and material flow optimization.',
+    'Lean layout design with GMP-compliant zoning and material flow.',
+    '[
+        "Zero regulatory findings",
+        "42% faster changeovers",
+        "Eliminated cross-contamination",
+        "25% productivity improvement"
+    ]',
+    3,
+    1
+),
+(
+    'Sheet Metal Fabrication',
+    'Brownfield',
+    'Fabrication',
+    'Chaotic layout with machines added over time, excessive crane usage.',
+    'Reorganized layout by product family with logical flow.',
+    '[
+        "60% reduction in crane moves",
+        "38% reduction in lead time",
+        "Eliminated handling damage",
+        "Freed 15% floor space"
+    ]',
+    4,
+    1
+)
+ON DUPLICATE KEY UPDATE title = VALUES(title);
+
+-- Team Members Table
+CREATE TABLE IF NOT EXISTS team_members (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    role VARCHAR(255) NOT NULL,
+    title VARCHAR(255) DEFAULT NULL,
+    description TEXT DEFAULT NULL,
+    specialties TEXT DEFAULT NULL,
+    email VARCHAR(255) DEFAULT NULL,
+    linkedin_url VARCHAR(500) DEFAULT NULL,
+    photo_path VARCHAR(500) DEFAULT NULL,
+    sort_order INT DEFAULT 0,
+    is_active TINYINT(1) DEFAULT 1,
+    created_by INT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES admin_users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

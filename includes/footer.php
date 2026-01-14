@@ -1,6 +1,7 @@
     </main>
     
     <!-- Pre-Footer CTA Section -->
+    <?php if (!isset($hideFooterCTA) || $hideFooterCTA !== true): ?>
     <section class="footer-cta">
         <div class="container">
             <div class="footer-cta-inner">
@@ -26,6 +27,7 @@
             </div>
         </div>
     </section>
+    <?php endif; ?>
 
     <footer class="site-footer">
         <div class="container">

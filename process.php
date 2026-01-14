@@ -2,6 +2,7 @@
 $currentPage = 'process';
 $pageTitle = 'Our Step-Wise Approach | Solutions OptiSpace';
 $pageDescription = 'Understanding how we work: From initial Pulse Check to project completion and beyond.';
+$pageKeywords = 'LFB process, factory design process, lean factory methodology, OptiSpace process, factory planning phases, manufacturing design methodology, value stream analysis, factory layout design process, implementation support, post-commissioning, factory project phases, pulse check, lean assessment';
 include 'includes/header.php';
 ?>
 
@@ -489,22 +490,22 @@ include 'includes/header.php';
                 <div class="preview-step">
                     <div class="preview-step-num">01</div>
                     <div class="preview-step-title">Pulse Check</div>
-                    <div class="preview-step-duration">1-2 weeks</div>
+                    <div class="preview-step-duration"></div>
                 </div>
                 <div class="preview-step">
                     <div class="preview-step-num">02</div>
                     <div class="preview-step-title">Diagnosis</div>
-                    <div class="preview-step-duration">2-4 weeks</div>
+                    <div class="preview-step-duration"></div>
                 </div>
                 <div class="preview-step">
                     <div class="preview-step-num">03</div>
                     <div class="preview-step-title">Layout Design</div>
-                    <div class="preview-step-duration">3-6 weeks</div>
+                    <div class="preview-step-duration"></div>
                 </div>
                 <div class="preview-step">
                     <div class="preview-step-num">04</div>
                     <div class="preview-step-title">Execution</div>
-                    <div class="preview-step-duration">Variable</div>
+                    <div class="preview-step-duration"></div>
                 </div>
             </div>
         </div>
@@ -541,7 +542,7 @@ include 'includes/header.php';
                         <circle cx="12" cy="12" r="10"/>
                         <path d="M12 6v6l4 2"/>
                     </svg>
-                    1-2 weeks
+                    
                 </div>
             </div>
 
@@ -558,7 +559,7 @@ include 'includes/header.php';
                         <circle cx="12" cy="12" r="10"/>
                         <path d="M12 6v6l4 2"/>
                     </svg>
-                    2-4 weeks
+                    
                 </div>
             </div>
 
@@ -575,7 +576,7 @@ include 'includes/header.php';
                         <circle cx="12" cy="12" r="10"/>
                         <path d="M12 6v6l4 2"/>
                     </svg>
-                    3-6 weeks
+                    
                 </div>
             </div>
 
@@ -592,7 +593,7 @@ include 'includes/header.php';
                         <circle cx="12" cy="12" r="10"/>
                         <path d="M12 6v6l4 2"/>
                     </svg>
-                    Variable
+                    
                 </div>
             </div>
         </div>
@@ -1554,194 +1555,6 @@ include 'includes/header.php';
 
 @media (max-width: 768px) {
     .support-grid {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
-
-<!-- Timeline & Investment -->
-<section class="info-section">
-    <div class="phase-container">
-        <div class="section-header" style="margin-bottom: 3rem;">
-            <h2>Timeline & Investment</h2>
-            <p>Understanding the journey ahead</p>
-        </div>
-
-        <div class="info-grid">
-            <div class="info-card">
-                <div class="info-card-header">
-                    <div class="info-card-icon timeline-icon-bg">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M12 6v6l4 2"/>
-                        </svg>
-                    </div>
-                    <h3>Project Timeline</h3>
-                </div>
-                <div class="timeline-items">
-                    <div class="timeline-item">
-                        <span class="timeline-phase">Phase 1</span>
-                        <span class="timeline-duration">1-2 weeks</span>
-                    </div>
-                    <div class="timeline-item">
-                        <span class="timeline-phase">Phase 2</span>
-                        <span class="timeline-duration">2-4 weeks</span>
-                    </div>
-                    <div class="timeline-item">
-                        <span class="timeline-phase">Phase 3</span>
-                        <span class="timeline-duration">3-6 weeks</span>
-                    </div>
-                    <div class="timeline-item">
-                        <span class="timeline-phase">Phase 4</span>
-                        <span class="timeline-duration">Variable</span>
-                    </div>
-                    <div class="timeline-item total">
-                        <span class="timeline-phase">Total</span>
-                        <span class="timeline-duration">3-12 months</span>
-                    </div>
-                </div>
-                <p class="info-note">Timelines align with your shutdown windows, commissioning milestones, and business constraints.</p>
-            </div>
-
-            <div class="info-card">
-                <div class="info-card-header">
-                    <div class="info-card-icon investment-icon-bg">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                    <h3>Investment Structure</h3>
-                </div>
-                <ul class="check-list" style="margin-bottom: 1.5rem;">
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg><strong>Phase 1:</strong> Complimentary Pulse Check</li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg><strong>Phase 2-3:</strong> Fixed fee for diagnosis & layout</li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg><strong>Phase 4:</strong> Scope-specific execution fees</li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg><strong>Payment:</strong> Milestone-based installments</li>
-                </ul>
-                <p class="info-highlight">Request a Pulse Check to receive a customized proposal.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<style>
-.info-section {
-    padding: 6rem 0;
-    background: white;
-}
-
-.info-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
-}
-
-.info-card {
-    background: #FAFBFC;
-    border: 1px solid var(--process-border);
-    border-radius: 16px;
-    padding: 2rem;
-}
-
-.info-card-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.info-card-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.timeline-icon-bg {
-    background: rgba(16, 185, 129, 0.1);
-}
-
-.timeline-icon-bg svg {
-    width: 24px;
-    height: 24px;
-    color: #10B981;
-}
-
-.investment-icon-bg {
-    background: var(--process-orange-light);
-}
-
-.investment-icon-bg svg {
-    width: 24px;
-    height: 24px;
-    color: var(--process-orange);
-}
-
-.info-card h3 {
-    font-size: 1.35rem;
-    color: var(--process-dark);
-    margin: 0;
-}
-
-.timeline-items {
-    margin-bottom: 1.5rem;
-}
-
-.timeline-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--process-border);
-}
-
-.timeline-item:last-child {
-    border-bottom: none;
-}
-
-.timeline-item.total {
-    background: rgba(16, 185, 129, 0.05);
-    margin: 0.5rem -1rem -0.5rem;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-}
-
-.timeline-phase {
-    color: var(--process-text);
-    font-weight: 500;
-}
-
-.timeline-duration {
-    color: var(--process-dark);
-    font-weight: 600;
-}
-
-.timeline-item.total .timeline-phase,
-.timeline-item.total .timeline-duration {
-    color: #10B981;
-}
-
-.info-note {
-    font-size: 0.9rem;
-    color: var(--process-text);
-    line-height: 1.6;
-    margin: 0;
-}
-
-.info-highlight {
-    font-size: 0.95rem;
-    color: var(--process-orange);
-    font-weight: 600;
-    margin: 0;
-}
-
-.info-card .check-list li svg {
-    color: var(--process-orange);
-}
-
-@media (max-width: 768px) {
-    .info-grid {
         grid-template-columns: 1fr;
     }
 }

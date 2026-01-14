@@ -1,6 +1,7 @@
 <?php
 $pageTitle = "Blog | Solutions OptiSpace";
 $pageDescription = "Insights, articles, and thought leadership from Solutions OptiSpace on lean manufacturing and factory design.";
+$pageKeywords = "lean manufacturing blog, factory design articles, LFB insights, manufacturing insights, OptiSpace blog, lean manufacturing articles, factory optimization blog, industrial design insights, manufacturing thought leadership, lean principles";
 $currentPage = "blogs";
 
 // Load blogs from database

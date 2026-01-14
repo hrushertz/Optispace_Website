@@ -2,6 +2,7 @@
 $currentPage = 'greenfield';
 $pageTitle = 'New Factory Design & Architecture (Greenfield) | Solutions OptiSpace';
 $pageDescription = 'Complete architectural and engineering services for new factory construction, including lean design, compliance, and 3D visualization.';
+$pageKeywords = 'greenfield factory design, new factory construction, new plant design, factory architecture, greenfield project, new manufacturing facility, factory construction planning, lean greenfield design, new factory layout, industrial building design, greenfield LFB, new plant architecture';
 include '../includes/header.php';
 ?>
 
@@ -129,18 +130,12 @@ include '../includes/header.php';
     display: flex;
     align-items: center;
     gap: 1rem;
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     padding: 1.25rem 1.5rem;
     min-width: 280px;
-    transition: all 0.3s ease;
-}
-
-.preview-benefit-card:hover {
-    background: rgba(255, 255, 255, 0.12);
-    transform: translateX(8px);
+    cursor: default;
 }
 
 .preview-icon {
@@ -239,7 +234,7 @@ include '../includes/header.php';
 
 @media (max-width: 768px) {
     .greenfield-hero {
-        padding: 5rem 0 4rem;
+        padding: 7rem 0 4rem;
     }
     
     .greenfield-hero h1 {
@@ -318,7 +313,7 @@ include '../includes/header.php';
                             </svg>
                         </div>
                         <div class="preview-text">
-                            <span class="preview-title">6S Embedded</span>
+                            <span class="preview-title">5S Embedded</span>
                             <span class="preview-desc">Lean from day one</span>
                         </div>
                     </div>
@@ -595,7 +590,7 @@ include '../includes/header.php';
                     <li>Avoid layouts that lock in high material handling and energy costs for the life of the plant</li>
                     <li>Keep future lines and expansions structurally feasible without demolition</li>
                     <li>Align land use, docking, and circulation with actual product and logistics flows</li>
-                    <li>Embed 6S and safety standards into the physical design from day one</li>
+                    <li>Embed 5S and safety standards into the physical design from day one</li>
                 </ul>
             </div>
             <div class="content-card">
@@ -841,7 +836,7 @@ include '../includes/header.php';
     <div class="greenfield-container">
         <div class="greenfield-section-header">
             <h2>Core Architectural & Engineering Services</h2>
-            <p>You get a single partner for concept, design, approvals, and supervision—so responsibilities are clear</p>
+            <p>You get a single partner for concept, design and supervision so responsibilities are clear</p>
         </div>
 
         <div class="services-grid">
@@ -975,7 +970,7 @@ include '../includes/header.php';
 <section class="greenfield-section">
     <div class="greenfield-container">
         <div class="greenfield-section-header">
-            <h2>6S Concepts Embedded in Design</h2>
+            <h2>5S Concepts Embedded in Design</h2>
             <p>Building lean principles into the physical structure</p>
         </div>
 
@@ -1138,6 +1133,7 @@ include '../includes/header.php';
 }
 </style>
 
+<?php $hideFooterCTA = true; ?>
 <section class="greenfield-cta">
     <div class="greenfield-container">
         <div class="cta-inner">

@@ -70,6 +70,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = 'Failed to update settings. Please try again.';
             }
         }
+        
+        if ($action === 'toggle_gallery') {
+            $currentMode = getSiteSetting('gallery_enabled', true);
+            $newMode = !$currentMode;
+            
+            if (updateSiteSetting('gallery_enabled', $newMode, $admin['id'])) {
+                // Log the activity
+                logAdminActivity(
+                    $admin['id'], 
+                    $newMode ? 'gallery_enabled' : 'gallery_disabled', 
+                    'site_settings', 
+                    null, 
+                    $newMode ? 'Gallery enabled' : 'Gallery disabled'
+                );
+                
+                $success = $newMode ? 'Gallery has been enabled and is now visible on the site.' : 'Gallery has been disabled and hidden from the site.';
+                
+                // Force refresh of cached settings
+                header('Location: settings.php?success=' . urlencode($success));
+                exit;
+            } else {
+                $error = 'Failed to update gallery setting. Please try again.';
+            }
+        }
     }
 }
 
@@ -82,8 +106,9 @@ if (isset($_GET['success'])) {
 $maintenanceMode = false;
 $maintenanceMessage = '';
 $maintenanceEndTime = '';
+$galleryEnabled = true;
 
-$result = $conn->query("SELECT setting_key, setting_value FROM site_settings WHERE setting_key IN ('maintenance_mode', 'maintenance_message', 'maintenance_end_time')");
+$result = $conn->query("SELECT setting_key, setting_value FROM site_settings WHERE setting_key IN ('maintenance_mode', 'maintenance_message', 'maintenance_end_time', 'gallery_enabled')");
 if ($result) {
     while ($row = $result->fetch_assoc()) {
         switch ($row['setting_key']) {
@@ -95,6 +120,9 @@ if ($result) {
                 break;
             case 'maintenance_end_time':
                 $maintenanceEndTime = $row['setting_value'];
+                break;
+            case 'gallery_enabled':
+                $galleryEnabled = (bool) intval($row['setting_value']);
                 break;
         }
     }
@@ -449,6 +477,64 @@ include __DIR__ . '/includes/header.php';
                 Preview Maintenance Page
             </a>
         </form>
+    </div>
+</div>
+
+<!-- Gallery Section -->
+<div class="settings-section">
+    <div class="settings-header">
+        <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            Gallery Section
+        </h3>
+    </div>
+    <div class="settings-body">
+        <div class="maintenance-status <?php echo $galleryEnabled ? 'inactive' : 'active'; ?>">
+            <div class="status-indicator"></div>
+            <div class="status-text">
+                <strong><?php echo $galleryEnabled ? 'Gallery is Enabled' : 'Gallery is Disabled'; ?></strong>
+                <span><?php echo $galleryEnabled ? 'The gallery is visible in the navigation menu and accessible to visitors.' : 'The gallery is hidden from the navigation menu and the page is restricted.'; ?></span>
+            </div>
+            <form method="post" class="toggle-form" onsubmit="return confirm('<?php echo $galleryEnabled ? 'Are you sure you want to disable the gallery? It will be hidden from the navigation and become inaccessible.' : 'Are you sure you want to enable the gallery? It will appear in the navigation and become accessible.'; ?>');">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generateCSRFToken()); ?>">
+                <input type="hidden" name="action" value="toggle_gallery">
+                <button type="submit" class="maintenance-toggle-btn <?php echo $galleryEnabled ? 'enable' : 'disable'; ?>">
+                    <?php if ($galleryEnabled): ?>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="15" y1="9" x2="9" y2="15"/>
+                            <line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                        Disable Gallery
+                    <?php else: ?>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        Enable Gallery
+                    <?php endif; ?>
+                </button>
+            </form>
+        </div>
+        
+        <div class="info-box">
+            <h4>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                What happens when gallery is disabled?
+            </h4>
+            <ul>
+                <li><strong>Navigation Menu</strong> - Gallery link is removed from both desktop and mobile navigation</li>
+                <li><strong>Page Access</strong> - Gallery page becomes inaccessible to visitors (shows error message)</li>
+                <li><strong>Admin Access</strong> - Admins can still manage gallery items in the admin panel</li>
+            </ul>
+        </div>
     </div>
 </div>
 

@@ -2,6 +2,7 @@
 $currentPage = 'pulse-check';
 $pageTitle = 'Request a Pulse Check | Free Factory Assessment | Solutions OptiSpace';
 $pageDescription = 'Request your complimentary Pulse Check from Solutions OptiSpace. Our on-site visit helps identify opportunities for factory optimization and improvement.';
+$pageKeywords = 'pulse check, free factory assessment, factory evaluation, manufacturing assessment, lean assessment, facility evaluation, factory diagnosis, free consultation, manufacturing audit, factory optimization assessment, OptiSpace pulse check';
 
 // Handle form submission
 require_once 'database/db_config.php';
@@ -11,9 +12,11 @@ $formSuccess = false;
 $formError = '';
 $emailError = '';
 
+// Get database connection for the entire page
+$conn = getDBConnection();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        $conn = getDBConnection();
         
         // Sanitize and collect form data
         $firstName = trim($_POST['firstName'] ?? '');
@@ -121,7 +124,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         
-        $conn->close();
     } catch (Exception $e) {
         $formError = 'Error: ' . $e->getMessage();
     }
@@ -904,19 +906,61 @@ textarea.form-input {
     .checkbox-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+    
+    .pulse-section {
+        padding: 4rem 0;
+    }
+    
+    .section-header-pulse h2 {
+        font-size: 2.25rem;
+    }
 }
 
 @media (max-width: 768px) {
     .pulse-hero {
-        padding: 5rem 0 4rem;
+        padding: 4rem 0 3rem;
     }
     
     .pulse-hero h1 {
-        font-size: 2.25rem;
+        font-size: 2rem;
+    }
+    
+    .pulse-hero-text {
+        font-size: 1.05rem;
+    }
+    
+    .pulse-section {
+        padding: 3rem 0;
+    }
+    
+    .section-header-pulse {
+        margin-bottom: 2.5rem;
+    }
+    
+    .section-header-pulse h2 {
+        font-size: 1.85rem;
+    }
+    
+    .section-header-pulse p {
+        font-size: 1rem;
+    }
+    
+    .what-is-content h2 {
+        font-size: 1.85rem;
+    }
+    
+    .what-is-content > p {
+        font-size: 1rem;
+    }
+    
+    .what-is-visual {
+        padding: 2rem;
     }
     
     .form-grid {
         grid-template-columns: 1fr;
+        gap: 1.25rem;
+        margin-bottom: 2.5rem;
     }
     
     .form-group.full-width,
@@ -934,12 +978,139 @@ textarea.form-input {
     }
     
     .process-steps {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
         gap: 1rem;
     }
     
+    .process-step {
+        padding: 2rem 1.5rem;
+    }
+    
     .pulse-form-card {
-        padding: 2rem;
+        padding: 1.75rem;
+    }
+    
+    .form-header h3 {
+        font-size: 1.5rem;
+    }
+    
+    .form-header p {
+        font-size: 0.95rem;
+    }
+    
+    .form-section-title {
+        font-size: 1rem;
+    }
+    
+    .btn-submit {
+        width: 100%;
+        justify-content: center;
+        padding: 1rem 2rem;
+        font-size: 1rem;
+    }
+    
+    .pulse-cta {
+        padding: 4rem 0;
+    }
+    
+    .pulse-cta h2 {
+        font-size: 2rem;
+    }
+    
+    .pulse-cta p {
+        font-size: 1.05rem;
+        margin-bottom: 2rem;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .btn-cta-primary,
+    .btn-cta-secondary {
+        width: 100%;
+        justify-content: center;
+        padding: 0.875rem 1.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .pulse-container {
+        padding: 0 1.25rem;
+    }
+    
+    .pulse-hero-inner,
+    .pulse-breadcrumb ul {
+        padding: 0 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .pulse-hero {
+        padding: 3rem 0 2.5rem;
+    }
+    
+    .pulse-hero h1 {
+        font-size: 1.75rem;
+    }
+    
+    .hero-eyebrow {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.875rem;
+    }
+    
+    .pulse-hero-text {
+        font-size: 0.95rem;
+    }
+    
+    .section-header-pulse h2 {
+        font-size: 1.6rem;
+    }
+    
+    .what-is-content h2 {
+        font-size: 1.6rem;
+    }
+    
+    .pulse-form-card {
+        padding: 1.5rem;
+        border-radius: 16px;
+    }
+    
+    .form-header {
+        margin-bottom: 2rem;
+    }
+    
+    .form-header h3 {
+        font-size: 1.35rem;
+    }
+    
+    .form-input {
+        padding: 0.75rem 0.875rem;
+        font-size: 0.9rem;
+    }
+    
+    .highlight-item {
+        padding: 1rem;
+    }
+    
+    .faq-card {
+        padding: 1.5rem;
+    }
+    
+    .faq-card h4 {
+        font-size: 1rem;
+    }
+    
+    .faq-card p {
+        font-size: 0.9rem;
+    }
+    
+    .pulse-cta h2 {
+        font-size: 1.65rem;
+    }
+    
+    .pulse-cta p {
+        font-size: 0.95rem;
     }
 }
 </style>
@@ -1065,6 +1236,22 @@ textarea.form-input {
                             </svg>
                         </div>
                         <span>Honest assessment & recommendations</span>
+                    </div>
+                    <div class="visual-feature">
+                        <div class="feature-check">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </div>
+                        <span>Understand your pain areas</span>
+                    </div>
+                    <div class="visual-feature">
+                        <div class="feature-check">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </div>
+                        <span>Discuss ides and automations</span>
                     </div>
                 </div>
             </div>
@@ -1277,10 +1464,9 @@ textarea.form-input {
                             <label for="projectType">Project Type <span class="required">*</span></label>
                             <select id="projectType" name="projectType" class="form-input" required>
                                 <option value="">Select project type</option>
-                                <option value="greenfield">Greenfield (New Factory)</option>
+                                <option value="greenfield">Greenfield (New Factory Building Architecture)</option>
+                                <option value="lightgreenfield">Light Greenfield (Only Workplace Layout Design for New Building)</option>
                                 <option value="brownfield">Brownfield (Existing Factory Optimization)</option>
-                                <option value="expansion">Expansion of Existing Facility</option>
-                                <option value="relocation">Facility Relocation</option>
                                 <option value="not-sure">Not Sure / Exploring Options</option>
                             </select>
                         </div>
@@ -1355,6 +1541,9 @@ textarea.form-input {
                                 <option value="">Select an option</option>
                                 <option value="search">Internet Search</option>
                                 <option value="linkedin">LinkedIn</option>
+                                <option value="facebook">Facebook</option>
+                                <option value="twitter">Twitter</option>
+                                <option value="instagram">Instagram</option>
                                 <option value="referral">Referral / Recommendation</option>
                                 <option value="conference">Conference / Event</option>
                                 <option value="publication">Article / Publication</option>
@@ -1368,7 +1557,7 @@ textarea.form-input {
                                 <option value="phone">Phone Call</option>
                                 <option value="email">Email</option>
                                 <option value="whatsapp">WhatsApp</option>
-                                <option value="any">No Preference</option>
+                                <option value="any">Preferred any of the above</option>
                             </select>
                         </div>
                     </div>
@@ -1379,7 +1568,7 @@ textarea.form-input {
                                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
                                 <polyline points="22 4 12 14.01 9 11.01"/>
                             </svg>
-                            Request Pulse Check
+                            Submit Request
                         </button>
                         <p class="form-note">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1404,7 +1593,20 @@ textarea.form-input {
             <p>Common questions about the Pulse Check process</p>
         </div>
         
+        <?php
+        // Fetch active FAQs from database
+        $faqResult = $conn->query("SELECT * FROM pulse_check_faqs WHERE is_active = 1 ORDER BY sort_order ASC, id ASC");
+        $faqs = [];
+        if ($faqResult) {
+            while ($row = $faqResult->fetch_assoc()) {
+                $faqs[] = $row;
+            }
+        }
+        ?>
+        
+        <?php if (!empty($faqs)): ?>
         <div class="faq-grid">
+            <?php foreach ($faqs as $faq): ?>
             <div class="faq-card">
                 <h4>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1412,69 +1614,21 @@ textarea.form-input {
                         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
                         <line x1="12" y1="17" x2="12.01" y2="17"/>
                     </svg>
-                    Is the Pulse Check really free?
+                    <?php echo htmlspecialchars($faq['question']); ?>
                 </h4>
-                <p>Yes, completely free with no obligation. We invest this time to understand your needs and demonstrate the value we can bring.</p>
+                <p><?php echo $faq['answer']; ?></p>
             </div>
-            <div class="faq-card">
-                <h4>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                        <line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
-                    How long does a Pulse Check take?
-                </h4>
-                <p>Typically 2-4 hours depending on facility size. We'll discuss timing during the initial call based on your specific situation.</p>
-            </div>
-            <div class="faq-card">
-                <h4>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                        <line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
-                    Who will conduct the Pulse Check?
-                </h4>
-                <p>Our founder, Dr. Prasad Arolkar, personally conducts most Pulse Checks to ensure you get expert-level insights from the start.</p>
-            </div>
-            <div class="faq-card">
-                <h4>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                        <line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
-                    What happens after the Pulse Check?
-                </h4>
-                <p>We provide verbal feedback during the visit. If there's a fit for a project, we'll discuss next steps. There's no pressure or hard sell.</p>
-            </div>
-            <div class="faq-card">
-                <h4>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                        <line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
-                    What if my facility is outside India?
-                </h4>
-                <p>We can travel internationally for projects. We'll discuss logistics and any travel requirements during our initial conversation.</p>
-            </div>
-            <div class="faq-card">
-                <h4>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                        <line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
-                    Do I need to prepare anything?
-                </h4>
-                <p>Just ensure we have access to walk through the production areas. Having layouts or floor plans available is helpful but not mandatory.</p>
-            </div>
+            <?php endforeach; ?>
         </div>
+        <?php else: ?>
+        <div style="text-align: center; padding: 3rem; color: #64748B;">
+            <p>No FAQs available at the moment. Please check back later.</p>
+        </div>
+        <?php endif; ?>
     </div>
 </section>
 
+<?php $hideFooterCTA = true; ?>
 <!-- CTA Section -->
 <section class="pulse-cta">
     <div class="pulse-cta-inner">

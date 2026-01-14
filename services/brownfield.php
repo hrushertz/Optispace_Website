@@ -2,6 +2,7 @@
 $currentPage = 'brownfield';
 $pageTitle = 'Existing Factory Optimization (Brownfield) | Solutions OptiSpace';
 $pageDescription = 'Transform your existing factory with lean diagnosis, layout optimization, and material handling improvements.';
+$pageKeywords = 'brownfield factory optimization, existing factory redesign, factory renovation, plant layout optimization, brownfield project, existing facility improvement, factory retrofitting, manufacturing plant optimization, brownfield LFB, factory transformation, existing plant redesign, facility optimization';
 include '../includes/header.php';
 ?>
 
@@ -126,18 +127,11 @@ include '../includes/header.php';
 }
 
 .preview-benefit {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     padding: 1.25rem;
-    transition: all 0.3s ease;
-}
-
-.preview-benefit:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(59, 130, 246, 0.3);
-    transform: translateY(-2px);
+    cursor: default;
 }
 
 .preview-benefit-icon {
@@ -304,6 +298,39 @@ include '../includes/header.php';
     color: var(--brownfield-blue);
     font-weight: 700;
     flex-shrink: 0;
+}
+
+/* Issues list specific styling */
+.content-card .issues-list li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem 0;
+}
+
+.content-card .issues-list li::before {
+    content: '✓';
+    color: var(--brownfield-blue);
+    font-weight: 700;
+    position: absolute;
+    left: 0;
+}
+
+.content-card .issues-list {
+    padding-left: 0;
+}
+
+.content-card .issue-label {
+    font-weight: 700;
+    color: var(--brownfield-dark);
+    display: block;
+    line-height: 1.5;
+}
+
+.content-card .issue-desc {
+    color: var(--brownfield-text);
+    display: block;
+    line-height: 1.6;
 }
 
 .content-grid {
@@ -747,7 +774,7 @@ include '../includes/header.php';
 
 @media (max-width: 768px) {
     .brownfield-hero {
-        padding: 5rem 0 4rem;
+        padding: 7rem 0 4rem;
     }
     
     .brownfield-hero h1 {
@@ -765,8 +792,7 @@ include '../includes/header.php';
     }
     
     .hero-benefits-preview {
-        grid-template-columns: 1fr;
-        max-width: 280px;
+        display: none;
     }
     
     .brownfield-section {
@@ -889,11 +915,11 @@ include '../includes/header.php';
             <div class="content-card">
                 <h3>Common Issues We Solve</h3>
                 <p>Accumulated inefficiencies that constrain your operations:</p>
-                <ul>
-                    <li><strong>Unplanned additions:</strong> Equipment added without layout planning, creating bottlenecks</li>
-                    <li><strong>Excessive travel:</strong> Materials and operators traveling far due to poor adjacency</li>
-                    <li><strong>Space constraints:</strong> Storage and WIP growing uncontrolled, limiting capacity</li>
-                    <li><strong>Safety concerns:</strong> Congested aisles and unclear traffic patterns</li>
+                <ul class="issues-list">
+                    <li><span class="issue-label">Unplanned additions:</span> <span class="issue-desc">Equipment added without layout planning, creating bottlenecks</span></li>
+                    <li><span class="issue-label">Excessive travel:</span> <span class="issue-desc">Materials and operators traveling far due to poor adjacency</span></li>
+                    <li><span class="issue-label">Space constraints:</span> <span class="issue-desc">Storage and WIP growing uncontrolled, limiting capacity</span></li>
+                    <li><span class="issue-label">Safety concerns:</span> <span class="issue-desc">Congested aisles and unclear traffic patterns</span></li>
                 </ul>
             </div>
             <div class="content-card">
@@ -991,7 +1017,7 @@ include '../includes/header.php';
                     </div>
                     <h3>Material Handling</h3>
                 </div>
-                <p><strong>Right‑sized systems for takt time.</strong></p>
+                <p><strong>Right‑sized systems for handling.</strong></p>
                 <ul>
                     <li>Custom trolley and cart design</li>
                     <li>Conveyor system specification</li>
@@ -1042,7 +1068,7 @@ include '../includes/header.php';
                         <li>Opportunities for adjacency</li>
                     </ul>
                     <h3 style="margin-top: 1.5rem;">The Impact</h3>
-                    <p>One client reduced their main product's travel distance from <strong>847 meters to 94 meters</strong> through layout optimization guided by spaghetti diagram analysis.</p>
+                    <p>One client reduced their main product's travel distance by <strong>50%</strong> through layout optimization guided by spaghetti diagram analysis.</p>
                 </div>
                 <div class="spaghetti-stats">
                     <div class="stat-highlight">
@@ -1132,6 +1158,7 @@ include '../includes/header.php';
     </div>
 </section>
 
+<?php $hideFooterCTA = true; ?>
 <!-- CTA Section -->
 <section class="brownfield-cta">
     <div class="brownfield-container">

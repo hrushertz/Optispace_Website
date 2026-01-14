@@ -2,6 +2,7 @@
 $currentPage = 'portfolio';
 $pageTitle = 'Portfolio & Success Stories | Solutions OptiSpace';
 $pageDescription = '250+ businesses transformed across 75+ industrial segments. View our sample designs, innovations, and client success stories.';
+$pageKeywords = 'factory design portfolio, manufacturing projects, LFB case studies, OptiSpace projects, factory transformations, industrial design portfolio, before after factory, manufacturing innovations, factory design examples, lean manufacturing results, industry solutions, success stories, 75 industries, 250 businesses';
 include 'includes/header.php';
 ?>
 
@@ -647,7 +648,7 @@ include 'includes/header.php';
 
 /* CTA Section */
 .portfolio-cta {
-    padding: 6rem 0;
+    padding: 4.5rem 0;
     background: linear-gradient(165deg, #1E293B 0%, #334155 100%);
     position: relative;
     overflow: hidden;
@@ -674,18 +675,18 @@ include 'includes/header.php';
 }
 
 .portfolio-cta h2 {
-    font-size: 2.75rem;
+    font-size: 2.25rem;
     font-weight: 700;
     color: white;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
     line-height: 1.2;
 }
 
 .portfolio-cta p {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     color: rgba(255, 255, 255, 0.85);
     line-height: 1.7;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
 }
 
 .cta-buttons {
@@ -698,21 +699,22 @@ include 'includes/header.php';
 .btn-cta-primary {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
     background: var(--portfolio-orange);
     color: white;
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    font-size: 1rem;
+    padding: 1.125rem 2.5rem;
+    border-radius: 10px;
+    font-size: 1.1rem;
     font-weight: 600;
     text-decoration: none;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(233, 148, 49, 0.3);
+    box-shadow: 0 8px 20px rgba(233, 148, 49, 0.35);
 }
 
 .btn-cta-primary:hover {
     background: #d4851c;
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(233, 148, 49, 0.45);
 }
 
 .btn-cta-secondary {
@@ -721,9 +723,9 @@ include 'includes/header.php';
     gap: 0.5rem;
     background: transparent;
     color: white;
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    font-size: 1rem;
+    padding: 1.125rem 2.5rem;
+    border-radius: 10px;
+    font-size: 1.1rem;
     font-weight: 600;
     text-decoration: none;
     border: 2px solid rgba(255, 255, 255, 0.3);
@@ -995,17 +997,6 @@ include 'includes/header.php';
                 <div class="design-meta">Helps stakeholders visualize the end result</div>
             </div>
         </div>
-        
-        <div class="request-banner">
-            <h3>Request Sample Drawings</h3>
-            <p>We'd be happy to share relevant samples that match your industry and project type.</p>
-            <a href="<?php echo url('contact.php'); ?>" class="btn-primary-portfolio">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                </svg>
-                Contact Us for Samples
-            </a>
-        </div>
     </div>
 </section>
 
@@ -1033,6 +1024,8 @@ include 'includes/header.php';
                         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Custom assembly trolleys</li>
                         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> FIFO flow racks</li>
                         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Modular conveyor systems</li>
+                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Auto door close</li>
+                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Safe lift</li>
                     </ul>
                 </div>
             </div>
@@ -1103,102 +1096,72 @@ include 'includes/header.php';
         </div>
         
         <div class="success-grid">
+            <?php
+            // Fetch success stories from database
+            require_once 'database/db_config.php';
+            
+            $conn = getDBConnection();
+            $result = $conn->query("
+                SELECT id, title, project_type, industry, challenge, solution, results, sort_order
+                FROM success_stories 
+                WHERE is_active = 1 
+                ORDER BY sort_order ASC, id ASC
+            ");
+            
+            $stories = [];
+            if ($result) {
+                while ($row = $result->fetch_assoc()) {
+                    $stories[] = $row;
+                }
+            }
+            
+            if (!empty($stories)):
+                foreach ($stories as $story):
+                    $results = json_decode($story['results'], true);
+                    if (!is_array($results)) {
+                        $results = [];
+                    }
+            ?>
             <div class="success-card">
                 <div class="success-tags">
-                    <span class="tag tag-type">Brownfield</span>
-                    <span class="tag tag-industry">Automotive</span>
+                    <?php if (!empty($story['project_type'])): ?>
+                    <span class="tag tag-type"><?php echo htmlspecialchars($story['project_type']); ?></span>
+                    <?php endif; ?>
+                    <?php if (!empty($story['industry'])): ?>
+                    <span class="tag tag-industry"><?php echo htmlspecialchars($story['industry']); ?></span>
+                    <?php endif; ?>
                 </div>
-                <h3>Automotive Component Manufacturer</h3>
+                <h3><?php echo htmlspecialchars($story['title']); ?></h3>
                 <div class="success-detail">
                     <strong>Challenge:</strong>
-                    <p>Excessive material travel, bottlenecks, and high WIP inventory in 50,000 sq ft facility.</p>
+                    <p><?php echo htmlspecialchars($story['challenge']); ?></p>
                 </div>
                 <div class="success-detail">
                     <strong>Solution:</strong>
-                    <p>Complete layout redesign using value stream mapping and lean principles.</p>
+                    <p><?php echo htmlspecialchars($story['solution']); ?></p>
                 </div>
                 <div class="success-results">
                     <h4>Results Achieved:</h4>
                     <ul class="results-list">
-                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 47% reduction in material travel</li>
-                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 35% reduction in WIP inventory</li>
-                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 22% improvement in throughput</li>
-                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> OTD improved 78% → 94%</li>
+                        <?php foreach ($results as $result): ?>
+                        <li>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            <?php echo htmlspecialchars($result); ?>
+                        </li>
+                        <?php endforeach; ?>
                     </ul>
                 </div>
             </div>
-            <div class="success-card">
-                <div class="success-tags">
-                    <span class="tag tag-type">Greenfield</span>
-                    <span class="tag tag-industry">Electronics</span>
-                </div>
-                <h3>Electronics Assembly Operation</h3>
-                <div class="success-detail">
-                    <strong>Challenge:</strong>
-                    <p>New facility design for expanding business with projected 3x volume growth.</p>
-                </div>
-                <div class="success-detail">
-                    <strong>Solution:</strong>
-                    <p>Greenfield design with flexible layout accommodating current and future volumes.</p>
-                </div>
-                <div class="success-results">
-                    <h4>Results Achieved:</h4>
-                    <ul class="results-list">
-                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 30% smaller building planned</li>
-                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Built-in flexibility for growth</li>
-                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 20% lower energy costs</li>
-                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 6-week full production ramp-up</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="success-card">
-                <div class="success-tags">
-                    <span class="tag tag-type">Greenfield</span>
-                    <span class="tag tag-industry">Pharma</span>
-                </div>
-                <h3>Pharmaceutical Packaging</h3>
-                <div class="success-detail">
-                    <strong>Challenge:</strong>
-                    <p>Regulatory compliance, contamination control, and material flow optimization.</p>
-                </div>
-                <div class="success-detail">
-                    <strong>Solution:</strong>
-                    <p>Lean layout design with GMP-compliant zoning and material flow.</p>
-                </div>
-                <div class="success-results">
-                    <h4>Results Achieved:</h4>
-                    <ul class="results-list">
-                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Zero regulatory findings</li>
-                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 42% faster changeovers</li>
-                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Eliminated cross-contamination</li>
-                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 25% productivity improvement</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="success-card">
-                <div class="success-tags">
-                    <span class="tag tag-type">Brownfield</span>
-                    <span class="tag tag-industry">Fabrication</span>
-                </div>
-                <h3>Sheet Metal Fabrication</h3>
-                <div class="success-detail">
-                    <strong>Challenge:</strong>
-                    <p>Chaotic layout with machines added over time, excessive crane usage.</p>
-                </div>
-                <div class="success-detail">
-                    <strong>Solution:</strong>
-                    <p>Reorganized layout by product family with logical flow.</p>
-                </div>
-                <div class="success-results">
-                    <h4>Results Achieved:</h4>
-                    <ul class="results-list">
-                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 60% reduction in crane moves</li>
-                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 38% reduction in lead time</li>
-                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Eliminated handling damage</li>
-                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Freed 15% floor space</li>
-                    </ul>
-                </div>
-            </div>
+            <?php 
+                endforeach;
+                $conn->close();
+            else:
+                // Fallback if no stories in database
+                echo '<p style="text-align: center; color: #64748b;">No success stories available at this time.</p>';
+            endif;
+            ?>
         </div>
     </div>
 </section>
@@ -1266,28 +1229,7 @@ include 'includes/header.php';
     </div>
 </section>
 
+<?php $hideFooterCTA = true; ?>
 <!-- CTA Section -->
-<section class="portfolio-cta">
-    <div class="portfolio-cta-inner">
-        <h2>Ready to Join Our Success Stories?</h2>
-        <p>See how these results were achieved. Request a complimentary Pulse Check and let's create your factory success story.</p>
-        <div class="cta-buttons">
-            <a href="<?php echo url('pulse-check.php'); ?>" class="btn-cta-primary">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                    <polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>
-                Request Your Pulse Check
-            </a>
-            <a href="<?php echo url('process.php'); ?>" class="btn-cta-secondary">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <polyline points="12 6 12 12 16 14"/>
-                </svg>
-                See Our Process
-            </a>
-        </div>
-    </div>
-</section>
 
 <?php include 'includes/footer.php'; ?>

@@ -1,6 +1,7 @@
 <?php
 $pageTitle = 'Privacy Policy - Solutions OptiSpace';
 $pageDescription = 'Privacy policy for Solutions OptiSpace - Learn how we collect, use, and protect your personal information.';
+$pageKeywords = 'OptiSpace privacy policy, data protection, privacy statement, information security, personal data protection, GDPR compliance, privacy practices';
 $currentPage = 'privacy-policy';
 include 'includes/header.php';
 ?>

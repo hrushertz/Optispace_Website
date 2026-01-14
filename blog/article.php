@@ -72,6 +72,7 @@ $conn->close();
 // Set page meta
 $pageTitle = htmlspecialchars($article['meta_title'] ?: $article['title']) . " | Solutions OptiSpace";
 $pageDescription = htmlspecialchars($article['meta_description'] ?: $article['excerpt']);
+$pageKeywords = htmlspecialchars($article['meta_keywords'] ?: 'lean manufacturing, factory design, OptiSpace blog, LFB insights, manufacturing optimization, industrial design, lean principles, factory planning, manufacturing excellence');
 $currentPage = "blogs";
 
 // Get author initials

@@ -2,9 +2,11 @@
 $currentPage = 'contact';
 $pageTitle = 'General Inquiry | Contact Us | Solutions OptiSpace';
 $pageDescription = 'Get in touch with Solutions OptiSpace for general inquiries, questions, or partnership opportunities.';
+$pageKeywords = 'OptiSpace inquiry, contact OptiSpace, general inquiry, factory design inquiry, manufacturing consultation inquiry, business inquiry, partnership inquiry, OptiSpace questions, reach OptiSpace';
 
 // Handle form submission
 require_once 'database/db_config.php';
+require_once 'includes/mailer.php';
 
 $formSuccess = false;
 $formError = '';
@@ -46,6 +48,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 if ($stmt->execute()) {
                     $formSuccess = true;
+                    
+                    // Send notification email to internal team (if enabled)
+                    if (env('MAIL_ENABLED', false) === true || env('MAIL_ENABLED', false) === 'true') {
+                        // Prepare data for email
+                        $emailData = [
+                            'name' => $name,
+                            'email' => $email,
+                            'phone' => $phone,
+                            'subject' => $subject,
+                            'message' => $message
+                        ];
+                        
+                        $notificationResult = sendInquiryNotification($emailData);
+                        if (!$notificationResult['success']) {
+                            // Log the error but don't show to user - form was still submitted successfully
+                            error_log("Inquiry notification email failed: " . $notificationResult['message']);
+                        }
+                    }
+                    
                 } else {
                     $formError = 'Database error: ' . $stmt->error;
                 }

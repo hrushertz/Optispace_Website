@@ -2,6 +2,7 @@
 $currentPage = 'about';
 $pageTitle = 'Leadership | Solutions OptiSpace';
 $pageDescription = 'Solutions OptiSpace is led by practitioners who combine Lean, Six Sigma and factory architecture experience.';
+$pageKeywords = 'Minish Umrani, OptiSpace leadership, lean six sigma experts, factory design leaders, LFB pioneers, manufacturing consultants leaders, industrial architecture experts, lean manufacturing expertise, OptiSpace founder, inside-out design pioneer';
 include 'includes/header.php';
 ?>
 
@@ -714,7 +715,7 @@ include 'includes/header.php';
                             <ul class="detail-list">
                                 <li>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                                    BA, DBM, Lean & Six Sigma Black Belt
+                                    DBM, Lean & Six Sigma Black Belt
                                 </li>
                                 <li>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
@@ -859,6 +860,7 @@ include 'includes/header.php';
     </div>
 </section>
 
+<?php $hideFooterCTA = true; ?>
 <!-- CTA Section -->
 <section class="leadership-cta">
     <div class="leadership-cta-inner">

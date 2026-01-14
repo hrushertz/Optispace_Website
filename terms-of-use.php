@@ -1,6 +1,7 @@
 <?php
 $pageTitle = 'Terms of Use - Solutions OptiSpace';
 $pageDescription = 'Terms of use for Solutions OptiSpace website and services.';
+$pageKeywords = 'OptiSpace terms of use, website terms, service terms, legal terms, terms and conditions, usage policy, website policy';
 $currentPage = 'terms-of-use';
 include 'includes/header.php';
 ?>

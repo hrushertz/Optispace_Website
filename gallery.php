@@ -1,7 +1,16 @@
 <?php
 $pageTitle = "Project Gallery | Solutions OptiSpace";
 $pageDescription = "Explore our portfolio of lean factory designs, facility transformations, and successful project implementations across industries.";
+$pageKeywords = "project gallery, factory design portfolio, OptiSpace projects, lean factory gallery, manufacturing facility gallery, factory transformation gallery, industrial design portfolio, factory photos, plant design examples, facility design gallery";
 $currentPage = "gallery";
+
+// Check if gallery is enabled
+require_once __DIR__ . '/includes/config.php';
+if (!getSiteSetting('gallery_enabled', true)) {
+    http_response_code(404);
+    header('Location: ' . url('index.php'));
+    exit;
+}
 
 // Database connection
 require_once __DIR__ . '/database/db_config.php';
@@ -1542,6 +1551,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 </style>
 
+<?php $hideFooterCTA = true; ?>
 <!-- Final CTA Section -->
 <section class="gallery-cta">
     <div class="gallery-container">

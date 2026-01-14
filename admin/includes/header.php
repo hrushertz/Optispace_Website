@@ -22,6 +22,7 @@ $admin = getCurrentAdmin();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
     <title><?php echo isset($pageTitle) ? htmlspecialchars($pageTitle) . ' - ' : ''; ?>OptiSpace Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/admin.css">
@@ -88,6 +89,18 @@ $admin = getCurrentAdmin();
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="pulse-check-faqs.php" class="nav-link <?php echo $currentPage === 'pulse-check-faqs' || $currentPage === 'pulse-check-faq-add' || $currentPage === 'pulse-check-faq-edit' ? 'active' : ''; ?>">
+                                <span class="nav-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                    </svg>
+                                </span>
+                                <span class="nav-text">Pulse Check FAQs</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="inquiries.php" class="nav-link <?php echo $currentPage === 'inquiries' || $currentPage === 'inquiry-view' ? 'active' : ''; ?>">
                                 <span class="nav-icon">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -132,6 +145,29 @@ $admin = getCurrentAdmin();
                                     </svg>
                                 </span>
                                 <span class="nav-text">Categories</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="waste-items.php" class="nav-link <?php echo $currentPage === 'waste-items' || $currentPage === 'waste-item-add' || $currentPage === 'waste-item-edit' ? 'active' : ''; ?>">
+                                <span class="nav-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                    </svg>
+                                </span>
+                                <span class="nav-text">Waste Items (Mudas)</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="team-members.php" class="nav-link <?php echo $currentPage === 'team-members' || $currentPage === 'team-member-add' || $currentPage === 'team-member-edit' ? 'active' : ''; ?>">
+                                <span class="nav-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="9" cy="7" r="4"/>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                    </svg>
+                                </span>
+                                <span class="nav-text">Team Members</span>
                             </a>
                         </li>
                     </ul>
@@ -244,6 +280,34 @@ $admin = getCurrentAdmin();
                                     </svg>
                                 </span>
                                 <span class="nav-text">Industries</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">Portfolio</span>
+                    <ul class="nav-list">
+                        <li class="nav-item">
+                            <a href="client-videos.php" class="nav-link <?php echo $currentPage === 'client-videos' || $currentPage === 'client-video-add' || $currentPage === 'client-video-edit' ? 'active' : ''; ?>">
+                                <span class="nav-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polygon points="23 7 16 12 23 17 23 7"/>
+                                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                                    </svg>
+                                </span>
+                                <span class="nav-text">Client Videos</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="success-stories.php" class="nav-link <?php echo $currentPage === 'success-stories' || $currentPage === 'success-story-add' || $currentPage === 'success-story-edit' ? 'active' : ''; ?>">
+                                <span class="nav-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                        <polyline points="22 4 12 14.01 9 11.01"/>
+                                    </svg>
+                                </span>
+                                <span class="nav-text">Success Stories</span>
                             </a>
                         </li>
                     </ul>

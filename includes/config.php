@@ -232,6 +232,15 @@ function getMaintenanceEndTime() {
 }
 
 /**
+ * Check if gallery is enabled
+ * 
+ * @return bool True if gallery is enabled
+ */
+function isGalleryEnabled() {
+    return getSiteSetting('gallery_enabled', true);
+}
+
+/**
  * Check maintenance mode and redirect if needed
  * Allows access to: admin panel, blogger panel, blog pages
  * 

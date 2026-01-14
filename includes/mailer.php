@@ -66,6 +66,216 @@ function getMailer() {
 }
 
 /**
+ * Send an Inquiry notification email
+ * 
+ * @param array $data Form submission data
+ * @return array ['success' => bool, 'message' => string]
+ */
+function sendInquiryNotification($data) {
+    try {
+        $mail = getMailer();
+        
+        // Override the from address for inquiry
+        $mail->setFrom(
+            env('ENQUIRY_FROM_EMAIL', env('SMTP_USERNAME', '')),
+            env('ENQUIRY_FROM_NAME', 'OptiSpace Enquiry')
+        );
+        
+        // Recipients - use inquiry specific email
+        $notifyEmail = env('ENQUIRY_TO_EMAIL', env('NOTIFY_EMAIL', 'info@solutionskms.com'));
+        $notifyCC = env('NOTIFY_CC', '');
+        
+        // Add primary recipient(s)
+        $recipients = array_map('trim', explode(',', $notifyEmail));
+        foreach ($recipients as $recipient) {
+            if (!empty($recipient)) {
+                $mail->addAddress($recipient);
+            }
+        }
+        
+        // Add CC recipients if specified
+        if (!empty($notifyCC)) {
+            $ccRecipients = array_map('trim', explode(',', $notifyCC));
+            foreach ($ccRecipients as $cc) {
+                if (!empty($cc)) {
+                    $mail->addCC($cc);
+                }
+            }
+        }
+        
+        // Reply-to: the person who submitted the form
+        $submitterEmail = $data['email'] ?? '';
+        $submitterName = $data['name'] ?? '';
+        if (!empty($submitterEmail)) {
+            $mail->addReplyTo($submitterEmail, $submitterName);
+        }
+        
+        // Email subject
+        $subject = $data['subject'] ?? 'No Subject';
+        $mail->Subject = "New Inquiry: {$subject}";
+        
+        // Build email body
+        $mail->isHTML(true);
+        $mail->Body = buildInquiryEmailBody($data);
+        $mail->AltBody = buildInquiryPlainTextBody($data);
+        
+        $mail->send();
+        
+        return ['success' => true, 'message' => 'Notification email sent successfully'];
+        
+    } catch (Exception $e) {
+        error_log("Inquiry notification email failed: " . $e->getMessage());
+        return ['success' => false, 'message' => $e->getMessage()];
+    }
+}
+
+/**
+ * Build HTML email body for Inquiry notification
+ * 
+ * @param array $data Form submission data
+ * @return string HTML email body
+ */
+function buildInquiryEmailBody($data) {
+    $name = htmlspecialchars($data['name'] ?? 'N/A');
+    $email = htmlspecialchars($data['email'] ?? 'N/A');
+    $phone = htmlspecialchars($data['phone'] ?? 'N/A');
+    $subject = htmlspecialchars($data['subject'] ?? 'N/A');
+    $message = nl2br(htmlspecialchars($data['message'] ?? 'N/A'));
+    
+    $submittedAt = date('F j, Y \a\t g:i A');
+    
+    return <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 700px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <!-- Header -->
+        <tr>
+            <td style="background: linear-gradient(135deg, #1E293B 0%, #334155 100%); padding: 30px 40px; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">
+                    <span style="color: #E99431;">📧</span> New General Inquiry
+                </h1>
+                <p style="color: rgba(255,255,255,0.8); margin: 10px 0 0; font-size: 14px;">
+                    Submitted on {$submittedAt}
+                </p>
+            </td>
+        </tr>
+        
+        <!-- Content -->
+        <tr>
+            <td style="padding: 30px 40px;">
+                <!-- Contact Information -->
+                <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 25px;">
+                    <tr>
+                        <td style="padding-bottom: 15px;">
+                            <h2 style="color: #1E293B; font-size: 18px; margin: 0 0 15px; padding-bottom: 10px; border-bottom: 2px solid #E99431;">
+                                👤 Contact Information
+                            </h2>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table width="100%" cellpadding="8" cellspacing="0" style="background-color: #f8fafc; border-radius: 6px;">
+                                <tr>
+                                    <td width="25%" style="color: #64748B; font-weight: 500;">Name</td>
+                                    <td style="color: #1E293B; font-weight: 600;">{$name}</td>
+                                </tr>
+                                <tr style="background-color: #ffffff;">
+                                    <td style="color: #64748B; font-weight: 500;">Email</td>
+                                    <td><a href="mailto:{$email}" style="color: #3B82F6; text-decoration: none;">{$email}</a></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #64748B; font-weight: 500;">Phone</td>
+                                    <td style="color: #1E293B;">{$phone}</td>
+                                </tr>
+                                <tr style="background-color: #ffffff;">
+                                    <td style="color: #64748B; font-weight: 500;">Subject</td>
+                                    <td style="color: #1E293B; font-weight: 600;">{$subject}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                
+                <!-- Message -->
+                <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td style="padding-bottom: 15px;">
+                            <h2 style="color: #1E293B; font-size: 18px; margin: 0 0 15px; padding-bottom: 10px; border-bottom: 2px solid #E99431;">
+                                💬 Message
+                            </h2>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div style="background-color: #f8fafc; padding: 20px; border-radius: 6px; border-left: 4px solid #E99431;">
+                                <p style="color: #1E293B; line-height: 1.7; margin: 0; white-space: pre-wrap;">{$message}</p>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        
+        <!-- Footer -->
+        <tr>
+            <td style="background-color: #f1f5f9; padding: 20px 40px; text-align: center; border-top: 1px solid #e2e8f0;">
+                <p style="color: #64748B; font-size: 13px; margin: 0;">
+                    This is an automated notification from the Solutions OptiSpace website.
+                </p>
+                <p style="color: #94a3b8; font-size: 12px; margin: 10px 0 0;">
+                    © Solutions OptiSpace | Design the Process, Then the Building
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
+}
+
+/**
+ * Build plain text email body for Inquiry notification
+ * 
+ * @param array $data Form submission data
+ * @return string Plain text email body
+ */
+function buildInquiryPlainTextBody($data) {
+    $name = $data['name'] ?? 'N/A';
+    $email = $data['email'] ?? 'N/A';
+    $phone = $data['phone'] ?? 'N/A';
+    $subject = $data['subject'] ?? 'N/A';
+    $message = $data['message'] ?? 'N/A';
+    
+    $submittedAt = date('F j, Y \a\t g:i A');
+    
+    return <<<TEXT
+NEW GENERAL INQUIRY
+===================
+Submitted on: {$submittedAt}
+
+CONTACT INFORMATION
+-------------------
+Name: {$name}
+Email: {$email}
+Phone: {$phone}
+Subject: {$subject}
+
+MESSAGE
+-------
+{$message}
+
+---
+This is an automated notification from the Solutions OptiSpace website.
+TEXT;
+}
+
+
+/**
  * Send a Pulse Check notification email
  * 
  * @param array $data Form submission data
@@ -75,8 +285,14 @@ function sendPulseCheckNotification($data) {
     try {
         $mail = getMailer();
         
-        // Recipients
-        $notifyEmail = env('NOTIFY_EMAIL', 'info@solutionskms.com');
+        // Override the from address for pulse check
+        $mail->setFrom(
+            env('PULSECHECK_FROM_EMAIL', env('SMTP_USERNAME', '')),
+            env('PULSECHECK_FROM_NAME', 'OptiSpace Pulse Check')
+        );
+        
+        // Recipients - use pulse check specific email
+        $notifyEmail = env('PULSECHECK_TO_EMAIL', env('NOTIFY_EMAIL', 'info@solutionskms.com'));
         $notifyCC = env('NOTIFY_CC', '');
         
         // Add primary recipient(s)

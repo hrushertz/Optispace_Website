@@ -10,8 +10,38 @@ checkMaintenanceMode(true);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="<?php echo $pageDescription ?? 'Solutions OptiSpace - Lean Factory Building (LFB) Architecture. We design factories from the inside out.'; ?>">
-    <title><?php echo $pageTitle ?? 'Solutions OptiSpace'; ?></title>
+    
+    <!-- Primary Meta Tags -->
+    <title><?php echo $pageTitle ?? 'Solutions OptiSpace - Lean Factory Building Architecture'; ?></title>
+    <meta name="title" content="<?php echo $pageTitle ?? 'Solutions OptiSpace - Lean Factory Building Architecture'; ?>">
+    <meta name="description" content="<?php echo $pageDescription ?? 'Solutions OptiSpace - Lean Factory Building (LFB) Architecture. We design factories from the inside out, optimizing manufacturing process flow before construction.'; ?>">
+    <meta name="keywords" content="<?php echo $pageKeywords ?? 'lean factory building, LFB architecture, factory design, lean manufacturing, industrial architecture, greenfield factory, brownfield optimization, manufacturing plant design, factory layout optimization, lean consultants, OptiSpace, Solutions KMS, process flow design, value stream mapping, factory planning, industrial facility design, manufacturing optimization, India factory design'; ?>">
+    <meta name="author" content="Solutions OptiSpace">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
+    <meta property="og:title" content="<?php echo $pageTitle ?? 'Solutions OptiSpace - Lean Factory Building Architecture'; ?>">
+    <meta property="og:description" content="<?php echo $pageDescription ?? 'Solutions OptiSpace - Lean Factory Building (LFB) Architecture. We design factories from the inside out, optimizing manufacturing process flow before construction.'; ?>">
+    <meta property="og:image" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/assets/img/optispace-og-image.jpg'; ?>">
+    <meta property="og:site_name" content="Solutions OptiSpace">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
+    <meta property="twitter:title" content="<?php echo $pageTitle ?? 'Solutions OptiSpace - Lean Factory Building Architecture'; ?>">
+    <meta property="twitter:description" content="<?php echo $pageDescription ?? 'Solutions OptiSpace - Lean Factory Building (LFB) Architecture. We design factories from the inside out, optimizing manufacturing process flow before construction.'; ?>">
+    <meta property="twitter:image" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/assets/img/optispace-og-image.jpg'; ?>">
+    
+    <!-- Additional SEO Tags -->
+    <meta name="theme-color" content="#E99431">
+    <meta name="msapplication-TileColor" content="#E99431">
+    <link rel="canonical" href="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
+    
     <link rel="stylesheet" href="<?php echo asset('css/style.css'); ?>">
 </head>
 <body class="<?php echo isset($currentPage) && $currentPage === 'home' ? 'home-page' : ''; ?>">
@@ -61,7 +91,7 @@ checkMaintenanceMode(true);
                         <li><a href="<?php echo url('process.php'); ?>" class="<?php echo ($currentPage ?? '') == 'process' ? 'active' : ''; ?>">Our Process</a></li>
                         <li><a href="<?php echo url('portfolio.php'); ?>" class="<?php echo ($currentPage ?? '') == 'portfolio' ? 'active' : ''; ?>">Portfolio</a></li>
                         <li class="mobile-has-submenu">
-                            <a href="#" class="mobile-submenu-toggle <?php echo in_array(($currentPage ?? ''), ['about', 'leadership']) ? 'active' : ''; ?>">
+                            <a href="#" class="mobile-submenu-toggle <?php echo in_array(($currentPage ?? ''), ['about', 'leadership', 'team']) ? 'active' : ''; ?>">
                                 About
                                 <svg class="mobile-dropdown-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="6 9 12 15 18 9"/>
@@ -70,6 +100,7 @@ checkMaintenanceMode(true);
                             <ul class="mobile-submenu">
                                 <li><a href="<?php echo url('about.php'); ?>">About OptiSpace</a></li>
                                 <li><a href="<?php echo url('leadership.php'); ?>">Leadership</a></li>
+                                <li><a href="<?php echo url('team.php'); ?>">Team & Associates</a></li>
                             </ul>
                         </li>
                         <li class="mobile-has-submenu">
@@ -82,7 +113,9 @@ checkMaintenanceMode(true);
                             <ul class="mobile-submenu">
                                 <li><a href="<?php echo url('downloads.php'); ?>">Downloads</a></li>
                                 <li><a href="<?php echo url('blogs.php'); ?>">Blogs</a></li>
+                                <?php if (getSiteSetting('gallery_enabled', true)): ?>
                                 <li><a href="<?php echo url('gallery.php'); ?>">Gallery</a></li>
+                                <?php endif; ?>
                             </ul>
                         </li>
                         <li><a href="<?php echo url('contact.php'); ?>" class="<?php echo ($currentPage ?? '') == 'contact' ? 'active' : ''; ?>">Contact</a></li>
@@ -160,7 +193,7 @@ checkMaintenanceMode(true);
                         <li><a href="<?php echo url('process.php'); ?>" class="<?php echo ($currentPage ?? '') == 'process' ? 'active' : ''; ?>">Our Process</a></li>
                         <li><a href="<?php echo url('portfolio.php'); ?>" class="<?php echo ($currentPage ?? '') == 'portfolio' ? 'active' : ''; ?>">Portfolio</a></li>
                         <li class="has-submenu">
-                            <a href="#" class="nav-dropdown-toggle <?php echo in_array(($currentPage ?? ''), ['about', 'leadership']) ? 'active' : ''; ?>">
+                            <a href="#" class="nav-dropdown-toggle <?php echo in_array(($currentPage ?? ''), ['about', 'leadership', 'team']) ? 'active' : ''; ?>">
                                 About
                                 <svg class="dropdown-icon" width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -195,6 +228,22 @@ checkMaintenanceMode(true);
                                         <span class="submenu-text">
                                             <span class="submenu-title">Leadership</span>
                                             <span class="submenu-desc">Meet our team</span>
+                                        </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="<?php echo url('team.php'); ?>">
+                                        <span class="submenu-icon-wrap">
+                                            <svg class="submenu-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                                <circle cx="9" cy="7" r="4"/>
+                                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                            </svg>
+                                        </span>
+                                        <span class="submenu-text">
+                                            <span class="submenu-title">Team & Associates</span>
+                                            <span class="submenu-desc">Our network model</span>
                                         </span>
                                     </a>
                                 </li>
@@ -237,6 +286,7 @@ checkMaintenanceMode(true);
                                         </span>
                                     </a>
                                 </li>
+                                <?php if (getSiteSetting('gallery_enabled', true)): ?>
                                 <li>
                                     <a href="<?php echo url('gallery.php'); ?>">
                                         <span class="submenu-icon-wrap">
@@ -252,6 +302,7 @@ checkMaintenanceMode(true);
                                         </span>
                                     </a>
                                 </li>
+                                <?php endif; ?>
                             </ul>
                         </li>
                         <li><a href="<?php echo url('contact.php'); ?>" class="<?php echo ($currentPage ?? '') == 'contact' ? 'active' : ''; ?>">Contact</a></li>

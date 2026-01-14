@@ -2,7 +2,50 @@
 $currentPage = 'home';
 $pageTitle = 'Lean Factory Building (LFB) Architecture for Future-Ready Plants | Solutions OptiSpace';
 $pageDescription = 'Cut internal travel, energy costs, and WIP before construction begins. Design the process first, then the building—with OptiSpace LFB Architecture.';
+$pageKeywords = 'lean factory building, LFB architecture, factory design, lean manufacturing, manufacturing plant design, process-first design, factory optimization, industrial architecture, greenfield factory, brownfield factory, OptiSpace, lean consultants India, manufacturing excellence, factory layout, value stream mapping, inside-out design, future-ready plants';
 include 'includes/header.php';
+
+// Fetch active client testimonial videos
+require_once 'database/db_config.php';
+$conn = getDBConnection();
+$clientVideosQuery = "SELECT id, title, description, youtube_video_url 
+                      FROM client_videos 
+                      WHERE is_active = 1
+                      ORDER BY sort_order ASC 
+                      LIMIT 10";
+$clientVideosResult = $conn->query($clientVideosQuery);
+$clientVideos = [];
+if ($clientVideosResult) {
+    while ($row = $clientVideosResult->fetch_assoc()) {
+        $clientVideos[] = $row;
+    }
+}
+
+// Helper function to extract YouTube video ID from URL or return as-is if already an ID
+function getYouTubeVideoId($input) {
+    if (empty($input)) return '';
+    
+    // If it's already a video ID (11 characters, alphanumeric with - and _)
+    if (preg_match('/^[a-zA-Z0-9_-]{11}$/', $input)) {
+        return $input;
+    }
+    
+    // Extract from various YouTube URL formats
+    $patterns = [
+        '/youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/',
+        '/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/',
+        '/youtu\.be\/([a-zA-Z0-9_-]{11})/',
+        '/youtube\.com\/v\/([a-zA-Z0-9_-]{11})/'
+    ];
+    
+    foreach ($patterns as $pattern) {
+        if (preg_match($pattern, $input, $matches)) {
+            return $matches[1];
+        }
+    }
+    
+    return '';
+}
 ?>
 
 <style>
@@ -13,9 +56,9 @@ include 'includes/header.php';
 :root {
     --home-orange: #E99431;
     --home-orange-light: rgba(233, 148, 49, 0.08);
-    --home-blue: #0369a1;
-    --home-blue-light: rgba(3, 105, 161, 0.08);
-    --home-green: #10B981;
+    --home-blue: #0284c7;
+    --home-blue-light: rgba(2, 132, 199, 0.08);
+    --home-green: #059669;
     --home-gray: #64748B;
     --home-gray-light: rgba(100, 116, 139, 0.08);
     --home-dark: #1E293B;
@@ -203,19 +246,11 @@ include 'includes/header.php';
 }
 
 .hero-feature-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     padding: 1.5rem;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.hero-feature-card:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(233, 148, 49, 0.3);
-    transform: translateY(-3px);
+    cursor: default;
 }
 
 .feature-card-icon {
@@ -286,7 +321,7 @@ include 'includes/header.php';
 
 @media (max-width: 768px) {
     .home-hero {
-        padding: 5rem 0 4rem;
+        padding: 7rem 0 4rem;
     }
     
     .home-hero h1 {
@@ -304,8 +339,7 @@ include 'includes/header.php';
     }
     
     .hero-feature-grid {
-        grid-template-columns: 1fr;
-        max-width: 280px;
+        display: none;
     }
 }
 </style>
@@ -1474,10 +1508,10 @@ include 'includes/header.php';
                 </div>
                 <div class="outcome-card">
                     <div class="outcome-value">75+</div>
-                    <div class="outcome-label">Industrial segments served worldwide</div>
+                    <div class="outcome-label">Industrial segments served pan India</div>
                 </div>
                 <div class="outcome-card">
-                    <div class="outcome-value">30%</div>
+                    <div class="outcome-value">30%-60%</div>
                     <div class="outcome-label">Average reduction in material travel</div>
                 </div>
             </div>
@@ -1724,19 +1758,19 @@ include 'includes/header.php';
                         <div class="founder-avatar">SK</div>
                         <div class="founder-info">
                             <h4>Solutions Kaizen Management Systems</h4>
-                            <p>Established 2004 • Pune, India</p>
+                            <p>Established 2006 • Pune, India</p>
                         </div>
                     </div>
                 </div>
                 
                 <div class="journey-timeline">
                     <div class="timeline-item">
-                        <div class="timeline-year">2004 – The Beginning</div>
+                        <div class="timeline-year">2006 – The Beginning</div>
                         <div class="timeline-title">Founded with a Vision</div>
                         <div class="timeline-desc">Started with a mission to bring Japanese manufacturing excellence to Indian industries</div>
                     </div>
                     <div class="timeline-item">
-                        <div class="timeline-year">2010 – Expansion</div>
+                        <div class="timeline-year">2013 – Expansion</div>
                         <div class="timeline-title">100+ Projects Milestone</div>
                         <div class="timeline-desc">Expanded expertise to include complete factory layout design and process optimization</div>
                     </div>
@@ -2140,131 +2174,94 @@ include 'includes/header.php';
                 <p class="stories-subtitle">Hear directly from our clients about their transformation journey and the impact on their operations</p>
             </div>
             
+            <?php if (!empty($clientVideos)): ?>
             <!-- Featured + Side Stack -->
             <div class="featured-video-wrapper">
-                <div class="featured-video" onclick="openVideoModal('VIDEO_ID_1')">
+                <?php 
+                // First video (featured)
+                $featuredVideo = $clientVideos[0];
+                $featuredVideoId = getYouTubeVideoId($featuredVideo['youtube_video_url']);
+                ?>
+                <?php if ($featuredVideoId): ?>
+                <div class="featured-video" onclick="openVideoModal('<?php echo htmlspecialchars($featuredVideoId); ?>')">
                     <div class="featured-thumbnail">
-                        <img src="https://img.youtube.com/vi/VIDEO_ID_1/maxresdefault.jpg" alt="OM Auto Components" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 640 360%22%3E%3Crect fill=%22%231e293b%22 width=%22640%22 height=%22360%22/%3E%3Ctext x=%22320%22 y=%22190%22 text-anchor=%22middle%22 fill=%22%2394a3b8%22 font-size=%2220%22%3EFeatured Video%3C/text%3E%3C/svg%3E'">
-                        <span class="featured-duration">4:32</span>
+                        <img src="https://img.youtube.com/vi/<?php echo htmlspecialchars($featuredVideoId); ?>/maxresdefault.jpg" 
+                             alt="<?php echo htmlspecialchars($featuredVideo['title']); ?>" 
+                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 640 360%22%3E%3Crect fill=%22%231e293b%22 width=%22640%22 height=%22360%22/%3E%3Ctext x=%22320%22 y=%22190%22 text-anchor=%22middle%22 fill=%22%2394a3b8%22 font-size=%2220%22%3EFeatured Video%3C/text%3E%3C/svg%3E'">
                         <div class="featured-play">
                             <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                         </div>
                         <div class="featured-overlay">
-                            <div class="featured-client">OM Auto Components</div>
-                            <div class="featured-desc">Manufacturing Excellence & Layout Transformation</div>
+                            <div class="featured-client"><?php echo htmlspecialchars($featuredVideo['title']); ?></div>
+                            <div class="featured-desc"><?php echo htmlspecialchars(mb_substr($featuredVideo['description'] ?? '', 0, 100)); ?></div>
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
                 
                 <div class="side-videos-stack">
-                    <div class="side-video-card" onclick="openVideoModal('VIDEO_ID_2')">
+                    <?php 
+                    // Videos 2-4 (side videos)
+                    for ($i = 1; $i < min(4, count($clientVideos)); $i++):
+                        $sideVideo = $clientVideos[$i];
+                        $sideVideoId = getYouTubeVideoId($sideVideo['youtube_video_url']);
+                        if ($sideVideoId):
+                    ?>
+                    <div class="side-video-card" onclick="openVideoModal('<?php echo htmlspecialchars($sideVideoId); ?>')">
                         <div class="side-thumb">
-                            <img src="https://img.youtube.com/vi/VIDEO_ID_2/mqdefault.jpg" alt="Aalap Industries" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 140 90%22%3E%3Crect fill=%22%231e293b%22 width=%22140%22 height=%2290%22/%3E%3C/svg%3E'">
+                            <img src="https://img.youtube.com/vi/<?php echo htmlspecialchars($sideVideoId); ?>/mqdefault.jpg" 
+                                 alt="<?php echo htmlspecialchars($sideVideo['title']); ?>" 
+                                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 140 90%22%3E%3Crect fill=%22%231e293b%22 width=%22140%22 height=%2290%22/%3E%3C/svg%3E'">
                             <div class="side-play">
                                 <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                             </div>
                         </div>
                         <div class="side-info">
-                            <div class="side-client">Aalap Industries</div>
-                            <div class="side-desc">Lean Transformation</div>
+                            <div class="side-client"><?php echo htmlspecialchars($sideVideo['title']); ?></div>
+                            <div class="side-desc"><?php echo htmlspecialchars(mb_substr($sideVideo['description'] ?? '', 0, 50)); ?></div>
                         </div>
                     </div>
-                    <div class="side-video-card" onclick="openVideoModal('VIDEO_ID_3')">
-                        <div class="side-thumb">
-                            <img src="https://img.youtube.com/vi/VIDEO_ID_3/mqdefault.jpg" alt="Shree Samarth Industries" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 140 90%22%3E%3Crect fill=%22%231e293b%22 width=%22140%22 height=%2290%22/%3E%3C/svg%3E'">
-                            <div class="side-play">
-                                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                            </div>
-                        </div>
-                        <div class="side-info">
-                            <div class="side-client">Shree Samarth Industries</div>
-                            <div class="side-desc">Layout Optimization</div>
-                        </div>
-                    </div>
-                    <div class="side-video-card" onclick="openVideoModal('VIDEO_ID_4')">
-                        <div class="side-thumb">
-                            <img src="https://img.youtube.com/vi/VIDEO_ID_4/mqdefault.jpg" alt="Rahul Industries" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 140 90%22%3E%3Crect fill=%22%231e293b%22 width=%22140%22 height=%2290%22/%3E%3C/svg%3E'">
-                            <div class="side-play">
-                                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                            </div>
-                        </div>
-                        <div class="side-info">
-                            <div class="side-client">Rahul Industries</div>
-                            <div class="side-desc">Process Improvement</div>
-                        </div>
-                    </div>
+                    <?php 
+                        endif;
+                    endfor; 
+                    ?>
                 </div>
             </div>
             
-            <!-- Bottom Grid - Remaining 6 videos -->
+            <!-- Bottom Grid - Remaining videos (5-10) -->
+            <?php if (count($clientVideos) > 4): ?>
             <div class="video-grid-bottom">
-                <div class="grid-video-card" onclick="openVideoModal('VIDEO_ID_5')">
+                <?php 
+                // Videos 5-10 (grid videos)
+                for ($i = 4; $i < count($clientVideos); $i++):
+                    $gridVideo = $clientVideos[$i];
+                    $gridVideoId = getYouTubeVideoId($gridVideo['youtube_video_url']);
+                    if ($gridVideoId):
+                ?>
+                <div class="grid-video-card" onclick="openVideoModal('<?php echo htmlspecialchars($gridVideoId); ?>')">
                     <div class="grid-thumb">
-                        <img src="https://img.youtube.com/vi/VIDEO_ID_5/mqdefault.jpg" alt="Rudra Industries" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 320 180%22%3E%3Crect fill=%22%231e293b%22 width=%22320%22 height=%22180%22/%3E%3C/svg%3E'">
+                        <img src="https://img.youtube.com/vi/<?php echo htmlspecialchars($gridVideoId); ?>/mqdefault.jpg" 
+                             alt="<?php echo htmlspecialchars($gridVideo['title']); ?>" 
+                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 320 180%22%3E%3Crect fill=%22%231e293b%22 width=%22320%22 height=%22180%22/%3E%3C/svg%3E'">
                         <div class="grid-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
-                        <span class="grid-duration">4:55</span>
                     </div>
                     <div class="grid-info">
-                        <div class="grid-client">Rudra Industries</div>
-                        <div class="grid-desc">Factory Design</div>
+                        <div class="grid-client"><?php echo htmlspecialchars($gridVideo['title']); ?></div>
+                        <div class="grid-desc"><?php echo htmlspecialchars(mb_substr($gridVideo['description'] ?? '', 0, 40)); ?></div>
                     </div>
                 </div>
-                <div class="grid-video-card" onclick="openVideoModal('VIDEO_ID_6')">
-                    <div class="grid-thumb">
-                        <img src="https://img.youtube.com/vi/VIDEO_ID_6/mqdefault.jpg" alt="Sakshi Industries" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 320 180%22%3E%3Crect fill=%22%231e293b%22 width=%22320%22 height=%22180%22/%3E%3C/svg%3E'">
-                        <div class="grid-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
-                        <span class="grid-duration">5:08</span>
-                    </div>
-                    <div class="grid-info">
-                        <div class="grid-client">Sakshi Industries</div>
-                        <div class="grid-desc">Operational Excellence</div>
-                    </div>
-                </div>
-                <div class="grid-video-card" onclick="openVideoModal('VIDEO_ID_7')">
-                    <div class="grid-thumb">
-                        <img src="https://img.youtube.com/vi/VIDEO_ID_7/mqdefault.jpg" alt="Manasi Auto Parts" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 320 180%22%3E%3Crect fill=%22%231e293b%22 width=%22320%22 height=%22180%22/%3E%3C/svg%3E'">
-                        <div class="grid-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
-                        <span class="grid-duration">4:22</span>
-                    </div>
-                    <div class="grid-info">
-                        <div class="grid-client">Manasi Auto Parts</div>
-                        <div class="grid-desc">Inventory Systems</div>
-                    </div>
-                </div>
-                <div class="grid-video-card" onclick="openVideoModal('VIDEO_ID_8')">
-                    <div class="grid-thumb">
-                        <img src="https://img.youtube.com/vi/VIDEO_ID_8/mqdefault.jpg" alt="Katdare Food Products" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 320 180%22%3E%3Crect fill=%22%231e293b%22 width=%22320%22 height=%22180%22/%3E%3C/svg%3E'">
-                        <div class="grid-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
-                        <span class="grid-duration">5:45</span>
-                    </div>
-                    <div class="grid-info">
-                        <div class="grid-client">Katdare Food Products</div>
-                        <div class="grid-desc">Food Industry</div>
-                    </div>
-                </div>
-                <div class="grid-video-card" onclick="openVideoModal('VIDEO_ID_9')">
-                    <div class="grid-thumb">
-                        <img src="https://img.youtube.com/vi/VIDEO_ID_9/mqdefault.jpg" alt="Ambrosia Bakers" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 320 180%22%3E%3Crect fill=%22%231e293b%22 width=%22320%22 height=%22180%22/%3E%3C/svg%3E'">
-                        <div class="grid-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
-                        <span class="grid-duration">4:38</span>
-                    </div>
-                    <div class="grid-info">
-                        <div class="grid-client">Ambrosia Bakers</div>
-                        <div class="grid-desc">Bakery Transformation</div>
-                    </div>
-                </div>
-                <div class="grid-video-card" onclick="openVideoModal('VIDEO_ID_10')">
-                    <div class="grid-thumb">
-                        <img src="https://img.youtube.com/vi/VIDEO_ID_10/mqdefault.jpg" alt="Palekar Food Products" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 320 180%22%3E%3Crect fill=%22%231e293b%22 width=%22320%22 height=%22180%22/%3E%3C/svg%3E'">
-                        <div class="grid-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
-                        <span class="grid-duration">5:20</span>
-                    </div>
-                    <div class="grid-info">
-                        <div class="grid-client">Palekar Food Products</div>
-                        <div class="grid-desc">Quality Enhancement</div>
-                    </div>
-                </div>
+                <?php 
+                    endif;
+                endfor; 
+                ?>
             </div>
+            <?php endif; ?>
+            
+            <?php else: ?>
+            <div style="text-align: center; padding: 3rem; color: #64748b;">
+                <p>No client testimonial videos available at the moment.</p>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>
@@ -2653,6 +2650,7 @@ document.addEventListener('keydown', function(e) {
     </div>
 </section>
 
+<?php $hideFooterCTA = true; ?>
 <!-- CTA Section -->
 <section class="cta-section" style="padding: 6rem 0; background: linear-gradient(135deg, var(--home-dark) 0%, #334155 100%); position: relative; overflow: hidden;">
     <style>

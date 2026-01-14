@@ -2,7 +2,20 @@
 $currentPage = 'philosophy';
 $pageTitle = 'Why Design with LFB? | The OptiSpace Difference';
 $pageDescription = 'Learn about the Lean Factory Building philosophy and why the OptiSpace inside-out approach creates superior manufacturing facilities.';
+$pageKeywords = 'LFB philosophy, lean factory building methodology, inside-out design, process-first architecture, lean manufacturing principles, waste elimination, muda reduction, factory efficiency, manufacturing philosophy, OptiSpace approach, value stream design, takt time optimization, material flow optimization';
 include 'includes/header.php';
+
+// Get database connection and fetch waste items
+require_once 'database/db_config.php';
+$conn = getDBConnection();
+$wasteQuery = "SELECT * FROM waste_items WHERE is_active = 1 ORDER BY sort_order ASC, id ASC";
+$wasteResult = $conn->query($wasteQuery);
+$wasteItems = [];
+if ($wasteResult && $wasteResult->num_rows > 0) {
+    while ($row = $wasteResult->fetch_assoc()) {
+        $wasteItems[] = $row;
+    }
+}
 ?>
 
 <style>
@@ -126,18 +139,11 @@ include 'includes/header.php';
 }
 
 .preview-principle {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     padding: 1.25rem;
-    transition: all 0.3s ease;
-}
-
-.preview-principle:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(233, 148, 49, 0.3);
-    transform: translateY(-2px);
+    cursor: default;
 }
 
 .preview-principle-icon {
@@ -231,7 +237,7 @@ include 'includes/header.php';
 
 @media (max-width: 768px) {
     .philosophy-hero {
-        padding: 5rem 0 4rem;
+        padding: 7rem 0 4rem;
     }
     
     .philosophy-hero h1 {
@@ -249,8 +255,7 @@ include 'includes/header.php';
     }
     
     .hero-principles-preview {
-        grid-template-columns: 1fr;
-        max-width: 280px;
+        display: none;
     }
 }
 </style>
@@ -267,7 +272,7 @@ include 'includes/header.php';
                 Core Methodology
             </div>
             <h1>The <span>LFB Philosophy</span></h1>
-            <p class="philosophy-hero-text">Understanding the deep strategic logic behind OptiSpace and why inside-out factory design creates superior manufacturing facilities.</p>
+            <p class="philosophy-hero-text">The LFB Philosophy Process Before Structure: Leveraging OptiSpace to design high-performance facilities from the inside out.</p>
             <div class="hero-stats">
                 <div class="hero-stat">
                     <div class="hero-stat-value">Inside</div>
@@ -407,7 +412,7 @@ include 'includes/header.php';
         </div>
 
         <div class="belief-card">
-            <p>OptiSpace believes that factory buildings must be designed as seamless extensions of the production system, not as generic industrial boxes. Too often, the building constrains the process. We flip this dynamic. The LFB philosophy translates Lean thinking directly into architecture and layout, ensuring the physical asset works for the process, not against it.</p>
+            <p>OptiSpace believes that factory buildings must be designed as seamless extensions of the production system, not as generic industrial boxes. Too often, the building constrains the process. We flip this dynamic. The LFB philosophy translates Lean thinking directly into architecture and manufactuing layout, ensuring the physical asset works for the process, not against it.</p>
         </div>
         
         <!-- Philosophy Flow Visual -->
@@ -429,7 +434,7 @@ include 'includes/header.php';
                     </svg>
                 </div>
                 <div class="flow-label">Optimize</div>
-                <div class="flow-title">Layout Design</div>
+                <div class="flow-title">Workplace Layout Design</div>
             </div>
             <div class="flow-connector"></div>
             <div class="flow-step">
@@ -609,7 +614,7 @@ include 'includes/header.php';
     <div class="philosophy-container">
         <div class="philosophy-section-header">
             <h2>The Core Principle: Inside‑Out Factory Design</h2>
-            <p>LFB is our signature 'inside‑out' design philosophy. It necessitates starting with the value stream, flow, and ergonomics, and only then defining the building's grid, structure, and utility networks.</p>
+            <p>Our signature LFB philosophy reverses traditional planning. It necessitates a rigorous focus on the value stream, flow, and ergonomics as the primary drivers, allowing the building’s structure and utility networks to emerge as a logical support system for the process.</p>
         </div>
 
         <div class="principle-grid">
@@ -621,8 +626,9 @@ include 'includes/header.php';
                 <h3>The LFB Sequence</h3>
                 <ul>
                     <li>Map product families, process sequences, and value streams first</li>
-                    <li>Balance workloads and takt time across operations to define space needs</li>
+                    <li>Balance cycle time and takt time across operations to define space needs</li>
                     <li>Optimize material movement, storage, and operator ergonomics</li>
+                    <li>Deploy visual factory techniques to make it world-class facility</li>
                     <li>Finally, translate this ideal flow into building grids, floor levels, and utility routing</li>
                 </ul>
             </div>
@@ -638,96 +644,37 @@ include 'includes/header.php';
         </div>
 
         <div class="waste-grid">
-            <div class="waste-card">
-                <div class="waste-header">
-                    <div class="waste-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="1" y="3" width="15" height="13"></rect>
-                            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-                            <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                            <circle cx="18.5" cy="18.5" r="2.5"></circle>
-                        </svg>
+            <?php if (!empty($wasteItems)): ?>
+                <?php foreach ($wasteItems as $item): ?>
+                <div class="waste-card">
+                    <div class="waste-header">
+                        <?php if (!empty($item['icon_svg'])): ?>
+                        <div class="waste-icon">
+                            <?php echo $item['icon_svg']; ?>
+                        </div>
+                        <?php endif; ?>
+                        <h3><?php echo htmlspecialchars($item['title']); ?></h3>
                     </div>
-                    <h3>Transportation Waste</h3>
+                    <div class="waste-content">
+                        <div class="waste-example">
+                            <span class="waste-label">Problem:</span>
+                            <?php echo htmlspecialchars($item['problem_text']); ?>
+                        </div>
+                        <div class="waste-solution">
+                            <span class="waste-label">LFB Solution:</span>
+                            <?php echo htmlspecialchars($item['solution_text']); ?>
+                        </div>
+                        <?php if (!empty($item['impact_text'])): ?>
+                        <div class="waste-impact"><?php echo htmlspecialchars($item['impact_text']); ?></div>
+                        <?php endif; ?>
+                    </div>
                 </div>
-                <div class="waste-content">
-                    <div class="waste-example">
-                        <span class="waste-label">Problem:</span>
-                        Forklifts traveling 300 meters between machining and assembly every cycle
-                    </div>
-                    <div class="waste-solution">
-                        <span class="waste-label">LFB Solution:</span>
-                        Minimal or near-zero transportation through optimized adjacency and flow design
-                    </div>
-                    <div class="waste-impact">Reduced handling costs, faster throughput, lower damage</div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--philosophy-gray);">
+                    <p>No waste items configured yet. Contact the administrator to add content.</p>
                 </div>
-            </div>
-            <div class="waste-card">
-                <div class="waste-header">
-                    <div class="waste-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-                        </svg>
-                    </div>
-                    <h3>Motion Waste</h3>
-                </div>
-                <div class="waste-content">
-                    <div class="waste-example">
-                        <span class="waste-label">Problem:</span>
-                        Operators walking 15 meters to retrieve parts, adding fatigue and cycle time
-                    </div>
-                    <div class="waste-solution">
-                        <span class="waste-label">LFB Solution:</span>
-                        Ergonomic workstation design with materials positioned within easy reach
-                    </div>
-                    <div class="waste-impact">Increased productivity, reduced fatigue, improved quality</div>
-                </div>
-            </div>
-            <div class="waste-card">
-                <div class="waste-header">
-                    <div class="waste-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                    </div>
-                    <h3>Waiting Waste</h3>
-                </div>
-                <div class="waste-content">
-                    <div class="waste-example">
-                        <span class="waste-label">Problem:</span>
-                        Sub-assemblies piling up while the next operation sits idle due to imbalanced flow
-                    </div>
-                    <div class="waste-solution">
-                        <span class="waste-label">LFB Solution:</span>
-                        Balanced production flow with synchronized takt time across operations
-                    </div>
-                    <div class="waste-impact">Smoother flow, predictable lead times, better utilization</div>
-                </div>
-            </div>
-            <div class="waste-card">
-                <div class="waste-header">
-                    <div class="waste-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                        </svg>
-                    </div>
-                    <h3>Excess Inventory Waste</h3>
-                </div>
-                <div class="waste-content">
-                    <div class="waste-example">
-                        <span class="waste-label">Problem:</span>
-                        Excessive buffer stocks consuming floor space and working capital
-                    </div>
-                    <div class="waste-solution">
-                        <span class="waste-label">LFB Solution:</span>
-                        Continuous flow with minimal WIP through balanced layout and visual management
-                    </div>
-                    <div class="waste-impact">Reduced capital, faster quality feedback, less obsolescence</div>
-                </div>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>
@@ -1034,8 +981,8 @@ include 'includes/header.php';
 <section class="philosophy-section section-light">
     <div class="philosophy-container">
         <div class="philosophy-section-header">
-            <h2>The ROI: Preventing Hidden Costs</h2>
-            <p>The cost of a building is paid once, but the cost of operating inside it is paid every day for decades. LFB decisions are made to minimize that daily cost, preventing locked-in inefficiencies that drain cash flow over the life of the asset.</p>
+            <h2>ROI: Preventing Hidden Costs</h2>
+            <p>The cost of a building is paid once, but the cost of operating inside is paid every day for decades. LFB decisions are made to minimize that daily cost, preventing locked-in inefficiencies that drain cash flow over the life of the asset.</p>
         </div>
 
         <div class="roi-grid">
@@ -1072,7 +1019,7 @@ include 'includes/header.php';
         </div>
 
         <div class="lock-in-card">
-            <h3>The 20-Year Lock-In Effect</h3>
+            <h3>The 10-20 Year Lock-In Effect</h3>
             <p>Once a factory is built, decisions about column spacing, floor levels, loading bays, and utility routing are nearly impossible to change without major renovation costs. LFB ensures these critical decisions are made correctly from the start, preventing hidden costs that drain profitability every single day for the life of the asset.</p>
         </div>
     </div>

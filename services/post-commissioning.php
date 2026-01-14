@@ -2,6 +2,7 @@
 $currentPage = 'post-commissioning';
 $pageTitle = 'LFB Post-Commissioning Support | Solutions OptiSpace';
 $pageDescription = 'Post‑commissioning support from OptiSpace ensures your Lean Factory Building (LFB) design translates into stable, high‑performing daily operations.';
+$pageKeywords = 'post-commissioning support, factory startup support, manufacturing transition, plant stabilization, production ramp-up, operations optimization, factory implementation, lean implementation support, post-construction support, factory handover, operational excellence support';
 include '../includes/header.php';
 ?>
 
@@ -129,18 +130,12 @@ include '../includes/header.php';
     display: flex;
     align-items: center;
     gap: 1rem;
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     padding: 1.25rem 1.5rem;
     min-width: 280px;
-    transition: all 0.3s ease;
-}
-
-.preview-benefit-card:hover {
-    background: rgba(255, 255, 255, 0.12);
-    transform: translateX(8px);
+    cursor: default;
 }
 
 .preview-icon {
@@ -618,7 +613,7 @@ include '../includes/header.php';
 
 @media (max-width: 768px) {
     .pcs-hero {
-        padding: 5rem 0 4rem;
+        padding: 7rem 0 4rem;
     }
     
     .pcs-hero h1 {
@@ -671,19 +666,19 @@ include '../includes/header.php';
                     Post-Commissioning Support
                 </div>
                 <h1>LFB Post-Commissioning <span>Support</span></h1>
-                <p class="pcs-hero-text">Your success doesn't end when the facility is built – it begins there, when the LFB design meets real‑world operations</p>
+                <p class="pcs-hero-text">Completion is not the finish line it is the starting point of performance. We ensure the transition from construction to operation is seamless, guaranteeing that the LFB design delivers on its promise the moment production begins.</p>
                 <div class="hero-stats">
                     <div class="hero-stat">
                         <div class="hero-stat-value">Faster Ramp-Up</div>
-                        <div class="hero-stat-label">To Full Production</div>
+                        <div class="hero-stat-label">Achieve full production capacity in record time.</div>
                     </div>
                     <div class="hero-stat">
                         <div class="hero-stat-value">Higher Adoption</div>
-                        <div class="hero-stat-label">Of New Processes</div>
+                        <div class="hero-stat-label">Ensure rapid workforce integration of new processes.</div>
                     </div>
                     <div class="hero-stat">
                         <div class="hero-stat-value">Sustained</div>
-                        <div class="hero-stat-label">Lean Improvements</div>
+                        <div class="hero-stat-label">Embed a culture of sustained Lean improvement.</div>
                     </div>
                 </div>
             </div>
@@ -1070,6 +1065,7 @@ include '../includes/header.php';
     </div>
 </section>
 
+<?php $hideFooterCTA = true; ?>
 <!-- CTA Section -->
 <section class="pcs-cta">
     <div class="pcs-container">
