@@ -1,0 +1,14 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /includes/
+Disallow: /vendor/
+Disallow: /database/
+Disallow: /scripts/
+Disallow: /config.php
+Disallow: /.env
+Disallow: /composer.json
+Disallow: /composer.lock
+Disallow: /package.json
+Disallow: /package-lock.json
+
+Sitemap: https://solutionsoptispace.com/sitemap.xml

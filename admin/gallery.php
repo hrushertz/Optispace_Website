@@ -26,31 +26,39 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $stmt->close();
 }
 
-// Handle toggle status
-if (isset($_GET['toggle']) && is_numeric($_GET['toggle'])) {
-    $toggleId = (int)$_GET['toggle'];
+// Handle toggle status (AJAX)
+if (isset($_POST['action']) && $_POST['action'] === 'toggle_active' && isset($_POST['item_id'])) {
+    $toggleId = (int)$_POST['item_id'];
     $stmt = $conn->prepare("UPDATE gallery_items SET is_active = NOT is_active WHERE id = ?");
     $stmt->bind_param("i", $toggleId);
     
     if ($stmt->execute()) {
         logAdminActivity($_SESSION['admin_id'], 'toggle_status', 'gallery_items', $toggleId, 'Toggled gallery item status');
-        $successMessage = "Gallery item status updated.";
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false, 'error' => $conn->error]);
     }
     $stmt->close();
+    exit;
 }
 
-// Handle toggle featured
-if (isset($_GET['feature']) && is_numeric($_GET['feature'])) {
-    $featureId = (int)$_GET['feature'];
+// Handle toggle featured (AJAX)
+if (isset($_POST['action']) && $_POST['action'] === 'toggle_featured' && isset($_POST['item_id'])) {
+    $featureId = (int)$_POST['item_id'];
     $stmt = $conn->prepare("UPDATE gallery_items SET is_featured = NOT is_featured WHERE id = ?");
     $stmt->bind_param("i", $featureId);
     
     if ($stmt->execute()) {
         logAdminActivity($_SESSION['admin_id'], 'toggle_featured', 'gallery_items', $featureId, 'Toggled gallery item featured status');
-        $successMessage = "Gallery item featured status updated.";
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false, 'error' => $conn->error]);
     }
     $stmt->close();
+    exit;
 }
+
+
 
 // Pagination
 $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
@@ -220,12 +228,12 @@ include __DIR__ . '/includes/header.php';
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                         </svg>
                     </a>
-                    <a href="?feature=<?php echo $item['id']; ?>" class="action-btn" title="<?php echo $item['is_featured'] ? 'Remove from Featured' : 'Mark as Featured'; ?>">
+                    <button type="button" class="action-btn" onclick="toggleFeatured(<?php echo $item['id']; ?>, this)" title="<?php echo $item['is_featured'] ? 'Remove from Featured' : 'Mark as Featured'; ?>">
                         <svg viewBox="0 0 24 24" fill="<?php echo $item['is_featured'] ? 'currentColor' : 'none'; ?>" stroke="currentColor" stroke-width="2">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                         </svg>
-                    </a>
-                    <a href="?toggle=<?php echo $item['id']; ?>" class="action-btn" title="<?php echo $item['is_active'] ? 'Deactivate' : 'Activate'; ?>">
+                    </button>
+                    <button type="button" class="action-btn" onclick="toggleActive(<?php echo $item['id']; ?>, this)" title="<?php echo $item['is_active'] ? 'Deactivate' : 'Activate'; ?>">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <?php if ($item['is_active']): ?>
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -235,7 +243,7 @@ include __DIR__ . '/includes/header.php';
                             <line x1="1" y1="1" x2="23" y2="23"/>
                             <?php endif; ?>
                         </svg>
-                    </a>
+                    </button>
                     <a href="?delete=<?php echo $item['id']; ?>" class="action-btn danger" title="Delete" onclick="return confirm('Are you sure you want to delete this gallery item?');">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="3 6 5 6 21 6"/>
@@ -421,6 +429,9 @@ include __DIR__ . '/includes/header.php';
     justify-content: center;
     color: var(--admin-gray-700);
     transition: all var(--transition-fast);
+    border: none;
+    cursor: pointer;
+    padding: 0;
 }
 
 .action-btn:hover {
@@ -647,5 +658,49 @@ include __DIR__ . '/includes/header.php';
     }
 }
 </style>
+
+<script>
+function toggleActive(itemId, button) {
+    fetch('gallery.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'action=toggle_active&item_id=' + itemId
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload the page to update the UI
+            window.location.reload();
+        } else {
+            alert('Error updating status: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating status');
+    });
+}
+
+function toggleFeatured(itemId, button) {
+    fetch('gallery.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'action=toggle_featured&item_id=' + itemId
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload the page to update the UI
+            window.location.reload();
+        } else {
+            alert('Error updating featured status: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating featured status');
+    });
+}
+</script>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

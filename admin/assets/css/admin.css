@@ -11,7 +11,7 @@
     --admin-primary: #E99431;
     --admin-primary-dark: #d4851c;
     --admin-primary-light: rgba(233, 148, 49, 0.1);
-    
+
     /* Neutral Colors */
     --admin-dark: #1E293B;
     --admin-dark-light: #334155;
@@ -26,7 +26,7 @@
     --admin-gray-100: #F1F5F9;
     --admin-gray-50: #F8FAFC;
     --admin-white: #FFFFFF;
-    
+
     /* Status Colors */
     --admin-success: #10B981;
     --admin-success-light: rgba(16, 185, 129, 0.1);
@@ -36,31 +36,31 @@
     --admin-danger-light: rgba(239, 68, 68, 0.1);
     --admin-info: #3B82F6;
     --admin-info-light: rgba(59, 130, 246, 0.1);
-    
+
     /* Sidebar */
     --sidebar-width: 260px;
     --sidebar-collapsed-width: 70px;
     --sidebar-bg: var(--admin-gray-900);
     --sidebar-text: var(--admin-gray-400);
     --sidebar-active: var(--admin-primary);
-    
+
     /* Header */
     --header-height: 64px;
     --header-bg: var(--admin-white);
-    
+
     /* Shadows */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-    
+
     /* Border Radius */
     --radius-sm: 4px;
     --radius-md: 8px;
     --radius-lg: 12px;
     --radius-xl: 16px;
     --radius-full: 9999px;
-    
+
     /* Transitions */
     --transition-fast: 0.15s ease;
     --transition-normal: 0.3s ease;
@@ -69,7 +69,9 @@
 /* ========================================
    BASE STYLES
    ======================================== */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -222,6 +224,7 @@ button {
 }
 
 .nav-item {
+    margin-bottom: 0.25rem;
     padding: 0 0.75rem;
 }
 
@@ -235,6 +238,9 @@ button {
     transition: all var(--transition-fast);
     font-size: 0.9rem;
     font-weight: 500;
+    position: relative;
+    width: 100%;
+    text-align: left;
 }
 
 .nav-link:hover {
@@ -245,6 +251,86 @@ button {
 .nav-link.active {
     background: var(--admin-primary-light);
     color: var(--admin-primary);
+}
+
+/* Dropdown Styles */
+.nav-dropdown-toggle {
+    justify-content: space-between;
+}
+
+.nav-dropdown-toggle .nav-link-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.nav-arrow {
+    width: 16px;
+    height: 16px;
+    transition: transform var(--transition-normal);
+    color: var(--admin-gray-500);
+}
+
+.nav-dropdown-toggle[aria-expanded="true"] .nav-arrow {
+    transform: rotate(180deg);
+}
+
+.nav-dropdown-toggle[aria-expanded="true"] {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--admin-white);
+}
+
+.nav-dropdown-menu {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 0.25rem;
+    display: none;
+    overflow: hidden;
+}
+
+.nav-dropdown.active .nav-dropdown-menu {
+    display: block;
+}
+
+.nav-dropdown.active .nav-dropdown-toggle {
+    color: var(--admin-white);
+}
+
+.nav-dropdown-item {
+    margin-bottom: 0.125rem;
+}
+
+.nav-dropdown-link {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem 0.5rem 3.25rem;
+    /* Indented text */
+    color: var(--sidebar-text);
+    font-size: 0.85rem;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.nav-dropdown-link:hover {
+    color: var(--admin-white);
+}
+
+.nav-dropdown-link.active {
+    color: var(--admin-primary);
+    background: rgba(233, 148, 49, 0.05);
+}
+
+.nav-dropdown-link.active::before {
+    content: "";
+    position: absolute;
+    left: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--admin-primary);
 }
 
 .nav-badge {
@@ -354,6 +440,8 @@ button {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    /* Prevent flex item from not shrinking */
 }
 
 /* Header */
@@ -704,6 +792,7 @@ button {
    ======================================== */
 .table-container {
     overflow-x: auto;
+    max-width: 100%;
 }
 
 .data-table {
@@ -716,6 +805,8 @@ button {
     padding: 1rem 1.25rem;
     text-align: left;
     border-bottom: 1px solid var(--admin-gray-200);
+    white-space: normal;
+    word-break: break-word;
 }
 
 .data-table th {
@@ -955,11 +1046,11 @@ textarea.form-control {
     transition: all var(--transition-fast);
 }
 
-.toggle-switch input:checked + .toggle-slider {
+.toggle-switch input:checked+.toggle-slider {
     background: var(--admin-primary);
 }
 
-.toggle-switch input:checked + .toggle-slider::before {
+.toggle-switch input:checked+.toggle-slider::before {
     transform: translateX(20px);
 }
 
@@ -1205,21 +1296,30 @@ textarea.form-control {
     margin-bottom: 2rem;
 }
 
-.login-logo {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-dark) 100%);
-    border-radius: var(--radius-lg);
+.login-logo-wrapped {
+    margin-bottom: 2rem;
     display: flex;
-    align-items: center;
     justify-content: center;
-    margin: 0 auto 1.25rem;
+    align-items: center;
 }
 
-.login-logo svg {
-    width: 32px;
-    height: 32px;
-    color: var(--admin-white);
+.login-logo-wrapped a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 100%;
+}
+
+.login-company-logo {
+    height: 60px;
+    max-width: 100%;
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.login-company-logo:hover {
+    transform: scale(1.05);
 }
 
 .login-header h1 {
@@ -1264,15 +1364,15 @@ textarea.form-control {
     .admin-sidebar {
         transform: translateX(-100%);
     }
-    
+
     .admin-sidebar.open {
         transform: translateX(0);
     }
-    
+
     .admin-main {
         margin-left: 0;
     }
-    
+
     .mobile-menu-toggle {
         display: flex;
     }
@@ -1282,32 +1382,32 @@ textarea.form-control {
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .page-header {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .page-actions {
         width: 100%;
     }
-    
+
     .page-actions .btn {
         flex: 1;
     }
-    
+
     .form-row {
         grid-template-columns: 1fr;
     }
-    
+
     .header-search {
         display: none;
     }
-    
+
     .card-body {
         padding: 1rem;
     }
-    
+
     .data-table th,
     .data-table td {
         padding: 0.75rem;
@@ -1318,11 +1418,11 @@ textarea.form-control {
     .admin-content {
         padding: 1rem;
     }
-    
+
     .login-card {
         padding: 1.5rem;
     }
-    
+
     .modal {
         margin: 0.5rem;
     }
@@ -1437,4 +1537,3 @@ textarea.form-control {
 .file-upload-area.error {
     border-color: var(--admin-danger);
 }
-

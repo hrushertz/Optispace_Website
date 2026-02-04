@@ -206,15 +206,25 @@ include 'includes/header.php';
 </div>
 
 <!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <h3>Confirm Delete</h3>
-        <p>Are you sure you want to delete this FAQ?</p>
-        <p id="deleteFaqName" style="font-weight: bold; color: #E94931;"></p>
-        <form id="deleteForm" method="post">
-            <input type="hidden" name="action" value="delete">
-            <input type="hidden" name="faq_id" id="deleteFaqId">
-            <div class="modal-actions">
+<div id="deleteModal" class="modal-backdrop">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Confirm Delete</h3>
+            <button type="button" class="modal-close" onclick="closeDeleteModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete this FAQ?</p>
+            <p id="deleteFaqName" style="font-weight: bold; color: #E94931; margin-top: 0.5rem;"></p>
+        </div>
+        <div class="modal-footer">
+            <form id="deleteForm" method="post" style="display: contents;">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="faq_id" id="deleteFaqId">
                 <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
                         <line x1="18" y1="6" x2="6" y2="18"/>
@@ -231,8 +241,8 @@ include 'includes/header.php';
                     </svg>
                     Delete FAQ
                 </button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -383,20 +393,23 @@ function toggleActive(id) {
     });
 }
 
+// Delete FAQ
 function deleteFaq(id, question) {
     document.getElementById('deleteFaqId').value = id;
     document.getElementById('deleteFaqName').textContent = question;
-    document.getElementById('deleteModal').style.display = 'flex';
+    const modal = document.getElementById('deleteModal');
+    modal.classList.add('active');
 }
 
 function closeDeleteModal() {
-    document.getElementById('deleteModal').style.display = 'none';
+    const modal = document.getElementById('deleteModal');
+    modal.classList.remove('active');
 }
 
-// Close modal when clicking outside
+// Close modal on outside click
 window.onclick = function(event) {
     const modal = document.getElementById('deleteModal');
-    if (event.target == modal) {
+    if (event.target === modal) {
         closeDeleteModal();
     }
 }

@@ -4,6 +4,12 @@
  * Handles login, logout, session management for admin panel
  */
 
+// Prevent multiple inclusions
+if (defined('ADMIN_AUTH_LOADED')) {
+    return;
+}
+define('ADMIN_AUTH_LOADED', true);
+
 require_once __DIR__ . '/../../database/db_config.php';
 
 // Start session if not already started

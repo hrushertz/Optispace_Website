@@ -30,12 +30,12 @@ if (isset($_GET['msg'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
-    
+
     if (empty($username) || empty($password)) {
         $error = 'Please enter both username and password.';
     } else {
         $user = authenticateBlogger($username, $password);
-        
+
         if ($user) {
             setBloggerSession($user);
             header('Location: dashboard.php');
@@ -48,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -55,10 +56,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../admin/assets/css/admin.css">
     <style>
-        .login-card { max-width: 420px; }
-        .login-logo { background: linear-gradient(135deg, #3B82F6 0%, #2563eb 100%); }
-        .btn-primary { background: linear-gradient(135deg, #3B82F6 0%, #2563eb 100%); }
-        .btn-primary:hover { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); }
+        .login-card {
+            max-width: 420px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563eb 100%);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        }
+
         .blogger-note {
             margin-top: 1.5rem;
             padding: 1rem;
@@ -68,37 +77,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #64748b;
             text-align: center;
         }
+
         .blogger-note a {
             color: #3B82F6;
             text-decoration: none;
         }
+
         .blogger-note a:hover {
             text-decoration: underline;
         }
     </style>
 </head>
+
 <body class="admin-body login-page">
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
-                <div class="login-logo">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 19l7-7 3 3-7 7-3-3z"/>
-                        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
-                        <path d="M2 2l7.586 7.586"/>
-                        <circle cx="11" cy="11" r="2"/>
-                    </svg>
+                <div class="login-logo-wrapped">
+                    <a href="../index.php">
+                        <img src="../assets/img/optispace.png" alt="OptiSpace Logo" class="login-company-logo">
+                    </a>
                 </div>
                 <h1>Blogger Panel</h1>
                 <p>Sign in to write and manage your blogs</p>
             </div>
 
             <?php if ($info): ?>
-                <div class="alert alert-info" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); color: #1E40AF;">
+                <div class="alert alert-info"
+                    style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); color: #1E40AF;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="16" x2="12" y2="12"/>
-                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
                     </svg>
                     <span><?php echo $info; ?></span>
                 </div>
@@ -107,9 +117,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if ($error): ?>
                 <div class="alert alert-danger">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="8" x2="12" y2="12"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
                     </svg>
                     <span><?php echo $error; ?></span>
                 </div>
@@ -118,22 +128,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <form method="POST" class="login-form">
                 <div class="form-group">
                     <label for="username" class="form-label">Username or Email</label>
-                    <input type="text" id="username" name="username" class="form-control" 
-                           placeholder="Enter your username" required
-                           value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>">
+                    <input type="text" id="username" name="username" class="form-control"
+                        placeholder="Enter your username" required
+                        value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>">
                 </div>
 
                 <div class="form-group">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" id="password" name="password" class="form-control" 
-                           placeholder="Enter your password" required>
+                    <input type="password" id="password" name="password" class="form-control"
+                        placeholder="Enter your password" required>
                 </div>
 
                 <button type="submit" class="btn btn-primary">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-                        <polyline points="10 17 15 12 10 7"/>
-                        <line x1="15" y1="12" x2="3" y2="12"/>
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                        <polyline points="10 17 15 12 10 7" />
+                        <line x1="15" y1="12" x2="3" y2="12" />
                     </svg>
                     Sign In
                 </button>
@@ -150,4 +160,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </body>
+
 </html>

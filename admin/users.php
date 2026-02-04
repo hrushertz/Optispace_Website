@@ -9,7 +9,7 @@ require_once __DIR__ . '/includes/auth.php';
 requireAdminLogin();
 requireAdminRole('admin'); // Only admin and super_admin can access
 
-require_once __DIR__ . '/../database/db_config.php';
+// db_config.php is already included in auth.php
 
 $conn = getDBConnection();
 
@@ -45,6 +45,14 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
             
             // Can only delete users with lower or equal role (super_admin can delete anyone, admin can delete admin/editor)
             if ($currentUserLevel > $targetLevel || ($currentAdmin['role'] === 'super_admin')) {
+                // START FIX: Reassign blogs authored by this user to the current admin
+                // This prevents deletion failure due to FOREIGN KEY (author_id) REFERENCES admin_users(id) ON DELETE RESTRICT
+                $reassignStmt = $conn->prepare("UPDATE blogs SET author_id = ? WHERE author_id = ?");
+                $reassignStmt->bind_param("ii", $currentAdmin['id'], $deleteId);
+                $reassignStmt->execute();
+                $reassignStmt->close();
+                // END FIX
+
                 $stmt = $conn->prepare("DELETE FROM admin_users WHERE id = ?");
                 $stmt->bind_param("i", $deleteId);
                 
@@ -52,7 +60,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
                     logAdminActivity($_SESSION['admin_id'], 'delete', 'admin_users', $deleteId, 'Deleted user: ' . $targetUser['username']);
                     $successMessage = "User deleted successfully.";
                 } else {
-                    $errors['general'] = "Failed to delete user.";
+                    $errors['general'] = "Failed to delete user. The user might have associated content that cannot be reassigned automatically.";
                 }
                 $stmt->close();
             } else {
@@ -197,12 +205,13 @@ include __DIR__ . '/includes/header.php';
                             </td>
                             <td>
                                 <?php 
-                                $roleBadgeClass = match($user['role']) {
+                                // Determine badge class based on role (PHP 7.4 compatible)
+                                $roleBadgeClasses = [
                                     'super_admin' => 'badge-danger',
                                     'admin' => 'badge-primary',
-                                    'editor' => 'badge-gray',
-                                    default => 'badge-gray'
-                                };
+                                    'editor' => 'badge-gray'
+                                ];
+                                $roleBadgeClass = $roleBadgeClasses[$user['role']] ?? 'badge-gray';
                                 $roleLabel = ucwords(str_replace('_', ' ', $user['role']));
                                 ?>
                                 <span class="badge <?php echo $roleBadgeClass; ?>"><?php echo $roleLabel; ?></span>

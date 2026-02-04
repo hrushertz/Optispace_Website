@@ -403,7 +403,7 @@ include __DIR__ . '/includes/header.php';
                 <strong><?php echo $maintenanceMode ? 'Maintenance Mode is Active' : 'Site is Online'; ?></strong>
                 <span><?php echo $maintenanceMode ? 'Public pages are currently restricted. Admin, blogger dashboards, and blog pages remain accessible.' : 'All pages are accessible to visitors.'; ?></span>
             </div>
-            <form method="post" class="toggle-form" onsubmit="return confirm('<?php echo $maintenanceMode ? 'Are you sure you want to disable maintenance mode? The site will become publicly accessible.' : 'Are you sure you want to enable maintenance mode? Public pages will be restricted.'; ?>');">
+            <form method="post" class="toggle-form" onsubmit="return confirm(<?php echo json_encode($maintenanceMode ? 'Are you sure you want to disable maintenance mode? The site will become publicly accessible.' : 'Are you sure you want to enable maintenance mode? Public pages will be restricted.'); ?>);">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generateCSRFToken()); ?>">
                 <input type="hidden" name="action" value="toggle_maintenance">
                 <button type="submit" class="maintenance-toggle-btn <?php echo $maintenanceMode ? 'disable' : 'enable'; ?>">
@@ -499,7 +499,7 @@ include __DIR__ . '/includes/header.php';
                 <strong><?php echo $galleryEnabled ? 'Gallery is Enabled' : 'Gallery is Disabled'; ?></strong>
                 <span><?php echo $galleryEnabled ? 'The gallery is visible in the navigation menu and accessible to visitors.' : 'The gallery is hidden from the navigation menu and the page is restricted.'; ?></span>
             </div>
-            <form method="post" class="toggle-form" onsubmit="return confirm('<?php echo $galleryEnabled ? 'Are you sure you want to disable the gallery? It will be hidden from the navigation and become inaccessible.' : 'Are you sure you want to enable the gallery? It will appear in the navigation and become accessible.'; ?>');">
+            <form method="post" class="toggle-form" onsubmit="return confirm(<?php echo json_encode($galleryEnabled ? 'Are you sure you want to disable the gallery? It will be hidden from the navigation and become inaccessible.' : 'Are you sure you want to enable the gallery? It will appear in the navigation and become accessible.'); ?>);">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generateCSRFToken()); ?>">
                 <input type="hidden" name="action" value="toggle_gallery">
                 <button type="submit" class="maintenance-toggle-btn <?php echo $galleryEnabled ? 'enable' : 'disable'; ?>">

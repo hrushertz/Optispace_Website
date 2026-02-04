@@ -6,6 +6,12 @@
  * when switching between development and production environments.
  */
 
+// Prevent multiple inclusions
+if (defined('SITE_CONFIG_LOADED')) {
+    return;
+}
+define('SITE_CONFIG_LOADED', true);
+
 // ===========================================
 // ENVIRONMENT CONFIGURATION
 // ===========================================
@@ -14,7 +20,9 @@
  * Set this to 'development' or 'production'
  * This controls various settings like error display, caching, etc.
  */
-define('ENVIRONMENT', 'development');
+if (!defined('ENVIRONMENT')) {
+    define('ENVIRONMENT', 'development');
+}
 
 // ===========================================
 // BASE URL CONFIGURATION
@@ -38,7 +46,9 @@ define('ENVIRONMENT', 'development');
 
 // For XAMPP local development (installed at htdocs/Optispace_Website)
 // For XAMPP local development (installed at htdocs/Optispace_Website)
-define('BASE_URL', '/Optispace_Website');
+if (!defined('BASE_URL')) {
+    define('BASE_URL', '/optispace_website');
+}
 
 // For production (installed at domain root)
 // define('BASE_URL', '');
@@ -50,17 +60,29 @@ define('BASE_URL', '/Optispace_Website');
 // ASSET PATHS
 // ===========================================
 
-define('ASSETS_URL', BASE_URL . '/assets');
-define('CSS_URL', ASSETS_URL . '/css');
-define('JS_URL', ASSETS_URL . '/js');
-define('IMG_URL', ASSETS_URL . '/img');
+if (!defined('ASSETS_URL')) {
+    define('ASSETS_URL', BASE_URL . '/assets');
+}
+if (!defined('CSS_URL')) {
+    define('CSS_URL', ASSETS_URL . '/css');
+}
+if (!defined('JS_URL')) {
+    define('JS_URL', ASSETS_URL . '/js');
+}
+if (!defined('IMG_URL')) {
+    define('IMG_URL', ASSETS_URL . '/img');
+}
 
 // ===========================================
 // SITE INFORMATION
 // ===========================================
 
-define('SITE_NAME', 'Solutions OptiSpace');
-define('SITE_TAGLINE', 'Design the Process, Then the Building');
+if (!defined('SITE_NAME')) {
+    define('SITE_NAME', 'Solutions OptiSpace');
+}
+if (!defined('SITE_TAGLINE')) {
+    define('SITE_TAGLINE', 'Design the Process, Then the Building');
+}
 
 // ===========================================
 // HELPER FUNCTIONS
@@ -72,20 +94,21 @@ define('SITE_TAGLINE', 'Design the Process, Then the Building');
  * @param string $path The path relative to the site root (e.g., '/contact.php')
  * @return string The full URL with base path
  */
-function url($path = '') {
+function url($path = '')
+{
     // Remove leading slash if present to avoid double slashes
     $path = ltrim($path, '/');
-    
+
     // If BASE_URL is empty and path is empty, return '/'
     if (empty(BASE_URL) && empty($path)) {
         return '/';
     }
-    
+
     // If BASE_URL is empty, just return the path with leading slash
     if (empty(BASE_URL)) {
         return '/' . $path;
     }
-    
+
     // Return BASE_URL + path
     return BASE_URL . '/' . $path;
 }
@@ -96,7 +119,8 @@ function url($path = '') {
  * @param string $path The path relative to the assets folder (e.g., 'css/style.css')
  * @return string The full asset URL
  */
-function asset($path = '') {
+function asset($path = '')
+{
     $path = ltrim($path, '/');
     return ASSETS_URL . '/' . $path;
 }
@@ -107,7 +131,8 @@ function asset($path = '') {
  * @param string $filename The image filename
  * @return string The full image URL
  */
-function img($filename) {
+function img($filename)
+{
     return IMG_URL . '/' . ltrim($filename, '/');
 }
 
@@ -134,9 +159,10 @@ if (ENVIRONMENT === 'development') {
  * @param mixed $default Default value if setting not found
  * @return mixed The setting value
  */
-function getSiteSetting($key, $default = null) {
+function getSiteSetting($key, $default = null)
+{
     static $settings = null;
-    
+
     // Cache settings to avoid multiple DB calls
     if ($settings === null) {
         $settings = [];
@@ -168,7 +194,7 @@ function getSiteSetting($key, $default = null) {
             return $default;
         }
     }
-    
+
     return isset($settings[$key]) ? $settings[$key] : $default;
 }
 
@@ -180,24 +206,25 @@ function getSiteSetting($key, $default = null) {
  * @param int|null $userId The admin user making the change
  * @return bool Success status
  */
-function updateSiteSetting($key, $value, $userId = null) {
+function updateSiteSetting($key, $value, $userId = null)
+{
     try {
         require_once __DIR__ . '/../database/db_config.php';
         $conn = getDBConnection();
-        
+
         // Convert value to string for storage
         if (is_bool($value)) {
             $value = $value ? '1' : '0';
         } elseif (is_array($value)) {
             $value = json_encode($value);
         }
-        
+
         $stmt = $conn->prepare("UPDATE site_settings SET setting_value = ?, updated_by = ? WHERE setting_key = ?");
         $stmt->bind_param("sis", $value, $userId, $key);
         $result = $stmt->execute();
         $stmt->close();
         $conn->close();
-        
+
         return $result;
     } catch (Exception $e) {
         return false;
@@ -209,7 +236,8 @@ function updateSiteSetting($key, $value, $userId = null) {
  * 
  * @return bool True if in maintenance mode
  */
-function isMaintenanceMode() {
+function isMaintenanceMode()
+{
     return getSiteSetting('maintenance_mode', false);
 }
 
@@ -218,7 +246,8 @@ function isMaintenanceMode() {
  * 
  * @return string The maintenance message
  */
-function getMaintenanceMessage() {
+function getMaintenanceMessage()
+{
     return getSiteSetting('maintenance_message', 'We are currently performing scheduled maintenance. Please check back soon.');
 }
 
@@ -227,7 +256,8 @@ function getMaintenanceMessage() {
  * 
  * @return string|null The estimated end time
  */
-function getMaintenanceEndTime() {
+function getMaintenanceEndTime()
+{
     return getSiteSetting('maintenance_end_time', null);
 }
 
@@ -236,7 +266,8 @@ function getMaintenanceEndTime() {
  * 
  * @return bool True if gallery is enabled
  */
-function isGalleryEnabled() {
+function isGalleryEnabled()
+{
     return getSiteSetting('gallery_enabled', true);
 }
 
@@ -246,31 +277,32 @@ function isGalleryEnabled() {
  * 
  * @param bool $allowBlogPages Whether to allow blog pages during maintenance
  */
-function checkMaintenanceMode($allowBlogPages = false) {
+function checkMaintenanceMode($allowBlogPages = false)
+{
     if (!isMaintenanceMode()) {
         return; // Not in maintenance mode
     }
-    
+
     // Get current script path
     $currentPath = $_SERVER['SCRIPT_NAME'] ?? '';
-    
+
     // Always allow admin and blogger panels
     if (strpos($currentPath, '/admin/') !== false || strpos($currentPath, '/blogger/') !== false) {
         return;
     }
-    
+
     // Allow blog pages if specified
     if ($allowBlogPages) {
         if (strpos($currentPath, '/blog/') !== false || basename($currentPath) === 'blogs.php') {
             return;
         }
     }
-    
+
     // Allow the maintenance page itself
     if (basename($currentPath) === 'maintenance.php') {
         return;
     }
-    
+
     // Redirect to maintenance page
     header('HTTP/1.1 503 Service Unavailable');
     header('Retry-After: 3600');

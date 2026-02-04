@@ -1,32 +1,32 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const header = document.querySelector('.site-header');
     const body = document.body;
-    
+
     // Check if we're on the homepage
     const isHomePage = body.classList.contains('home-page') || document.querySelector('.hero');
-    
+
     console.log('Page loaded. Is homepage:', isHomePage);
     console.log('Header has transparent class:', header.classList.contains('transparent'));
-    
+
     // Handle scroll event for transparent header
     function handleScroll() {
         if (!header) return;
-        
+
         const scrollPosition = window.scrollY || window.pageYOffset;
-        
+
         // Add scrolled class for sticky header effect
         if (scrollPosition > 50) {
             header.classList.add('scrolled');
         } else {
             header.classList.remove('scrolled');
         }
-        
+
         if (!isHomePage) return;
-        
+
         // Get hero section height
         const heroSection = document.querySelector('.hero, .hero-enhanced, .home-hero');
         const heroHeight = heroSection ? heroSection.offsetHeight : 500;
-        
+
         if (scrollPosition > heroHeight) {
             if (header.classList.contains('transparent')) {
                 header.classList.remove('transparent');
@@ -37,9 +37,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-    
+
     window.addEventListener('scroll', handleScroll);
-    
+
     // Call once on load to set initial state
     handleScroll();
 
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
         mobileNavPanel.classList.add('active');
         mobileNavOverlay.classList.add('active');
         document.body.classList.add('mobile-nav-open');
-        
+
         // Animate hamburger to X
         const spans = mobileMenuToggle.querySelectorAll('span');
         spans[0].style.transform = 'rotate(45deg) translateY(8px)';
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
         mobileNavPanel.classList.remove('active');
         mobileNavOverlay.classList.remove('active');
         document.body.classList.remove('mobile-nav-open');
-        
+
         // Reset hamburger icon
         const spans = mobileMenuToggle.querySelectorAll('span');
         spans.forEach(span => {
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (mobileMenuToggle && mobileNavPanel) {
-        mobileMenuToggle.addEventListener('click', function() {
+        mobileMenuToggle.addEventListener('click', function () {
             if (mobileNavPanel.classList.contains('active')) {
                 closeMobileNav();
             } else {
@@ -95,17 +95,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Mobile submenu toggle
     mobileSubmenuToggles.forEach(toggle => {
-        toggle.addEventListener('click', function(e) {
+        toggle.addEventListener('click', function (e) {
             e.preventDefault();
             const parentLi = this.closest('.mobile-has-submenu');
-            
+
             // Close other open submenus
             document.querySelectorAll('.mobile-has-submenu.open').forEach(openItem => {
                 if (openItem !== parentLi) {
                     openItem.classList.remove('open');
                 }
             });
-            
+
             parentLi.classList.toggle('open');
         });
     });
@@ -113,14 +113,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Close mobile nav when clicking a link
     const mobileNavLinks = document.querySelectorAll('.mobile-nav-panel a:not(.mobile-submenu-toggle)');
     mobileNavLinks.forEach(link => {
-        link.addEventListener('click', function() {
+        link.addEventListener('click', function () {
             closeMobileNav();
         });
     });
 
     const smoothScrollLinks = document.querySelectorAll('a[href^="#"]');
     smoothScrollLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             const href = this.getAttribute('href');
             if (href !== '#' && href.length > 1) {
                 const targetId = href.substring(1);
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle demo forms (exclude actual backend forms like pulse check and contact form)
     const demoForms = document.querySelectorAll('form:not(#pulseCheckForm):not(#contactForm)');
     demoForms.forEach(form => {
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', function (e) {
             // Only intercept forms that don't have a method attribute or aren't POST
             if (!this.method || this.method.toLowerCase() !== 'post') {
                 e.preventDefault();
@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
         rootMargin: '0px 0px -100px 0px'
     };
 
-    const observer = new IntersectionObserver(function(entries) {
+    const observer = new IntersectionObserver(function (entries) {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.style.opacity = '1';
@@ -183,6 +183,46 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }, observerOptions);
 
+    // Timeline Items Animation (Scroll based for precision)
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    if (timelineItems.length > 0) {
+        function updateTimeline() {
+            const viewportCenter = window.innerHeight / 2;
+            let closestItem = null;
+            let minDistance = Infinity;
+
+            timelineItems.forEach(item => {
+                const rect = item.getBoundingClientRect();
+                const itemCenter = rect.top + (rect.height / 2);
+                const distance = Math.abs(viewportCenter - itemCenter);
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestItem = item;
+                }
+            });
+
+            if (closestItem) {
+                timelineItems.forEach(item => {
+                    if (item === closestItem) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+            }
+        }
+
+        // Initial check
+        updateTimeline();
+
+        // Check on scroll
+        window.addEventListener('scroll', updateTimeline, { passive: true });
+
+        // Check on resize too
+        window.addEventListener('resize', updateTimeline, { passive: true });
+    }
+
     const animateElements = document.querySelectorAll('.card, .process-step, .stat-card');
     animateElements.forEach(el => {
         el.style.opacity = '0';
@@ -190,4 +230,36 @@ document.addEventListener('DOMContentLoaded', function() {
         el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(el);
     });
+
+    // Preloader Logic
+    // Preloader Logic
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+        // Remove artificial delay entirely as per user request
+        // "preloader should only run if website is taking time to load"
+        const minDisplayTime = 0;
+        const startTime = new Date().getTime();
+
+        const hidePreloader = () => {
+            const currentTime = new Date().getTime();
+            const elapsedTime = currentTime - startTime;
+            const remainingTime = Math.max(0, minDisplayTime - elapsedTime);
+
+            setTimeout(() => {
+                preloader.classList.add('fade-out');
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                }, 500); // Wait for CSS fade-out transition
+            }, remainingTime);
+        };
+
+        // If page is already loaded (can happen with defer scripts or cache)
+        if (document.readyState === 'complete') {
+            hidePreloader();
+        } else {
+            window.addEventListener('load', hidePreloader);
+            // Fallback still needed just in case load never fires (though rarer)
+            setTimeout(hidePreloader, 5000);
+        }
+    }
 });

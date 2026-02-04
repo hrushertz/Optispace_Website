@@ -4,6 +4,12 @@
  * Loads environment variables from .env file
  */
 
+// Prevent multiple inclusions
+if (defined('ENV_LOADER_LOADED')) {
+    return;
+}
+define('ENV_LOADER_LOADED', true);
+
 function loadEnv($path = null) {
     // If no path provided, look in the root directory
     if ($path === null) {
@@ -11,7 +17,9 @@ function loadEnv($path = null) {
     }
     
     if (!file_exists($path)) {
-        throw new Exception('.env file not found at: ' . $path . '. Please copy .env.example to .env and configure it.');
+        // Log error but don't throw exception - allow app to use defaults
+        error_log('.env file not found at: ' . $path . '. Using default configuration.');
+        return false;
     }
 
     $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -71,10 +79,11 @@ function env($key, $default = null) {
     return $value;
 }
 
-// Load the .env file
+// Load the .env file - fail gracefully
 try {
     loadEnv();
 } catch (Exception $e) {
-    die('Configuration Error: ' . $e->getMessage());
+    // Log error but continue - allow app to use defaults
+    error_log('Environment loading error: ' . $e->getMessage());
 }
 ?>

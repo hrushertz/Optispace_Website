@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     updated_at = NOW()
                 WHERE id = ? AND author_id = ?
             ");
-            $stmt->bind_param("issssssisisii", $categoryId, $title, $slug, $excerpt, $content, $metaTitle, $metaDescription, $readTime, $isPublished, $publishedAt, $blogId, $blogger['id']);
+            $stmt->bind_param("issssssissii", $categoryId, $title, $slug, $excerpt, $content, $metaTitle, $metaDescription, $readTime, $isPublished, $publishedAt, $blogId, $blogger['id']);
             
             if ($stmt->execute()) {
                 logBloggerActivity($blogger['id'], 'update', 'blogs', $blogId, 'Updated blog: ' . $title);

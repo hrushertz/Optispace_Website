@@ -10,12 +10,18 @@ $conn = getDBConnection();
 // Handle delete request
 if (isset($_POST['action']) && $_POST['action'] === 'delete' && isset($_POST['story_id'])) {
     $storyId = intval($_POST['story_id']);
+    
+    // Debug logging
+    error_log("Delete request received - Story ID: " . $storyId);
+    
     $stmt = $conn->prepare("DELETE FROM success_stories WHERE id = ?");
     $stmt->bind_param("i", $storyId);
     if ($stmt->execute()) {
+        error_log("Delete successful - Rows affected: " . $stmt->affected_rows);
         $_SESSION['success_message'] = 'Success story deleted successfully';
     } else {
-        $_SESSION['error_message'] = 'Error deleting success story';
+        error_log("Delete failed - Error: " . $stmt->error);
+        $_SESSION['error_message'] = 'Error deleting success story: ' . $stmt->error;
     }
     $stmt->close();
     header('Location: success-stories.php');
@@ -121,7 +127,7 @@ include 'includes/header.php';
         
         <?php if (empty($stories)): ?>
         <div class="empty-state">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px;">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
                 <polyline points="22 4 12 14.01 9 11.01"/>
             </svg>
@@ -207,8 +213,10 @@ include 'includes/header.php';
                                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                                     </svg>
                                 </a>
-                                <button onclick="confirmDelete(<?php echo $story['id']; ?>, '<?php echo htmlspecialchars(addslashes($story['title'])); ?>')" 
-                                        class="btn-icon btn-icon-danger" 
+                                <button type="button" 
+                                        class="btn-icon btn-icon-danger delete-story-btn" 
+                                        data-story-id="<?php echo $story['id']; ?>"
+                                        data-story-title="<?php echo htmlspecialchars($story['title']); ?>"
                                         title="Delete">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <polyline points="3 6 5 6 21 6"/>
@@ -226,11 +234,45 @@ include 'includes/header.php';
     </div>
 </div>
 
-<!-- Delete Confirmation Form -->
-<form id="deleteForm" method="POST" style="display: none;">
-    <input type="hidden" name="action" value="delete">
-    <input type="hidden" name="story_id" id="deleteStoryId">
-</form>
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal-backdrop">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Confirm Delete</h3>
+            <button type="button" class="modal-close" onclick="closeDeleteModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete this success story?</p>
+            <p id="deleteStoryName" style="font-weight: bold; color: #E94931; margin-top: 0.5rem;"></p>
+            <p style="color: #64748b; font-size: 0.9rem; margin-top: 0.5rem;">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <form id="deleteForm" method="POST" style="display: contents;">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="story_id" id="deleteStoryId">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                    Cancel
+                </button>
+                <button type="submit" class="btn btn-danger">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                    Delete Success Story
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
@@ -280,10 +322,29 @@ function toggleActive(storyId, checkbox) {
     });
 }
 
-function confirmDelete(storyId, storyTitle) {
-    if (confirm('Are you sure you want to delete "' + storyTitle + '"?\n\nThis action cannot be undone.')) {
+// Handle delete button clicks using event delegation
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.delete-story-btn')) {
+        const btn = e.target.closest('.delete-story-btn');
+        const storyId = btn.getAttribute('data-story-id');
+        const storyTitle = btn.getAttribute('data-story-title');
+        
+        // Open modal
         document.getElementById('deleteStoryId').value = storyId;
-        document.getElementById('deleteForm').submit();
+        document.getElementById('deleteStoryName').textContent = storyTitle;
+        document.getElementById('deleteModal').classList.add('active');
+    }
+});
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('active');
+}
+
+// Close modal on outside click
+window.onclick = function(event) {
+    const modal = document.getElementById('deleteModal');
+    if (event.target === modal) {
+        closeDeleteModal();
     }
 }
 </script>

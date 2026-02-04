@@ -6,6 +6,12 @@
  * Configure SMTP settings in your .env file
  */
 
+// Prevent multiple inclusions
+if (defined('MAILER_LOADED')) {
+    return;
+}
+define('MAILER_LOADED', true);
+
 // Load Composer autoloader
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
