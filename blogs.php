@@ -26,17 +26,7 @@ if (!empty($categorySlug)) {
     }
 }
 
-// Fetch featured blogs
-$featuredBlogs = $conn->query("
-    SELECT b.*, c.name as category_name, c.slug as category_slug, c.color as category_color,
-           a.full_name as author_name, a.role as author_role
-    FROM blogs b
-    LEFT JOIN blog_categories c ON b.category_id = c.id
-    LEFT JOIN admin_users a ON b.author_id = a.id
-    WHERE b.is_published = 1 AND b.is_featured = 1 $categoryFilter
-    ORDER BY b.published_at DESC
-    LIMIT 4
-");
+
 
 // Fetch all published blogs (excluding featured for main list)
 $allBlogs = $conn->query("
@@ -45,7 +35,7 @@ $allBlogs = $conn->query("
     FROM blogs b
     LEFT JOIN blog_categories c ON b.category_id = c.id
     LEFT JOIN admin_users a ON b.author_id = a.id
-    WHERE b.is_published = 1 $categoryFilter
+    WHERE b.is_published = 1 AND b.published_at <= NOW() $categoryFilter
     ORDER BY b.published_at DESC
     LIMIT 20
 ");
@@ -54,14 +44,14 @@ $allBlogs = $conn->query("
 $categories = $conn->query("
     SELECT c.*, COUNT(b.id) as blog_count
     FROM blog_categories c
-    LEFT JOIN blogs b ON c.id = b.category_id AND b.is_published = 1
+    LEFT JOIN blogs b ON c.id = b.category_id AND b.is_published = 1 AND b.published_at <= NOW()
     WHERE c.is_active = 1
     GROUP BY c.id
     ORDER BY c.sort_order, c.name
 ");
 
 // Get total blog count and other stats
-$totalBlogsResult = $conn->query("SELECT COUNT(*) as cnt FROM blogs WHERE is_published = 1");
+$totalBlogsResult = $conn->query("SELECT COUNT(*) as cnt FROM blogs WHERE is_published = 1 AND published_at <= NOW()");
 $totalBlogs = $totalBlogsResult ? $totalBlogsResult->fetch_assoc()['cnt'] : 0;
 
 $totalCategoriesResult = $conn->query("SELECT COUNT(*) as cnt FROM blog_categories WHERE is_active = 1");
@@ -493,50 +483,7 @@ include 'includes/header.php';
     </ul>
 </nav>
 
-<!-- Categories Section -->
-<section class="categories-section">
-    <div class="blog-container">
-        <div class="categories-header">
-            <h2>Explore Topics</h2>
-            <p>Browse articles by category to find exactly what you're looking for</p>
-        </div>
 
-        <div class="categories-grid">
-            <?php
-            $categoryIcons = [
-                'lean-factory' => '<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>',
-                'layout-design' => '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>',
-                'case-studies' => '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
-                'industry-trends' => '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
-                'operations' => '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>'
-            ];
-            $colorClasses = ['orange', 'blue', 'green', 'purple', 'gray'];
-            $colorIndex = 0;
-
-            // Reset categories result pointer
-            $categories->data_seek(0);
-
-            while ($cat = $categories->fetch_assoc()):
-                $iconSvg = $categoryIcons[$cat['slug']] ?? '<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>';
-                $colorClass = $colorClasses[$colorIndex % count($colorClasses)];
-                $colorIndex++;
-                ?>
-                <a href="?category=<?php echo urlencode($cat['slug']); ?>" class="category-card">
-                    <div class="category-icon <?php echo $colorClass; ?>">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <?php echo $iconSvg; ?>
-                        </svg>
-                    </div>
-                    <div class="category-content">
-                        <h3><?php echo htmlspecialchars($cat['name']); ?></h3>
-                        <p><?php echo htmlspecialchars($cat['description'] ?: 'Articles about ' . $cat['name']); ?></p>
-                        <span class="category-count"><?php echo $cat['blog_count']; ?> Articles</span>
-                    </div>
-                </a>
-            <?php endwhile; ?>
-        </div>
-    </div>
-</section>
 
 <style>
     /* Categories Section */
@@ -545,598 +492,11 @@ include 'includes/header.php';
         margin: 0 auto;
         padding: 0 2rem;
     }
-
-    .categories-section {
-        padding: 5rem 0;
-        background: white;
-    }
-
-    .categories-header {
-        text-align: center;
-        margin-bottom: 3rem;
-    }
-
-    .categories-header h2 {
-        font-size: 2.25rem;
-        color: var(--blog-dark);
-        margin-bottom: 0.75rem;
-        font-weight: 700;
-    }
-
-    .categories-header p {
-        font-size: 1.1rem;
-        color: var(--blog-text);
-        max-width: 500px;
-        margin: 0 auto;
-    }
-
-    .categories-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
-    }
-
-    .categories-grid .category-card:nth-child(4),
-    .categories-grid .category-card:nth-child(5) {
-        grid-column: span 1;
-    }
-
-    .category-card {
-        background: #FAFBFC;
-        border: 1px solid var(--blog-border);
-        border-radius: 12px;
-        padding: 1.75rem;
-        display: flex;
-        gap: 1.25rem;
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }
-
-    .category-card:hover {
-        background: white;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-        border-color: transparent;
-        transform: translateY(-2px);
-    }
-
-    .category-icon {
-        width: 56px;
-        height: 56px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .category-icon svg {
-        width: 28px;
-        height: 28px;
-    }
-
-    .category-icon.orange {
-        background: var(--blog-orange-light);
-    }
-
-    .category-icon.orange svg {
-        color: var(--blog-orange);
-    }
-
-    .category-icon.blue {
-        background: var(--blog-blue-light);
-    }
-
-    .category-icon.blue svg {
-        color: var(--blog-blue);
-    }
-
-    .category-icon.green {
-        background: var(--blog-green-light);
-    }
-
-    .category-icon.green svg {
-        color: var(--blog-green);
-    }
-
-    .category-icon.purple {
-        background: var(--blog-purple-light);
-    }
-
-    .category-icon.purple svg {
-        color: var(--blog-purple);
-    }
-
-    .category-icon.gray {
-        background: var(--blog-gray-light);
-    }
-
-    .category-icon.gray svg {
-        color: var(--blog-gray);
-    }
-
-    .category-content h3 {
-        font-size: 1.15rem;
-        color: var(--blog-dark);
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-    }
-
-    .category-content p {
-        font-size: 0.9rem;
-        color: var(--blog-text);
-        line-height: 1.6;
-        margin-bottom: 0.75rem;
-    }
-
-    .category-count {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--blog-orange);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    @media (max-width: 1024px) {
-        .categories-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (max-width: 640px) {
-        .categories-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .category-card {
-            flex-direction: column;
-            text-align: center;
-        }
-
-        .category-icon {
-            margin: 0 auto;
-        }
-    }
 </style>
 
-<!-- Featured Articles Section -->
-<section class="featured-section">
-    <div class="blog-container">
-        <div class="section-header-flex">
-            <div class="section-header-left">
-                <span class="section-label">Featured</span>
-                <h2>Editor's Picks</h2>
-            </div>
-            <p class="section-desc">Hand-picked articles our readers find most valuable</p>
-        </div>
 
-        <?php if ($featuredBlogs->num_rows > 0):
-            $featuredBlogs->data_seek(0);
-            $mainFeatured = $featuredBlogs->fetch_assoc();
-            ?>
-            <div class="featured-grid">
-                <article class="featured-main">
-                    <div class="featured-image">
-                        <?php if ($mainFeatured['featured_image']): ?>
-                            <img src="<?php echo htmlspecialchars($mainFeatured['featured_image']); ?>"
-                                alt="<?php echo htmlspecialchars($mainFeatured['title']); ?>">
-                        <?php else: ?>
-                            <div class="image-placeholder">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                                    <path d="M2 17l10 5 10-5" />
-                                    <path d="M2 12l10 5 10-5" />
-                                </svg>
-                            </div>
-                        <?php endif; ?>
-                        <span class="featured-badge">Featured</span>
-                    </div>
-                    <div class="featured-content">
-                        <div class="article-meta">
-                            <span class="article-category"
-                                style="background: <?php echo $mainFeatured['category_color'] ?? '#E99431'; ?>20; color: <?php echo $mainFeatured['category_color'] ?? '#E99431'; ?>;"><?php echo htmlspecialchars($mainFeatured['category_name'] ?? 'Uncategorized'); ?></span>
-                            <span
-                                class="article-date"><?php echo date('M j, Y', strtotime($mainFeatured['published_at'])); ?></span>
-                        </div>
-                        <h3><a
-                                href="<?php echo url('blog/article.php?slug=' . urlencode($mainFeatured['slug'])); ?>"><?php echo htmlspecialchars($mainFeatured['title']); ?></a>
-                        </h3>
-                        <p><?php echo htmlspecialchars($mainFeatured['excerpt'] ?: substr(strip_tags($mainFeatured['content']), 0, 200) . '...'); ?>
-                        </p>
-                        <div class="article-footer">
-                            <div class="author-info">
-                                <div class="author-avatar"><?php echo getAuthorInitials($mainFeatured['author_name']); ?>
-                                </div>
-                                <div class="author-details">
-                                    <span
-                                        class="author-name"><?php echo htmlspecialchars($mainFeatured['author_name'] ?? 'System Admin'); ?></span>
-                                    <span
-                                        class="author-role"><?php echo ucfirst(str_replace('_', ' ', $mainFeatured['author_role'])); ?></span>
-                                </div>
-                            </div>
-                            <span class="read-time">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <polyline points="12 6 12 12 16 14" />
-                                </svg>
-                                <?php echo $mainFeatured['read_time']; ?> min read
-                            </span>
-                        </div>
-                    </div>
-                </article>
 
-                <div class="featured-sidebar">
-                    <?php
-                    $colorClasses = ['blue', 'green', 'purple', 'orange'];
-                    $colorIndex = 0;
-                    while ($featured = $featuredBlogs->fetch_assoc()):
-                        ?>
-                        <article class="featured-small">
-                            <div class="featured-small-image">
-                                <?php if ($featured['featured_image']): ?>
-                                    <img src="<?php echo htmlspecialchars($featured['featured_image']); ?>" alt="">
-                                <?php else: ?>
-                                    <div class="image-placeholder small">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                                            <path d="M2 17l10 5 10-5" />
-                                            <path d="M2 12l10 5 10-5" />
-                                        </svg>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                            <div class="featured-small-content">
-                                <span
-                                    class="article-category <?php echo $colorClasses[$colorIndex % 4]; ?>"><?php echo htmlspecialchars($featured['category_name'] ?? 'Article'); ?></span>
-                                <h4><a
-                                        href="<?php echo url('blog/article.php?slug=' . urlencode($featured['slug'])); ?>"><?php echo htmlspecialchars($featured['title']); ?></a>
-                                </h4>
-                                <div class="article-meta-small">
-                                    <span><?php echo date('M j, Y', strtotime($featured['published_at'])); ?></span>
-                                    <span>•</span>
-                                    <span><?php echo $featured['read_time']; ?> min read</span>
-                                </div>
-                            </div>
-                        </article>
-                        <?php
-                        $colorIndex++;
-                    endwhile; ?>
-                </div>
-            </div>
-        <?php else: ?>
-            <div class="empty-featured">
-                <p>No featured articles yet. Check back soon for editor's picks!</p>
-            </div>
-        <?php endif; ?>
-    </div>
-</section>
 
-<style>
-    /* Featured Section */
-    .featured-section {
-        padding: 5rem 0;
-        background: #F8FAFC;
-    }
-
-    .section-header-flex {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        margin-bottom: 2.5rem;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    .section-header-left {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .section-label {
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--blog-orange);
-    }
-
-    .section-header-flex h2 {
-        font-size: 2rem;
-        color: var(--blog-dark);
-        font-weight: 700;
-        margin: 0;
-    }
-
-    .section-desc {
-        font-size: 1rem;
-        color: var(--blog-text);
-        margin: 0;
-    }
-
-    .featured-grid {
-        display: grid;
-        grid-template-columns: 1.5fr 1fr;
-        gap: 2rem;
-    }
-
-    .featured-main {
-        background: white;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-        transition: all 0.3s ease;
-    }
-
-    .featured-main:hover {
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-        transform: translateY(-4px);
-    }
-
-    .featured-image {
-        position: relative;
-        height: 280px;
-        background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
-    }
-
-    .image-placeholder {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .image-placeholder svg {
-        width: 80px;
-        height: 80px;
-        color: rgba(255, 255, 255, 0.2);
-    }
-
-    .image-placeholder.small svg {
-        width: 36px;
-        height: 36px;
-    }
-
-    .featured-badge {
-        position: absolute;
-        top: 1rem;
-        left: 1rem;
-        background: var(--blog-orange);
-        color: white;
-        padding: 0.35rem 0.75rem;
-        border-radius: 6px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .featured-content {
-        padding: 1.75rem;
-    }
-
-    .article-meta {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .article-category {
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        padding: 0.25rem 0.6rem;
-        border-radius: 4px;
-    }
-
-    .article-category.orange {
-        background: var(--blog-orange-light);
-        color: var(--blog-orange);
-    }
-
-    .article-category.blue {
-        background: var(--blog-blue-light);
-        color: var(--blog-blue);
-    }
-
-    .article-category.green {
-        background: var(--blog-green-light);
-        color: var(--blog-green);
-    }
-
-    .article-category.purple {
-        background: var(--blog-purple-light);
-        color: var(--blog-purple);
-    }
-
-    .article-date {
-        font-size: 0.85rem;
-        color: var(--blog-gray);
-    }
-
-    .featured-content h3 {
-        font-size: 1.5rem;
-        color: var(--blog-dark);
-        margin-bottom: 0.75rem;
-        line-height: 1.35;
-    }
-
-    .featured-content h3 a {
-        color: inherit;
-        text-decoration: none;
-        transition: color 0.2s ease;
-    }
-
-    .featured-content h3 a:hover {
-        color: var(--blog-orange);
-    }
-
-    .featured-content>p {
-        font-size: 0.95rem;
-        color: var(--blog-text);
-        line-height: 1.7;
-        margin-bottom: 1.5rem;
-    }
-
-    .article-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 1.25rem;
-        border-top: 1px solid var(--blog-border);
-    }
-
-    .author-info {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .author-avatar {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, var(--blog-orange) 0%, #f5a854 100%);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-
-    .author-details {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .author-name {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--blog-dark);
-    }
-
-    .author-role {
-        font-size: 0.8rem;
-        color: var(--blog-gray);
-    }
-
-    .read-time {
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-        font-size: 0.85rem;
-        color: var(--blog-gray);
-    }
-
-    .read-time svg {
-        color: var(--blog-gray);
-    }
-
-    /* Featured Sidebar */
-    .featured-sidebar {
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-    }
-
-    .featured-small {
-        background: white;
-        border-radius: 12px;
-        overflow: hidden;
-        display: flex;
-        gap: 1rem;
-        padding: 1rem;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-        transition: all 0.3s ease;
-    }
-
-    .featured-small:hover {
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-        transform: translateX(4px);
-    }
-
-    .featured-small-image {
-        width: 100px;
-        height: 100px;
-        background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
-        border-radius: 8px;
-        flex-shrink: 0;
-        overflow: hidden;
-    }
-
-    .featured-small-content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .featured-small-content .article-category {
-        width: fit-content;
-        margin-bottom: 0.5rem;
-    }
-
-    .featured-small-content h4 {
-        font-size: 0.95rem;
-        color: var(--blog-dark);
-        line-height: 1.4;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-    }
-
-    .featured-small-content h4 a {
-        color: inherit;
-        text-decoration: none;
-        transition: color 0.2s ease;
-    }
-
-    .featured-small-content h4 a:hover {
-        color: var(--blog-orange);
-    }
-
-    .article-meta-small {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.8rem;
-        color: var(--blog-gray);
-    }
-
-    @media (max-width: 1024px) {
-        .featured-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .featured-sidebar {
-            flex-direction: row;
-            flex-wrap: wrap;
-        }
-
-        .featured-small {
-            flex: 1;
-            min-width: 280px;
-        }
-    }
-
-    @media (max-width: 640px) {
-        .section-header-flex {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .featured-sidebar {
-            flex-direction: column;
-        }
-
-        .featured-small {
-            min-width: auto;
-        }
-    }
-</style>
 
 <!-- All Articles Section -->
 <section class="articles-section">
@@ -1323,6 +683,27 @@ include 'includes/header.php';
     .article-card-image {
         height: 180px;
         background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+    }
+
+    .article-card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .image-placeholder svg {
+        width: 64px;
+        height: 64px;
+        color: rgba(255, 255, 255, 0.2);
     }
 
     .article-card-content {

@@ -27,10 +27,10 @@ $currentUserLevel = $roleHierarchy[$currentAdmin['role']] ?? 0;
 
 // Handle delete action
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $deleteId = (int)$_GET['delete'];
-    
+    $deleteId = (int) $_GET['delete'];
+
     // Can't delete yourself
-    if ($deleteId === (int)$currentAdmin['id']) {
+    if ($deleteId === (int) $currentAdmin['id']) {
         $errors['general'] = "You cannot delete your own account.";
     } else {
         // Check target user's role level
@@ -39,10 +39,10 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         $checkStmt->execute();
         $targetUser = $checkStmt->get_result()->fetch_assoc();
         $checkStmt->close();
-        
+
         if ($targetUser) {
             $targetLevel = $roleHierarchy[$targetUser['role']] ?? 0;
-            
+
             // Can only delete users with lower or equal role (super_admin can delete anyone, admin can delete admin/editor)
             if ($currentUserLevel > $targetLevel || ($currentAdmin['role'] === 'super_admin')) {
                 // START FIX: Reassign blogs authored by this user to the current admin
@@ -55,7 +55,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 
                 $stmt = $conn->prepare("DELETE FROM admin_users WHERE id = ?");
                 $stmt->bind_param("i", $deleteId);
-                
+
                 if ($stmt->execute()) {
                     logAdminActivity($_SESSION['admin_id'], 'delete', 'admin_users', $deleteId, 'Deleted user: ' . $targetUser['username']);
                     $successMessage = "User deleted successfully.";
@@ -74,10 +74,10 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 
 // Handle toggle status
 if (isset($_GET['toggle']) && is_numeric($_GET['toggle'])) {
-    $toggleId = (int)$_GET['toggle'];
-    
+    $toggleId = (int) $_GET['toggle'];
+
     // Can't toggle yourself
-    if ($toggleId === (int)$currentAdmin['id']) {
+    if ($toggleId === (int) $currentAdmin['id']) {
         $errors['general'] = "You cannot deactivate your own account.";
     } else {
         // Check target user's role level
@@ -86,14 +86,14 @@ if (isset($_GET['toggle']) && is_numeric($_GET['toggle'])) {
         $checkStmt->execute();
         $targetUser = $checkStmt->get_result()->fetch_assoc();
         $checkStmt->close();
-        
+
         if ($targetUser) {
             $targetLevel = $roleHierarchy[$targetUser['role']] ?? 0;
-            
+
             if ($currentUserLevel > $targetLevel || ($currentAdmin['role'] === 'super_admin')) {
                 $stmt = $conn->prepare("UPDATE admin_users SET is_active = NOT is_active WHERE id = ?");
                 $stmt->bind_param("i", $toggleId);
-                
+
                 if ($stmt->execute()) {
                     $action = $targetUser['is_active'] ? 'deactivated' : 'activated';
                     logAdminActivity($_SESSION['admin_id'], 'toggle_status', 'admin_users', $toggleId, ucfirst($action) . ' user: ' . $targetUser['username']);
@@ -133,8 +133,8 @@ include __DIR__ . '/includes/header.php';
     <div class="page-actions">
         <a href="user-add.php" class="btn btn-primary">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
             Add User
         </a>
@@ -144,8 +144,8 @@ include __DIR__ . '/includes/header.php';
 <?php if ($successMessage): ?>
     <div class="alert alert-success" data-auto-hide>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-            <polyline points="22 4 12 14.01 9 11.01"/>
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
         </svg>
         <span><?php echo htmlspecialchars($successMessage); ?></span>
     </div>
@@ -154,9 +154,9 @@ include __DIR__ . '/includes/header.php';
 <?php if (isset($errors['general'])): ?>
     <div class="alert alert-danger">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
         <span><?php echo htmlspecialchars($errors['general']); ?></span>
     </div>
@@ -181,22 +181,24 @@ include __DIR__ . '/includes/header.php';
             </thead>
             <tbody>
                 <?php if ($users->num_rows > 0): ?>
-                    <?php while ($user = $users->fetch_assoc()): 
+                    <?php while ($user = $users->fetch_assoc()):
                         $userLevel = $roleHierarchy[$user['role']] ?? 0;
                         $canModify = ($currentUserLevel > $userLevel) || ($currentAdmin['role'] === 'super_admin');
-                        $isSelf = ((int)$user['id'] === (int)$currentAdmin['id']);
-                    ?>
+                        $isSelf = ((int) $user['id'] === (int) $currentAdmin['id']);
+                        ?>
                         <tr>
                             <td>
                                 <div class="table-item">
-                                    <div class="user-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #E99431, #d4841f); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 1rem;">
+                                    <div class="user-avatar"
+                                        style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #E99431, #d4841f); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 1rem;">
                                         <?php echo strtoupper(substr($user['full_name'], 0, 1)); ?>
                                     </div>
                                     <div class="table-item-info">
                                         <h4>
                                             <?php echo htmlspecialchars($user['full_name']); ?>
                                             <?php if ($isSelf): ?>
-                                                <span class="badge badge-primary" style="margin-left: 0.5rem; font-size: 0.65rem;">You</span>
+                                                <span class="badge badge-primary"
+                                                    style="margin-left: 0.5rem; font-size: 0.65rem;">You</span>
                                             <?php endif; ?>
                                         </h4>
                                         <p><?php echo htmlspecialchars($user['email']); ?></p>
@@ -204,12 +206,13 @@ include __DIR__ . '/includes/header.php';
                                 </div>
                             </td>
                             <td>
-                                <?php 
+                                <?php
                                 // Determine badge class based on role (PHP 7.4 compatible)
                                 $roleBadgeClasses = [
                                     'super_admin' => 'badge-danger',
                                     'admin' => 'badge-primary',
-                                    'editor' => 'badge-gray'
+                                    'editor' => 'badge-gray',
+                                    'sales' => 'badge-gray'
                                 ];
                                 $roleBadgeClass = $roleBadgeClasses[$user['role']] ?? 'badge-gray';
                                 $roleLabel = ucwords(str_replace('_', ' ', $user['role']));
@@ -235,39 +238,39 @@ include __DIR__ . '/includes/header.php';
                             <td>
                                 <div class="table-actions">
                                     <?php if ($canModify || $isSelf): ?>
-                                        <a href="user-edit.php?id=<?php echo $user['id']; ?>" 
-                                           class="btn btn-secondary btn-sm btn-icon" title="Edit">
+                                        <a href="user-edit.php?id=<?php echo $user['id']; ?>"
+                                            class="btn btn-secondary btn-sm btn-icon" title="Edit">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                                             </svg>
                                         </a>
                                     <?php endif; ?>
-                                    
+
                                     <?php if ($canModify && !$isSelf): ?>
-                                        <a href="?toggle=<?php echo $user['id']; ?>" 
-                                           class="btn btn-secondary btn-sm btn-icon" 
-                                           title="<?php echo $user['is_active'] ? 'Deactivate' : 'Activate'; ?>">
+                                        <a href="?toggle=<?php echo $user['id']; ?>" class="btn btn-secondary btn-sm btn-icon"
+                                            title="<?php echo $user['is_active'] ? 'Deactivate' : 'Activate'; ?>">
                                             <?php if ($user['is_active']): ?>
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                                    <circle cx="12" cy="12" r="3"/>
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                                    <circle cx="12" cy="12" r="3" />
                                                 </svg>
                                             <?php else: ?>
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                                                    <line x1="1" y1="1" x2="23" y2="23"/>
+                                                    <path
+                                                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                                                    <line x1="1" y1="1" x2="23" y2="23" />
                                                 </svg>
                                             <?php endif; ?>
                                         </a>
-                                        
-                                        <a href="?delete=<?php echo $user['id']; ?>" 
-                                           class="btn btn-danger btn-sm btn-icon" 
-                                           title="Delete"
-                                           onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
+
+                                        <a href="?delete=<?php echo $user['id']; ?>" class="btn btn-danger btn-sm btn-icon"
+                                            title="Delete"
+                                            onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <polyline points="3 6 5 6 21 6"/>
-                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                                <polyline points="3 6 5 6 21 6" />
+                                                <path
+                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                                             </svg>
                                         </a>
                                     <?php endif; ?>
@@ -324,6 +327,16 @@ include __DIR__ . '/includes/header.php';
                     <li>Add and edit content</li>
                     <li>Upload files and images</li>
                     <li>View dashboard</li>
+                </ul>
+            </div>
+            <div>
+                <h4 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <span class="badge badge-gray">Sales</span>
+                </h4>
+                <ul style="color: var(--text-secondary); font-size: 0.875rem; padding-left: 1.25rem; margin: 0;">
+                    <li>View and manage Pulse Checks</li>
+                    <li>View and manage Inquiries</li>
+                    <li>No delete permissions</li>
                 </ul>
             </div>
         </div>

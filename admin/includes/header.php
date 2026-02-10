@@ -16,6 +16,42 @@ if (isset($_SESSION['admin_role']) && $_SESSION['admin_role'] === 'editor') {
 // Get current page for active state
 $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 $admin = getCurrentAdmin();
+
+// Handle Reminder Acknowledgment
+if (isset($_GET['mark_reminder_seen'])) {
+    $reminderId = (int) $_GET['mark_reminder_seen'];
+    $reminderType = $_GET['reminder_type'] ?? '';
+
+    $reminderConn = getDBConnection();
+    if ($reminderType === 'pulse') {
+        $reminderConn->query("UPDATE pulse_check_submissions SET reminder_sent = 1 WHERE id = $reminderId");
+    } elseif ($reminderType === 'inquiry') {
+        $reminderConn->query("UPDATE inquiry_submissions SET reminder_sent = 1 WHERE id = $reminderId");
+    }
+    $reminderConn->close();
+
+    // Redirect to clear GET params
+    $cleanUrl = strtok($_SERVER["REQUEST_URI"], '?');
+    header("Location: $cleanUrl" . (isset($_GET['id']) ? "?id=" . $_GET['id'] : ""));
+    exit;
+}
+
+// Check for pending reminders
+$activeReminders = [];
+$reminderConn = getDBConnection();
+
+// Pulse Check Reminders
+$pulseReminders = $reminderConn->query("SELECT id, company_name as name, 'pulse' as type FROM pulse_check_submissions WHERE reminder_date <= NOW() AND reminder_sent = 0");
+while ($row = $pulseReminders->fetch_assoc()) {
+    $activeReminders[] = $row;
+}
+
+// Inquiry Reminders
+$inquiryReminders = $reminderConn->query("SELECT id, name, 'inquiry' as type FROM inquiry_submissions WHERE reminder_date <= NOW() AND reminder_sent = 0");
+while ($row = $inquiryReminders->fetch_assoc()) {
+    $activeReminders[] = $row;
+}
+$reminderConn->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -59,155 +95,159 @@ $admin = getCurrentAdmin();
                 <div class="nav-section">
                     <span class="nav-section-title">Main</span>
                     <ul class="nav-list">
-                        <li class="nav-item">
-                            <a href="dashboard.php"
-                                class="nav-link <?php echo $currentPage === 'dashboard' ? 'active' : ''; ?>">
-                                <span class="nav-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <rect x="3" y="3" width="7" height="7" />
-                                        <rect x="14" y="3" width="7" height="7" />
-                                        <rect x="14" y="14" width="7" height="7" />
-                                        <rect x="3" y="14" width="7" height="7" />
-                                    </svg>
-                                </span>
-                                <span class="nav-text">Dashboard</span>
-                            </a>
-                        </li>
+                        <?php if (hasAdminRole('editor')): ?>
+                            <li class="nav-item">
+                                <a href="dashboard.php"
+                                    class="nav-link <?php echo $currentPage === 'dashboard' ? 'active' : ''; ?>">
+                                    <span class="nav-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="3" width="7" height="7" />
+                                            <rect x="14" y="3" width="7" height="7" />
+                                            <rect x="14" y="14" width="7" height="7" />
+                                            <rect x="3" y="14" width="7" height="7" />
+                                        </svg>
+                                    </span>
+                                    <span class="nav-text">Dashboard</span>
+                                </a>
+                            </li>
+                        <?php endif; ?>
 
                         <?php
                         // Group: Banner Management
                         $bannerPages = ['banner-home', 'banner-philosophy', 'banner-greenfield', 'banner-brownfield', 'banner-post-commissioning', 'banner-process', 'banner-portfolio', 'banner-about', 'banner-leadership', 'banner-team', 'banner-live-projects', 'banner-downloads', 'banner-blogs', 'banner-gallery', 'banner-contact', 'banner-pulse-check'];
                         $isBannerActive = in_array($currentPage, $bannerPages);
                         ?>
-                        <li class="nav-item nav-dropdown <?php echo $isBannerActive ? 'active' : ''; ?>">
-                            <a href="#" class="nav-link nav-dropdown-toggle"
-                                aria-expanded="<?php echo $isBannerActive ? 'true' : 'false'; ?>">
-                                <div class="nav-link-content">
-                                    <span class="nav-icon">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                                            <circle cx="8.5" cy="8.5" r="1.5" />
-                                            <polyline points="21 15 16 10 5 21" />
-                                        </svg>
-                                    </span>
-                                    <span class="nav-text">Banner</span>
-                                </div>
-                                <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
-                            </a>
-                            <ul class="nav-dropdown-menu">
-                                <li class="nav-dropdown-item">
-                                    <a href="banner-home.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'banner-home' ? 'active' : ''; ?>">
-                                        Home
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="process-flow-image.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'process-flow-image' ? 'active' : ''; ?>">
-                                        Home Process Flow
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="banner-home-outcomes.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'banner-home-outcomes' ? 'active' : ''; ?>">
-                                        Home Outcomes
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="banner-philosophy.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'banner-philosophy' ? 'active' : ''; ?>">
-                                        Philosophy
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="banner-greenfield.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'banner-greenfield' ? 'active' : ''; ?>">
-                                        Greenfield
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="banner-brownfield.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'banner-brownfield' ? 'active' : ''; ?>">
-                                        Brownfield
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="banner-post-commissioning.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'banner-post-commissioning' ? 'active' : ''; ?>">
-                                        Post-Commissioning
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="banner-process.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'banner-process' ? 'active' : ''; ?>">
-                                        Our Process
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="banner-portfolio.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'banner-portfolio' ? 'active' : ''; ?>">
-                                        Portfolio
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="banner-about.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'banner-about' ? 'active' : ''; ?>">
-                                        About Us
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="banner-leadership.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'banner-leadership' ? 'active' : ''; ?>">
-                                        Leadership
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="banner-team.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'banner-team' ? 'active' : ''; ?>">
-                                        Team
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="banner-live-projects.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'banner-live-projects' ? 'active' : ''; ?>">
-                                        Live Projects
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="banner-downloads.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'banner-downloads' ? 'active' : ''; ?>">
-                                        Downloads
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="banner-blogs.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'banner-blogs' ? 'active' : ''; ?>">
-                                        Blogs
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="banner-gallery.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'banner-gallery' ? 'active' : ''; ?>">
-                                        Gallery
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="banner-contact.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'banner-contact' ? 'active' : ''; ?>">
-                                        Contact
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="banner-pulse-check.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'banner-pulse-check' ? 'active' : ''; ?>">
-                                        Pulse Check
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
+                        <?php if (hasAdminRole('editor')): ?>
+                            <li class="nav-item nav-dropdown <?php echo $isBannerActive ? 'active' : ''; ?>">
+                                <a href="#" class="nav-link nav-dropdown-toggle"
+                                    aria-expanded="<?php echo $isBannerActive ? 'true' : 'false'; ?>">
+                                    <div class="nav-link-content">
+                                        <span class="nav-icon">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                                <polyline points="21 15 16 10 5 21" />
+                                            </svg>
+                                        </span>
+                                        <span class="nav-text">Banner</span>
+                                    </div>
+                                    <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </a>
+                                <ul class="nav-dropdown-menu">
+                                    <li class="nav-dropdown-item">
+                                        <a href="banner-home.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'banner-home' ? 'active' : ''; ?>">
+                                            Home
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="process-flow-image.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'process-flow-image' ? 'active' : ''; ?>">
+                                            Home Process Flow
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="banner-home-outcomes.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'banner-home-outcomes' ? 'active' : ''; ?>">
+                                            Home Outcomes
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="banner-philosophy.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'banner-philosophy' ? 'active' : ''; ?>">
+                                            Philosophy
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="banner-greenfield.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'banner-greenfield' ? 'active' : ''; ?>">
+                                            Greenfield
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="banner-brownfield.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'banner-brownfield' ? 'active' : ''; ?>">
+                                            Brownfield
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="banner-post-commissioning.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'banner-post-commissioning' ? 'active' : ''; ?>">
+                                            Post-Commissioning
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="banner-process.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'banner-process' ? 'active' : ''; ?>">
+                                            Our Process
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="banner-portfolio.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'banner-portfolio' ? 'active' : ''; ?>">
+                                            Portfolio
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="banner-about.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'banner-about' ? 'active' : ''; ?>">
+                                            About Us
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="banner-leadership.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'banner-leadership' ? 'active' : ''; ?>">
+                                            Leadership
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="banner-team.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'banner-team' ? 'active' : ''; ?>">
+                                            Team
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="banner-live-projects.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'banner-live-projects' ? 'active' : ''; ?>">
+                                            Live Projects
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="banner-downloads.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'banner-downloads' ? 'active' : ''; ?>">
+                                            Downloads
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="banner-blogs.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'banner-blogs' ? 'active' : ''; ?>">
+                                            Blogs
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="banner-gallery.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'banner-gallery' ? 'active' : ''; ?>">
+                                            Gallery
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="banner-contact.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'banner-contact' ? 'active' : ''; ?>">
+                                            Contact
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="banner-pulse-check.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'banner-pulse-check' ? 'active' : ''; ?>">
+                                            Pulse Check
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        <?php endif; ?>
 
                         <?php
                         // Group: Pulse Checks
@@ -245,12 +285,14 @@ $admin = getCurrentAdmin();
                                         Submissions
                                     </a>
                                 </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="pulse-check-faqs.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'pulse-check-faqs' || $currentPage === 'pulse-check-faq-add' || $currentPage === 'pulse-check-faq-edit' ? 'active' : ''; ?>">
-                                        FAQs
-                                    </a>
-                                </li>
+                                <?php if (hasAdminRole('editor')): ?>
+                                    <li class="nav-dropdown-item">
+                                        <a href="pulse-check-faqs.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'pulse-check-faqs' || $currentPage === 'pulse-check-faq-add' || $currentPage === 'pulse-check-faq-edit' ? 'active' : ''; ?>">
+                                            FAQs
+                                        </a>
+                                    </li>
+                                <?php endif; ?>
                             </ul>
                         </li>
 
@@ -281,202 +323,204 @@ $admin = getCurrentAdmin();
                     </ul>
                 </div>
 
-                <div class="nav-section">
-                    <span class="nav-section-title">Manage</span>
-                    <ul class="nav-list">
-                        <?php
-                        // Group: Content
-                        $contentPages = ['downloads', 'categories', 'waste-items', 'waste-item-add', 'waste-item-edit', 'leadership', 'leadership-add', 'leadership-edit', 'team-members', 'team-member-add', 'team-member-edit'];
-                        $isContentActive = in_array($currentPage, $contentPages);
-                        ?>
-                        <li class="nav-item nav-dropdown <?php echo $isContentActive ? 'active' : ''; ?>">
-                            <a href="#" class="nav-link nav-dropdown-toggle"
-                                aria-expanded="<?php echo $isContentActive ? 'true' : 'false'; ?>">
-                                <div class="nav-link-content">
-                                    <span class="nav-icon">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                            <polyline points="14 2 14 8 20 8"></polyline>
-                                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                                            <polyline points="10 9 9 9 8 9"></polyline>
-                                        </svg>
-                                    </span>
-                                    <span class="nav-text">Content</span>
-                                </div>
-                                <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
-                            </a>
-                            <ul class="nav-dropdown-menu">
-                                <li class="nav-dropdown-item">
-                                    <a href="downloads.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'downloads' ? 'active' : ''; ?>">Downloads</a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="categories.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'categories' ? 'active' : ''; ?>">Categories</a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="waste-items.php"
-                                        class="nav-dropdown-link <?php echo strpos($currentPage, 'waste-item') !== false ? 'active' : ''; ?>">Waste
-                                        Items</a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="leadership.php"
-                                        class="nav-dropdown-link <?php echo strpos($currentPage, 'leadership') !== false && strpos($currentPage, 'banner') === false ? 'active' : ''; ?>">
-                                        Leadership
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="team-members.php"
-                                        class="nav-dropdown-link <?php echo strpos($currentPage, 'team-member') !== false ? 'active' : ''; ?>">Team
-                                        Members</a>
-                                </li>
-                            </ul>
-                        </li>
+                <?php if (hasAdminRole('editor')): ?>
+                    <div class="nav-section">
+                        <span class="nav-section-title">Manage</span>
+                        <ul class="nav-list">
+                            <?php
+                            // Group: Content
+                            $contentPages = ['downloads', 'categories', 'waste-items', 'waste-item-add', 'waste-item-edit', 'leadership', 'leadership-add', 'leadership-edit', 'team-members', 'team-member-add', 'team-member-edit'];
+                            $isContentActive = in_array($currentPage, $contentPages);
+                            ?>
+                            <li class="nav-item nav-dropdown <?php echo $isContentActive ? 'active' : ''; ?>">
+                                <a href="#" class="nav-link nav-dropdown-toggle"
+                                    aria-expanded="<?php echo $isContentActive ? 'true' : 'false'; ?>">
+                                    <div class="nav-link-content">
+                                        <span class="nav-icon">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                                <polyline points="14 2 14 8 20 8"></polyline>
+                                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                                <polyline points="10 9 9 9 8 9"></polyline>
+                                            </svg>
+                                        </span>
+                                        <span class="nav-text">Content</span>
+                                    </div>
+                                    <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </a>
+                                <ul class="nav-dropdown-menu">
+                                    <li class="nav-dropdown-item">
+                                        <a href="downloads.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'downloads' ? 'active' : ''; ?>">Downloads</a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="categories.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'categories' ? 'active' : ''; ?>">Categories</a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="waste-items.php"
+                                            class="nav-dropdown-link <?php echo strpos($currentPage, 'waste-item') !== false ? 'active' : ''; ?>">Waste
+                                            Items</a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="leadership.php"
+                                            class="nav-dropdown-link <?php echo strpos($currentPage, 'leadership') !== false && strpos($currentPage, 'banner') === false ? 'active' : ''; ?>">
+                                            Leadership
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="team-members.php"
+                                            class="nav-dropdown-link <?php echo strpos($currentPage, 'team-member') !== false ? 'active' : ''; ?>">Team
+                                            Members</a>
+                                    </li>
+                                </ul>
+                            </li>
 
-                        <?php
-                        // Group: Blog
-                        $blogPages = ['blogs', 'blog-view', 'blog-delete-requests', 'blog-categories'];
-                        $isBlogActive = in_array($currentPage, $blogPages);
+                            <?php
+                            // Group: Blog
+                            $blogPages = ['blogs', 'blog-view', 'blog-delete-requests', 'blog-categories'];
+                            $isBlogActive = in_array($currentPage, $blogPages);
 
-                        $dbConn = getDBConnection();
-                        $pendingBlogCount = $dbConn->query("SELECT COUNT(*) as cnt FROM blog_delete_requests WHERE status = 'pending'")->fetch_assoc()['cnt'];
-                        $dbConn->close();
-                        ?>
-                        <li class="nav-item nav-dropdown <?php echo $isBlogActive ? 'active' : ''; ?>">
-                            <a href="#" class="nav-link nav-dropdown-toggle"
-                                aria-expanded="<?php echo $isBlogActive ? 'true' : 'false'; ?>">
-                                <div class="nav-link-content">
-                                    <span class="nav-icon">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-                                        </svg>
-                                    </span>
-                                    <span class="nav-text">Blog</span>
-                                </div>
-                                <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
-                                <?php if ($pendingBlogCount > 0): ?>
-                                    <span class="nav-badge"><?php echo $pendingBlogCount; ?></span>
-                                <?php endif; ?>
-                            </a>
-                            <ul class="nav-dropdown-menu">
-                                <li class="nav-dropdown-item">
-                                    <a href="blogs.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'blogs' || $currentPage === 'blog-view' ? 'active' : ''; ?>">All
-                                        Blogs</a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="blog-delete-requests.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'blog-delete-requests' ? 'active' : ''; ?>">
-                                        Delete Requests
-                                        <?php if ($pendingBlogCount > 0): ?>
-                                            <span class="nav-badge"
-                                                style="margin-left:5px; font-size:0.6rem;"><?php echo $pendingBlogCount; ?></span>
-                                        <?php endif; ?>
-                                    </a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="blog-categories.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'blog-categories' ? 'active' : ''; ?>">Categories</a>
-                                </li>
-                            </ul>
-                        </li>
+                            $dbConn = getDBConnection();
+                            $pendingBlogCount = $dbConn->query("SELECT COUNT(*) as cnt FROM blog_delete_requests WHERE status = 'pending'")->fetch_assoc()['cnt'];
+                            $dbConn->close();
+                            ?>
+                            <li class="nav-item nav-dropdown <?php echo $isBlogActive ? 'active' : ''; ?>">
+                                <a href="#" class="nav-link nav-dropdown-toggle"
+                                    aria-expanded="<?php echo $isBlogActive ? 'true' : 'false'; ?>">
+                                    <div class="nav-link-content">
+                                        <span class="nav-icon">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                                            </svg>
+                                        </span>
+                                        <span class="nav-text">Blog</span>
+                                    </div>
+                                    <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                    <?php if ($pendingBlogCount > 0): ?>
+                                        <span class="nav-badge"><?php echo $pendingBlogCount; ?></span>
+                                    <?php endif; ?>
+                                </a>
+                                <ul class="nav-dropdown-menu">
+                                    <li class="nav-dropdown-item">
+                                        <a href="blogs.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'blogs' || $currentPage === 'blog-view' ? 'active' : ''; ?>">All
+                                            Blogs</a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="blog-delete-requests.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'blog-delete-requests' ? 'active' : ''; ?>">
+                                            Delete Requests
+                                            <?php if ($pendingBlogCount > 0): ?>
+                                                <span class="nav-badge"
+                                                    style="margin-left:5px; font-size:0.6rem;"><?php echo $pendingBlogCount; ?></span>
+                                            <?php endif; ?>
+                                        </a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="blog-categories.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'blog-categories' ? 'active' : ''; ?>">Categories</a>
+                                    </li>
+                                </ul>
+                            </li>
 
-                        <?php
-                        // Group: Gallery
-                        $galleryPages = ['gallery', 'gallery-add', 'gallery-edit', 'gallery-categories', 'featured-projects', 'featured-project-add', 'featured-project-edit', 'gallery-industries'];
-                        $isGalleryActive = in_array($currentPage, $galleryPages);
-                        ?>
-                        <li class="nav-item nav-dropdown <?php echo $isGalleryActive ? 'active' : ''; ?>">
-                            <a href="#" class="nav-link nav-dropdown-toggle"
-                                aria-expanded="<?php echo $isGalleryActive ? 'true' : 'false'; ?>">
-                                <div class="nav-link-content">
-                                    <span class="nav-icon">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                                            <circle cx="8.5" cy="8.5" r="1.5" />
-                                            <polyline points="21 15 16 10 5 21" />
-                                        </svg>
-                                    </span>
-                                    <span class="nav-text">Gallery</span>
-                                </div>
-                                <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
-                            </a>
-                            <ul class="nav-dropdown-menu">
-                                <li class="nav-dropdown-item">
-                                    <a href="gallery.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'gallery' || $currentPage === 'gallery-add' || $currentPage === 'gallery-edit' ? 'active' : ''; ?>">Gallery
-                                        Items</a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="gallery-categories.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'gallery-categories' ? 'active' : ''; ?>">Categories</a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="featured-projects.php"
-                                        class="nav-dropdown-link <?php echo strpos($currentPage, 'featured-project') !== false ? 'active' : ''; ?>">Featured
-                                        Projects</a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="gallery-industries.php"
-                                        class="nav-dropdown-link <?php echo $currentPage === 'gallery-industries' ? 'active' : ''; ?>">Industries</a>
-                                </li>
-                            </ul>
-                        </li>
+                            <?php
+                            // Group: Gallery
+                            $galleryPages = ['gallery', 'gallery-add', 'gallery-edit', 'gallery-categories', 'featured-projects', 'featured-project-add', 'featured-project-edit', 'gallery-industries'];
+                            $isGalleryActive = in_array($currentPage, $galleryPages);
+                            ?>
+                            <li class="nav-item nav-dropdown <?php echo $isGalleryActive ? 'active' : ''; ?>">
+                                <a href="#" class="nav-link nav-dropdown-toggle"
+                                    aria-expanded="<?php echo $isGalleryActive ? 'true' : 'false'; ?>">
+                                    <div class="nav-link-content">
+                                        <span class="nav-icon">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                                <polyline points="21 15 16 10 5 21" />
+                                            </svg>
+                                        </span>
+                                        <span class="nav-text">Gallery</span>
+                                    </div>
+                                    <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </a>
+                                <ul class="nav-dropdown-menu">
+                                    <li class="nav-dropdown-item">
+                                        <a href="gallery.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'gallery' || $currentPage === 'gallery-add' || $currentPage === 'gallery-edit' ? 'active' : ''; ?>">Gallery
+                                            Items</a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="gallery-categories.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'gallery-categories' ? 'active' : ''; ?>">Categories</a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="featured-projects.php"
+                                            class="nav-dropdown-link <?php echo strpos($currentPage, 'featured-project') !== false ? 'active' : ''; ?>">Featured
+                                            Projects</a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="gallery-industries.php"
+                                            class="nav-dropdown-link <?php echo $currentPage === 'gallery-industries' ? 'active' : ''; ?>">Industries</a>
+                                    </li>
+                                </ul>
+                            </li>
 
-                        <?php
-                        // Group: Portfolio
-                        $portfolioPages = ['client-videos', 'client-video-add', 'client-video-edit', 'success-stories', 'success-story-add', 'success-story-edit', 'live-projects', 'live-project-add', 'live-project-edit'];
-                        $isPortfolioActive = in_array($currentPage, $portfolioPages);
-                        ?>
-                        <li class="nav-item nav-dropdown <?php echo $isPortfolioActive ? 'active' : ''; ?>">
-                            <a href="#" class="nav-link nav-dropdown-toggle"
-                                aria-expanded="<?php echo $isPortfolioActive ? 'true' : 'false'; ?>">
-                                <div class="nav-link-content">
-                                    <span class="nav-icon">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                                            <polyline points="2 17 12 22 22 17"></polyline>
-                                            <polyline points="2 12 12 17 22 12"></polyline>
-                                        </svg>
-                                    </span>
-                                    <span class="nav-text">Portfolio</span>
-                                </div>
-                                <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
-                            </a>
-                            <ul class="nav-dropdown-menu">
-                                <li class="nav-dropdown-item">
-                                    <a href="client-videos.php"
-                                        class="nav-dropdown-link <?php echo strpos($currentPage, 'client-video') !== false ? 'active' : ''; ?>">Client
-                                        Videos</a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="success-stories.php"
-                                        class="nav-dropdown-link <?php echo strpos($currentPage, 'success-story') !== false ? 'active' : ''; ?>">Success
-                                        Stories</a>
-                                </li>
-                                <li class="nav-dropdown-item">
-                                    <a href="live-projects.php"
-                                        class="nav-dropdown-link <?php echo strpos($currentPage, 'live-project') !== false ? 'active' : ''; ?>">Live
-                                        Projects</a>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
+                            <?php
+                            // Group: Portfolio
+                            $portfolioPages = ['client-videos', 'client-video-add', 'client-video-edit', 'success-stories', 'success-story-add', 'success-story-edit', 'live-projects', 'live-project-add', 'live-project-edit'];
+                            $isPortfolioActive = in_array($currentPage, $portfolioPages);
+                            ?>
+                            <li class="nav-item nav-dropdown <?php echo $isPortfolioActive ? 'active' : ''; ?>">
+                                <a href="#" class="nav-link nav-dropdown-toggle"
+                                    aria-expanded="<?php echo $isPortfolioActive ? 'true' : 'false'; ?>">
+                                    <div class="nav-link-content">
+                                        <span class="nav-icon">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                                                <polyline points="2 17 12 22 22 17"></polyline>
+                                                <polyline points="2 12 12 17 22 12"></polyline>
+                                            </svg>
+                                        </span>
+                                        <span class="nav-text">Portfolio</span>
+                                    </div>
+                                    <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </a>
+                                <ul class="nav-dropdown-menu">
+                                    <li class="nav-dropdown-item">
+                                        <a href="client-videos.php"
+                                            class="nav-dropdown-link <?php echo strpos($currentPage, 'client-video') !== false ? 'active' : ''; ?>">Client
+                                            Videos</a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="success-stories.php"
+                                            class="nav-dropdown-link <?php echo strpos($currentPage, 'success-story') !== false ? 'active' : ''; ?>">Success
+                                            Stories</a>
+                                    </li>
+                                    <li class="nav-dropdown-item">
+                                        <a href="live-projects.php"
+                                            class="nav-dropdown-link <?php echo strpos($currentPage, 'live-project') !== false ? 'active' : ''; ?>">Live
+                                            Projects</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                <?php endif; ?>
 
                 <?php if (hasAdminRole('admin')): ?>
                     <div class="nav-section">
@@ -605,3 +649,40 @@ $admin = getCurrentAdmin();
                 </div>
             </header>
             <div class="admin-content">
+                <?php if (!empty($activeReminders)): ?>
+                    <div class="reminders-container no-print" style="margin-bottom: 1.5rem;">
+                        <?php foreach ($activeReminders as $reminder): ?>
+                            <div class="alert alert-warning"
+                                style="display: flex; align-items: center; justify-content: space-between; border-left: 4px solid #E99431; background: #FFFBEB; padding: 1rem; border-radius: 8px; margin-bottom: 0.75rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div style="background: #FEF3C7; padding: 0.5rem; border-radius: 50%; color: #D97706;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            style="width: 20px; height: 20px;">
+                                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                                            <path d="M13.73 21a2 0 0 1-3.46 0" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p style="margin: 0; font-weight: 600; color: #92400E; font-size: 0.95rem;">Reminder:
+                                            Call scheduled with <?php echo htmlspecialchars($reminder['name']); ?></p>
+                                        <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: #B45309;">
+                                            <?php echo $reminder['type'] === 'pulse' ? 'Pulse Check Submission' : 'Inquiry Submission'; ?>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 0.75rem;">
+                                    <a href="<?php echo $reminder['type'] === 'pulse' ? 'pulse-check-view.php' : 'inquiry-view.php'; ?>?id=<?php echo $reminder['id']; ?>"
+                                        class="btn btn-sm"
+                                        style="background: #E99431; color: white; border: none; font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+                                        View Details
+                                    </a>
+                                    <a href="?mark_reminder_seen=<?php echo $reminder['id']; ?>&reminder_type=<?php echo $reminder['type']; ?><?php echo isset($_GET['id']) ? '&id=' . $_GET['id'] : ''; ?>"
+                                        class="btn btn-sm"
+                                        style="background: white; color: #92400E; border: 1px solid #FCD34D; font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+                                        Mark as Seen
+                                    </a>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>

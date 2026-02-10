@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('Asia/Kolkata');
 // Database Configuration for OptiSpace Admin Panel
 
 // Prevent multiple inclusions

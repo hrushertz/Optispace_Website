@@ -1,15 +1,21 @@
 <?php
 /**
- * Blogger - Edit Blog
+ * Admin - Edit Blog
  */
 
 require_once __DIR__ . '/includes/auth.php';
-requireBloggerLogin();
+requireLogin();
+
+// Only admins and super_admins can access
+if (!hasAdminRole('admin')) {
+    header('Location: dashboard.php?error=unauthorized');
+    exit;
+}
 
 require_once __DIR__ . '/../database/db_config.php';
 
 $conn = getDBConnection();
-$blogger = getCurrentBlogger();
+$admin = getCurrentAdmin();
 
 $blogId = (int) ($_GET['id'] ?? 0);
 $errors = [];
@@ -19,14 +25,14 @@ if ($blogId <= 0) {
     exit;
 }
 
-// Fetch blog with ownership check
+// Fetch blog (Admin can edit any blog)
 $stmt = $conn->prepare("
     SELECT b.*, c.name as category_name 
     FROM blogs b 
     LEFT JOIN blog_categories c ON b.category_id = c.id 
-    WHERE b.id = ? AND b.author_id = ?
+    WHERE b.id = ?
 ");
-$stmt->bind_param("ii", $blogId, $blogger['id']);
+$stmt->bind_param("i", $blogId);
 $stmt->execute();
 $blog = $stmt->get_result()->fetch_assoc();
 $stmt->close();
@@ -44,7 +50,7 @@ $categories = $conn->query("SELECT * FROM blog_categories WHERE is_active = 1 OR
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Verify CSRF token
-    if (!verifyBloggerCSRFToken($_POST['csrf_token'] ?? '')) {
+    if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
         $errors['general'] = 'Invalid security token. Please try again.';
     } else {
         $title = trim($_POST['title'] ?? '');
@@ -148,10 +154,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     break;
                 default: // draft
                     $isPublished = 0;
-                    $publishedAt = null; // Or keep it? Usually draft clears published_at or keeps it as future reference? Let's clear it to be safe or maybe keep it if we want to remember when it was published. 
-                    // Actually, if it goes back to draft, we might want to clear it so it doesn't accidentally publish if we toggle flag. 
-                    // But usually 'published_at' is 'first published'. 
-                    // Let's stick to null for draft to be clean.
                     $publishedAt = null;
                     break;
             }
@@ -175,12 +177,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     published_at = ?,
                     featured_image = ?,
                     updated_at = NOW()
-                WHERE id = ? AND author_id = ?
+                WHERE id = ?
             ");
-                $stmt->bind_param("isssssssiissii", $categoryId, $title, $slug, $excerpt, $videoUrl, $content, $metaTitle, $metaDescription, $readTime, $isPublished, $publishedAt, $featuredImage, $blogId, $blogger['id']);
+                $stmt->bind_param("isssssssiissi", $categoryId, $title, $slug, $excerpt, $videoUrl, $content, $metaTitle, $metaDescription, $readTime, $isPublished, $publishedAt, $featuredImage, $blogId);
 
                 if ($stmt->execute()) {
-                    logBloggerActivity($blogger['id'], 'update', 'blogs', $blogId, 'Updated blog: ' . $title);
+                    logAdminActivity($admin['id'], 'update', 'blogs', $blogId, 'Updated blog: ' . $title);
 
                     $conn->close();
                     header('Location: blogs.php?success=updated');
@@ -199,7 +201,6 @@ $conn->close();
 include __DIR__ . '/includes/header.php';
 ?>
 
-<!-- Summernote CSS -->
 <!-- Summernote CSS -->
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.css" rel="stylesheet">
 
@@ -233,16 +234,16 @@ include __DIR__ . '/includes/header.php';
     }
 
     .note-btn:hover {
-        background: #E99431 !important;
-        border-color: #E99431 !important;
+        background: #EA580C !important;
+        border-color: #EA580C !important;
         color: white !important;
         transform: translateY(-1px);
     }
 
     .note-btn.active,
     .note-btn:active {
-        background: #E99431 !important;
-        border-color: #E99431 !important;
+        background: #EA580C !important;
+        border-color: #EA580C !important;
         color: white !important;
     }
 
@@ -261,7 +262,7 @@ include __DIR__ . '/includes/header.php';
 
     .note-dropdown-item:hover {
         background: #F1F5F9 !important;
-        color: #E99431 !important;
+        color: #EA580C !important;
     }
 
     .note-editable {
@@ -308,12 +309,14 @@ include __DIR__ . '/includes/header.php';
 <div class="page-header">
     <div class="page-title-section">
         <nav class="breadcrumb">
-            <a href="blogs.php">My Blogs</a>
+            <a href="blogs.php">All Blogs</a>
             <span class="separator">/</span>
             <span>Edit Blog</span>
         </nav>
         <h1 class="page-title">Edit Blog</h1>
-        <p class="page-subtitle"><?php echo htmlspecialchars($blog['title']); ?></p>
+        <p class="page-subtitle">
+            <?php echo htmlspecialchars($blog['title']); ?>
+        </p>
     </div>
 
     <div class="page-actions">
@@ -338,7 +341,9 @@ include __DIR__ . '/includes/header.php';
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
-        <span><?php echo htmlspecialchars($errors['general']); ?></span>
+        <span>
+            <?php echo htmlspecialchars($errors['general']); ?>
+        </span>
     </div>
 <?php endif; ?>
 
@@ -349,14 +354,18 @@ include __DIR__ . '/includes/header.php';
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
             <circle cx="12" cy="12" r="3" />
         </svg>
-        <span><strong><?php echo number_format($blog['view_count']); ?></strong> views</span>
+        <span><strong>
+                <?php echo number_format($blog['view_count']); ?>
+            </strong> views</span>
     </div>
     <div class="stat-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
         </svg>
-        <span><?php echo $blog['read_time']; ?> min read</span>
+        <span>
+            <?php echo $blog['read_time']; ?> min read
+        </span>
     </div>
     <div class="stat-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -365,7 +374,9 @@ include __DIR__ . '/includes/header.php';
             <line x1="8" y1="2" x2="8" y2="6" />
             <line x1="3" y1="10" x2="21" y2="10" />
         </svg>
-        <span>Created <?php echo date('M j, Y', strtotime($blog['created_at'])); ?></span>
+        <span>Created
+            <?php echo date('M j, Y', strtotime($blog['created_at'])); ?>
+        </span>
     </div>
     <?php if ($blog['published_at']): ?>
         <div class="stat-item">
@@ -373,13 +384,15 @@ include __DIR__ . '/includes/header.php';
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                 <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
-            <span>Published <?php echo date('M j, Y', strtotime($blog['published_at'])); ?></span>
+            <span>Published
+                <?php echo date('M j, Y', strtotime($blog['published_at'])); ?>
+            </span>
         </div>
     <?php endif; ?>
 </div>
 
 <form method="POST" class="blog-form" enctype="multipart/form-data">
-    <?php echo bloggerCsrfField(); ?>
+    <input type="hidden" name="csrf_token" value="<?php echo generateCsrfToken(); ?>">
 
     <div class="form-layout">
         <!-- Main Content -->
@@ -398,7 +411,9 @@ include __DIR__ . '/includes/header.php';
                             placeholder="Enter blog title" required
                             value="<?php echo htmlspecialchars($_POST['title'] ?? $blog['title']); ?>">
                         <?php if (isset($errors['title'])): ?>
-                            <span class="form-error"><?php echo $errors['title']; ?></span>
+                            <span class="form-error">
+                                <?php echo $errors['title']; ?>
+                            </span>
                         <?php endif; ?>
                     </div>
 
@@ -429,7 +444,9 @@ include __DIR__ . '/includes/header.php';
                         <span class="form-hint">Recommended size: 1200x630px. Max size: 5MB. Leave empty to keep current
                             image.</span>
                         <?php if (isset($errors['image'])): ?>
-                            <span class="form-error"><?php echo $errors['image']; ?></span>
+                            <span class="form-error">
+                                <?php echo $errors['image']; ?>
+                            </span>
                         <?php endif; ?>
                     </div>
 
@@ -459,7 +476,9 @@ include __DIR__ . '/includes/header.php';
                             link (e.g., <code>youtube.com/watch?v=...</code>), NOT the embed code or embed link.
                         </span>
                         <?php if (isset($errors['content'])): ?>
-                            <span class="form-error"><?php echo $errors['content']; ?></span>
+                            <span class="form-error">
+                                <?php echo $errors['content']; ?>
+                            </span>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -510,7 +529,9 @@ include __DIR__ . '/includes/header.php';
                             <?php endwhile; ?>
                         </select>
                         <?php if (isset($errors['category_id'])): ?>
-                            <span class="form-error"><?php echo $errors['category_id']; ?></span>
+                            <span class="form-error">
+                                <?php echo $errors['category_id']; ?>
+                            </span>
                         <?php endif; ?>
                     </div>
 
@@ -541,7 +562,7 @@ include __DIR__ . '/includes/header.php';
                                 <span class="radio-custom"></span>
                                 <div>
                                     <span class="radio-label">Save as Draft</span>
-                                    <span class="radio-desc">Private, only visible to you</span>
+                                    <span class="radio-desc">Private, not visible on site</span>
                                 </div>
                             </label>
 
@@ -555,7 +576,8 @@ include __DIR__ . '/includes/header.php';
                             </label>
 
                             <label class="radio-option">
-                                <input type="radio" name="publish_status" value="schedule" <?php echo ($currentStatus === 'schedule') ? 'checked' : ''; ?> onchange="toggleSchedule(true)">
+                                <input type="radio" name="publish_status" value="schedule" <?php echo ($currentStatus === 'schedule') ? 'checked' : ''; ?>
+                                onchange="toggleSchedule(true)">
                                 <span class="radio-custom"></span>
                                 <div>
                                     <span class="radio-label">Schedule</span>
@@ -591,24 +613,28 @@ include __DIR__ . '/includes/header.php';
                 </div>
             </div>
 
-            <!-- Danger Zone -->
-            <div class="card" style="margin-top: 1rem; border-color: #FEE2E2;">
-                <div class="card-header" style="background: #FEF2F2; border-color: #FEE2E2;">
-                    <h3 class="card-title" style="color: #DC2626;">Danger Zone</h3>
+            <?php if (hasAdminRole('super_admin')): ?>
+                <!-- Danger Zone -->
+                <div class="card" style="margin-top: 1rem; border-color: #FEE2E2;">
+                    <div class="card-header" style="background: #FEF2F2; border-color: #FEE2E2;">
+                        <h3 class="card-title" style="color: #DC2626;">Danger Zone</h3>
+                    </div>
+                    <div class="card-body">
+                        <p style="font-size: 0.875rem; color: #64748B; margin-bottom: 1rem;">
+                            Permanently delete this blog?
+                        </p>
+                        <a href="blogs.php?delete=<?php echo $blogId; ?>&token=<?php echo generateCsrfToken(); ?>"
+                            class="btn btn-danger" style="width: 100%;"
+                            onclick="return confirm('Are you sure you want to permanently delete this blog?');">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6" />
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            </svg>
+                            Delete Blog
+                        </a>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <p style="font-size: 0.875rem; color: #64748B; margin-bottom: 1rem;">
-                        Need to delete this blog? Submit a delete request for admin approval.
-                    </p>
-                    <a href="request-delete.php?id=<?php echo $blogId; ?>" class="btn btn-danger" style="width: 100%;">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3 6 5 6 21 6" />
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                        </svg>
-                        Request Delete
-                    </a>
-                </div>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
 </form>
@@ -700,17 +726,17 @@ include __DIR__ . '/includes/header.php';
     }
 
     .radio-option input:checked+.radio-custom {
-        border-color: #3B82F6;
+        border-color: #EA580C;
         border-width: 5px;
     }
 
     .radio-option input:checked~div .radio-label {
-        color: #3B82F6;
+        color: #EA580C;
     }
 
     .radio-option input:checked {
-        border-color: #3B82F6;
-        background: #F0F9FF;
+        border-color: #EA580C;
+        background: #FFF7ED;
     }
 
     .radio-label {
@@ -775,7 +801,6 @@ include __DIR__ . '/includes/header.php';
 <!-- jQuery (required for Summernote) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Summernote JS -->
-<!-- Summernote JS -->
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
 
 <script>
@@ -798,47 +823,22 @@ include __DIR__ . '/includes/header.php';
                     var ui = $.summernote.ui;
                     var button = ui.button({
                         contents: '<i class="note-icon-video"/> Video',
-                        tooltip: 'Insert Video (YouTube/Vimeo)',
+                        tooltip: 'Insert Video',
                         click: function () {
-                            var url = prompt('Enter YouTube or Vimeo URL:');
-                            if (url) {
-                                var embedUrl = '';
-                                var videoId = '';
-
-                                // YouTube
-                                var ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
-                                if (ytMatch && ytMatch[1]) {
-                                    embedUrl = 'https://www.youtube.com/embed/' + ytMatch[1];
-                                }
-
-                                // Vimeo
-                                var vimeoMatch = url.match(/(?:vimeo\.com\/)([0-9]+)/i);
-                                if (vimeoMatch && vimeoMatch[1]) {
-                                    embedUrl = 'https://player.vimeo.com/video/' + vimeoMatch[1];
-                                }
-
-                                if (embedUrl) {
-                                    var iframe = $('<iframe width="100%" height="400" src="' + embedUrl + '" frameborder="0" allowfullscreen></iframe>')[0];
-                                    context.invoke('editor.insertNode', iframe);
-                                } else {
-                                    alert('Invalid video URL. Please use a valid YouTube or Vimeo link.');
-                                }
-                            }
+                            // Invoke standard video dialog
+                            context.invoke('editor.video');
                         }
                     });
                     return button.render();
                 }
             },
-            styleTags: [
-                'p',
-                { title: 'Heading 1', tag: 'h2', className: '', value: 'h2' },
-                { title: 'Heading 2', tag: 'h3', className: '', value: 'h3' },
-                { title: 'Heading 3', tag: 'h4', className: '', value: 'h4' },
-                { title: 'Blockquote', tag: 'blockquote', className: '', value: 'blockquote' }
-            ]
+            callbacks: {
+                onPaste: function (e) {
+                    var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData('Text');
+                    e.preventDefault();
+                    document.execCommand('insertText', false, bufferText);
+                }
+            }
         });
     });
 </script>
-
-<!-- Load admin.js last -->
-<script src="../admin/assets/js/admin.js"></script>

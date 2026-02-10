@@ -253,6 +253,15 @@ include 'includes/header.php';
         top: 2rem;
     }
 
+    .sidebar-project-image {
+        width: 100%;
+        height: auto;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        border: 1px solid var(--project-border);
+        object-fit: cover;
+    }
+
     .sidebar-widget {
         background: white;
         border: 1px solid var(--project-border);
@@ -531,13 +540,6 @@ include 'includes/header.php';
 <!-- Main Content -->
 <div class="project-layout">
     <main class="project-content">
-        <?php /* Image removed as per request 
-   <?php if ($project['image_path']): ?>
-       <img src="<?php echo url($project['image_path']); ?>" alt="<?php echo htmlspecialchars($project['title']); ?>"
-           class="project-main-image">
-   <?php endif; ?>
-   */ ?>
-
         <?php if ($project['content']): ?>
             <?php echo $project['content']; ?>
         <?php else: ?>
@@ -547,6 +549,12 @@ include 'includes/header.php';
     </main>
 
     <aside class="project-sidebar">
+        <!-- Project Image -->
+        <?php if ($project['image_path']): ?>
+            <img src="<?php echo url($project['image_path']); ?>" alt="<?php echo htmlspecialchars($project['title']); ?>"
+                class="sidebar-project-image">
+        <?php endif; ?>
+
         <!-- Status Widget -->
         <div class="sidebar-widget status-widget">
             <h3>Project Status</h3>

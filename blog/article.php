@@ -27,7 +27,7 @@ $stmt = $conn->prepare("
     FROM blogs b
     LEFT JOIN blog_categories bc ON b.category_id = bc.id
     LEFT JOIN admin_users au ON b.author_id = au.id
-    WHERE b.slug = ? AND b.is_published = 1
+    WHERE b.slug = ? AND b.is_published = 1 AND b.published_at <= NOW()
 ");
 $stmt->bind_param("s", $slug);
 $stmt->execute();
@@ -58,7 +58,7 @@ $relatedStmt = $conn->prepare("
            bc.name as category_name, bc.slug as category_slug
     FROM blogs b
     LEFT JOIN blog_categories bc ON b.category_id = bc.id
-    WHERE b.category_id = ? AND b.id != ? AND b.is_published = 1
+    WHERE b.category_id = ? AND b.id != ? AND b.is_published = 1 AND b.published_at <= NOW()
     ORDER BY b.published_at DESC
     LIMIT 3
 ");
@@ -84,9 +84,29 @@ foreach ($nameParts as $part) {
         $authorInitials .= strtoupper(substr($part, 0, 1));
     }
 }
-if (empty($authorInitials))
-    $authorInitials = 'AU';
+$authorInitials = 'AU';
 $authorInitials = substr($authorInitials, 0, 2);
+
+// Helper function to get video embed URL
+function getVideoEmbed($url)
+{
+    if (empty($url))
+        return null;
+
+    // YouTube
+    if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $url, $matches)) {
+        return "https://www.youtube.com/embed/" . $matches[1];
+    }
+
+    // Vimeo
+    if (preg_match('/(?:vimeo\.com\/)([0-9]+)/i', $url, $matches)) {
+        return "https://player.vimeo.com/video/" . $matches[1];
+    }
+
+    return null;
+}
+
+$videoEmbedUrl = getVideoEmbed($article['video_url'] ?? '');
 
 include '../includes/header.php';
 ?>
@@ -141,6 +161,27 @@ include '../includes/header.php';
         gap: 1rem;
         margin-bottom: 1.5rem;
         flex-wrap: wrap;
+    }
+
+    .article-video-container {
+        position: relative;
+        padding-bottom: 56.25%;
+        /* 16:9 aspect ratio */
+        height: 0;
+        overflow: hidden;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        background: #000;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .article-video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
     }
 
     .article-category-badge {
@@ -302,77 +343,156 @@ include '../includes/header.php';
     }
 
     /* Article Content Styles */
+    /* NUCLEAR OPTION: Force all direct and nested content to conform */
     .article-content {
-        font-size: 1.1rem;
-        line-height: 1.85;
-        color: var(--article-text);
+        /* Base styles for the container */
+        font-family: var(--font-primary);
+        font-size: 1rem;
+        line-height: 1.5;
+        color: var(--text-dark, #2D3748);
+    }
+
+    /* Target EVERYTHING inside article-content */
+    .article-content * {
+        font-family: var(--font-primary) !important;
+        line-height: 1.5 !important;
+        color: var(--text-dark, #2D3748) !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        letter-spacing: normal !important;
+    }
+
+    /* Block spacing normalization */
+    .article-content p,
+    .article-content div,
+    .article-content li,
+    .article-content h1,
+    .article-content h2,
+    .article-content h3,
+    .article-content h4,
+    .article-content h5,
+    .article-content h6,
+    .article-content blockquote,
+    .article-content ul,
+    .article-content ol {
+        margin-bottom: 1.5rem !important;
+        margin-top: 0 !important;
+    }
+
+    /* Exceptions for Headings - Size & Weight */
+    .article-content h1,
+    .article-content h2,
+    .article-content h3,
+    .article-content h4,
+    .article-content h5,
+    .article-content h6 {
+        font-family: var(--font-heading) !important;
+        font-weight: 700 !important;
+        color: var(--article-dark) !important;
+        margin-top: 2rem !important;
+        margin-bottom: 1rem !important;
+        line-height: 1.3 !important;
     }
 
     .article-content h2 {
-        font-size: 1.75rem;
-        color: var(--article-dark);
-        margin: 2.5rem 0 1rem;
-        font-weight: 700;
-        line-height: 1.3;
+        font-size: 1.75rem !important;
     }
 
     .article-content h3 {
-        font-size: 1.35rem;
-        color: var(--article-dark);
-        margin: 2rem 0 0.75rem;
-        font-weight: 600;
+        font-size: 1.35rem !important;
     }
 
-    .article-content p {
-        margin-bottom: 1.5rem;
+    .article-content h4 {
+        font-size: 1.15rem !important;
     }
 
-    .article-content ul,
-    .article-content ol {
-        margin-bottom: 1.5rem;
-        padding-left: 1.5rem;
+    .article-content h5 {
+        font-size: 1rem !important;
     }
 
-    .article-content li {
-        margin-bottom: 0.75rem;
+    .article-content h6 {
+        font-size: 0.9rem !important;
     }
 
-    .article-content strong {
-        color: var(--article-dark);
-        font-weight: 600;
-    }
-
+    /* Exceptions for Links */
     .article-content a {
-        color: var(--article-orange);
-        text-decoration: underline;
-        text-underline-offset: 2px;
+        color: var(--article-orange) !important;
+        text-decoration: underline !important;
     }
 
     .article-content a:hover {
-        text-decoration: none;
+        text-decoration: none !important;
     }
 
+    /* Clean up inline styles from spans/fonts completely */
+    .article-content span,
+    .article-content font {
+        font-size: inherit !important;
+        font-family: inherit !important;
+        color: inherit !important;
+        background: none !important;
+        line-height: inherit !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-weight: inherit !important;
+        display: inline !important;
+    }
+
+    /* Formatting exceptions */
+    .article-content strong,
+    .article-content b {
+        font-weight: 700 !important;
+        color: var(--article-dark) !important;
+    }
+
+    .article-content em,
+    .article-content i {
+        font-style: italic !important;
+    }
+
+    /* Images & Media */
     .article-content img {
-        max-width: 100%;
-        height: auto;
         border-radius: 12px;
-        margin: 2rem 0;
+        margin: 2rem 0 !important;
+        height: auto !important;
+        display: block !important;
     }
 
-    /* Blockquote */
+    .article-content iframe,
+    .article-content video {
+        border-radius: 12px;
+        margin: 2rem 0 !important;
+        aspect-ratio: 16 / 9;
+        height: auto !important;
+    }
+
+    /* Lists */
+    .article-content ul,
+    .article-content ol {
+        padding-left: 2rem !important;
+    }
+
+    .article-content li {
+        margin-bottom: 0.5rem !important;
+        display: list-item !important;
+    }
+
+    /* Blockquotes */
     .article-content blockquote {
-        background: var(--article-orange-light);
-        border-left: 4px solid var(--article-orange);
-        border-radius: 0 12px 12px 0;
-        padding: 1.5rem 2rem;
-        margin: 2rem 0;
-        font-style: italic;
-        font-size: 1.15rem;
-        color: var(--article-dark);
+        background: var(--article-orange-light) !important;
+        border-left: 4px solid var(--article-orange) !important;
+        border-radius: 0 12px 12px 0 !important;
+        padding: 1.5rem 2rem !important;
+        margin: 2rem 0 !important;
+        font-style: italic !important;
+        font-size: 1.05rem !important;
+        color: var(--article-dark) !important;
     }
 
-    .article-content blockquote p:last-child {
-        margin-bottom: 0;
+    /* Remove empty elements */
+    .article-content p:empty,
+    .article-content div:empty {
+        display: none !important;
     }
 
     /* Share Section */
@@ -694,7 +814,8 @@ include '../includes/header.php';
 </style>
 
 <!-- Article Hero -->
-<section class="article-hero">
+<section class="article-hero"
+    style="<?php echo !empty($article['featured_image']) ? 'background: linear-gradient(rgba(30, 41, 59, 0.8), rgba(51, 65, 85, 0.9)), url(\'../' . htmlspecialchars($article['featured_image']) . '\'); background-size: cover; background-position: center;' : ''; ?>">
     <div class="article-hero-inner">
         <div class="article-meta-top">
             <a href="<?php echo url('blogs.php'); ?>#<?php echo htmlspecialchars($article['category_slug']); ?>"
@@ -753,6 +874,12 @@ include '../includes/header.php';
 <div class="article-layout">
     <!-- Main Content -->
     <main class="article-main">
+        <?php if ($videoEmbedUrl): ?>
+            <div class="article-video-container">
+                <iframe src="<?php echo htmlspecialchars($videoEmbedUrl); ?>" allowfullscreen></iframe>
+            </div>
+        <?php endif; ?>
+
         <article class="article-content">
             <?php echo $article['content']; ?>
 

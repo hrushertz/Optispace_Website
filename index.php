@@ -2468,14 +2468,13 @@ $outcomesBgImage = ($outcomesImageSettings && !empty($outcomesImageSettings['ima
         .founder-avatar {
             width: 56px;
             height: 56px;
-            background: linear-gradient(135deg, var(--home-orange) 0%, #f5a854 100%);
+            background: #ffffff;
             border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: white;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .founder-info h4 {
@@ -2659,7 +2658,10 @@ $outcomesBgImage = ($outcomesImageSettings && !empty($outcomesImageSettings['ima
                         every facility we touch.
                     </p>
                     <div class="journey-founder">
-                        <div class="founder-avatar">SK</div>
+                        <div class="founder-avatar">
+                            <img src="assets/logo/solutions_logo.jfif" alt="Solutions Kaizen Management Systems Logo"
+                                style="width: 100%; height: 100%; object-fit: contain;">
+                        </div>
                         <div class="founder-info">
                             <h4>Solutions Kaizen Management Systems</h4>
                             <p>Established 2006 • Pune, India</p>

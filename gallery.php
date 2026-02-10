@@ -407,16 +407,16 @@ include 'includes/header.php';
                         <p class="gallery-hero-text"><?php echo htmlspecialchars($banner['subheading']); ?></p>
                         <div class="hero-stats">
                             <div class="hero-stat">
-                                <div class="hero-stat-value"><?php echo $totalProjects; ?>+</div>
-                                <div class="hero-stat-label">Projects Completed</div>
+                                <div class="hero-stat-value">200+</div>
+                                <div class="hero-stat-label">projects completed</div>
                             </div>
                             <div class="hero-stat">
-                                <div class="hero-stat-value"><?php echo $totalIndustries; ?></div>
-                                <div class="hero-stat-label">Industries Served</div>
+                                <div class="hero-stat-value">75+</div>
+                                <div class="hero-stat-label">industry segments</div>
                             </div>
                             <div class="hero-stat">
-                                <div class="hero-stat-value"><?php echo $sqFtDisplay; ?></div>
-                                <div class="hero-stat-label">Sq Ft Optimized</div>
+                                <div class="hero-stat-value">100K+</div>
+                                <div class="hero-stat-label">Sq. Ft. Optimized</div>
                             </div>
                         </div>
                     </div>

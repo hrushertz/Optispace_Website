@@ -1,0 +1,6 @@
+Testing FAQ Restrictions for 'sales' role...
+----------------------------------------
+Can 'sales' access Editor-level pages (e.g. FAQ) (Expect: FALSE): PASS
+Sales Level (0.5) < Editor Level (1) (Expect: TRUE): PASS
+----------------------------------------
+Verification Complete.
